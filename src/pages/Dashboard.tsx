@@ -1,6 +1,5 @@
 import { Users, CheckCircle, Trophy, TrendingUp, TrendingDown, MessageCircle, UserPlus, Target } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import NavigationTest from "@/components/NavigationTest";
 
 const kpiData = [
   {
@@ -55,10 +54,10 @@ const Dashboard = () => {
   return (
     <div className="space-y-6">
       {/* Navigation Test - Remove this after testing */}
-      <NavigationTest />
+      {/* <NavigationTest /> */}
       
       {/* Welcome Section */}
-      <div className="rounded-xl bg-gradient-subtle p-8 shadow-sm border border-border">
+      {/* <div className="rounded-xl bg-gradient-subtle p-8 shadow-sm border border-border">
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight mb-2">
@@ -70,7 +69,7 @@ const Dashboard = () => {
           </div>
           <p className="text-sm text-muted-foreground">{today}</p>
         </div>
-      </div>
+      </div> */}
 
       {/* KPI Cards */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">

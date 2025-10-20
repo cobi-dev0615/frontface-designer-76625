@@ -1,0 +1,18 @@
+{
+  "name": "DuxFit CRM",
+  "short_name": "DuxFit",
+  "description": "The Biggest Gym in Piauí - Complete CRM System",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#9b87f5",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
+

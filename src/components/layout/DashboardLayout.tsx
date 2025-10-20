@@ -4,9 +4,9 @@ import { Header } from "./Header";
 
 export const DashboardLayout = () => {
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="flex h-screen w-full overflow-hidden">
       <Sidebar />
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col h-full overflow-hidden">
         <Header />
         <main className="flex-1 overflow-y-auto bg-muted/30 p-6">
           <Outlet />

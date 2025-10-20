@@ -37,9 +37,9 @@ export const Sidebar = () => {
   };
 
   return (
-    <aside className="flex h-screen w-60 flex-col border-r border-sidebar-border bg-sidebar">
+    <aside className="flex h-screen w-60 flex-col border-r border-sidebar-border bg-sidebar backdrop-blur-xl">
       {/* Logo */}
-      <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-6">
+      <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-6 backdrop-blur-sm">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary">
           <Dumbbell className="h-4 w-4 text-white" />
         </div>
