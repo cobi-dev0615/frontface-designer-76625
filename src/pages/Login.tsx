@@ -22,8 +22,37 @@ const Login = () => {
 
   return (
     <div className="flex min-h-screen">
-      {/* Left Side - Login Form */}
-      <div className="flex flex-1 items-center justify-center bg-background p-8 lg:p-12">
+      {/* Left Side - Hero Section (70%) */}
+      <div className="hidden lg:flex lg:w-[70%] relative overflow-hidden items-center justify-center">
+        <div className="absolute inset-0 bg-gradient-hero opacity-90" />
+        <img
+          src={gymHero}
+          alt="DuxFit Gym"
+          className="absolute inset-0 h-full w-full object-cover mix-blend-overlay"
+        />
+        <div className="relative z-10 flex flex-col items-center justify-center px-12 text-white w-full">
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm">
+              <Dumbbell className="h-8 w-8" />
+            </div>
+            <span className="text-5xl font-bold">DuxFit</span>
+          </div>
+          <h2 className="text-3xl font-bold text-center mb-4">The Biggest Gym in Piauí</h2>
+          <p className="text-lg text-center text-white/90 max-w-md">
+            Transform your fitness journey with state-of-the-art equipment and expert guidance
+          </p>
+          
+          {/* Decorative pattern */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-10 right-10 h-32 w-32 rounded-full border-4 border-white" />
+            <div className="absolute bottom-20 left-20 h-24 w-24 rounded-full border-4 border-white" />
+            <div className="absolute top-1/2 right-1/4 h-16 w-16 rotate-45 border-4 border-white" />
+          </div>
+        </div>
+      </div>
+
+      {/* Right Side - Login Form (30%) */}
+      <div className="flex w-full lg:w-[30%] items-center justify-center bg-background p-8 lg:p-12">
         <div className="w-full max-w-md space-y-8">
           {/* Logo */}
           <div className="flex items-center justify-center gap-2">
@@ -126,35 +155,6 @@ const Login = () => {
               </a>
             </p>
           </form>
-        </div>
-      </div>
-
-      {/* Right Side - Hero Section */}
-      <div className="hidden lg:flex lg:flex-1 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-hero opacity-90" />
-        <img
-          src={gymHero}
-          alt="DuxFit Gym"
-          className="absolute inset-0 h-full w-full object-cover mix-blend-overlay"
-        />
-        <div className="relative z-10 flex flex-col items-center justify-center px-12 text-white">
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm">
-              <Dumbbell className="h-8 w-8" />
-            </div>
-            <span className="text-5xl font-bold">DuxFit</span>
-          </div>
-          <h2 className="text-3xl font-bold text-center mb-4">The Biggest Gym in Piauí</h2>
-          <p className="text-lg text-center text-white/90 max-w-md">
-            Transform your fitness journey with state-of-the-art equipment and expert guidance
-          </p>
-          
-          {/* Decorative pattern */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-10 right-10 h-32 w-32 rounded-full border-4 border-white" />
-            <div className="absolute bottom-20 left-20 h-24 w-24 rounded-full border-4 border-white" />
-            <div className="absolute top-1/2 right-1/4 h-16 w-16 rotate-45 border-4 border-white" />
-          </div>
         </div>
       </div>
     </div>

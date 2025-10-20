@@ -1,5 +1,6 @@
 import { Users, CheckCircle, Trophy, TrendingUp, TrendingDown, MessageCircle, UserPlus, Target } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import NavigationTest from "@/components/NavigationTest";
 
 const kpiData = [
   {
@@ -53,6 +54,9 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6">
+      {/* Navigation Test - Remove this after testing */}
+      <NavigationTest />
+      
       {/* Welcome Section */}
       <div className="rounded-xl bg-gradient-subtle p-8 shadow-sm border border-border">
         <div className="flex items-start justify-between">

@@ -1,5 +1,17 @@
 import { NavLink } from "react-router-dom";
-import { Home, Users, MessageCircle, BarChart, Settings, Dumbbell, LogOut } from "lucide-react";
+import { 
+  Home, 
+  Users, 
+  MessageCircle, 
+  BarChart, 
+  Settings, 
+  Dumbbell, 
+  LogOut,
+  Calendar,
+  Bell,
+  FileText,
+  User
+} from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
@@ -7,7 +19,11 @@ const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
   { name: "Leads", href: "/leads", icon: Users },
   { name: "Conversations", href: "/conversations", icon: MessageCircle },
+  { name: "Follow-ups", href: "/followups", icon: Calendar },
   { name: "Analytics", href: "/analytics", icon: BarChart },
+  { name: "Reports", href: "/reports", icon: FileText },
+  { name: "Notifications", href: "/notifications", icon: Bell },
+  { name: "Profile", href: "/profile", icon: User },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 
@@ -34,12 +50,42 @@ export const Sidebar = () => {
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1 p-4">
-        {navigation.map((item) => (
-          <NavLink key={item.name} to={item.href} className={getNavLinkClass}>
-            <item.icon className="h-5 w-5" />
-            <span>{item.name}</span>
-          </NavLink>
-        ))}
+        <div className="space-y-1">
+          {navigation.slice(0, 4).map((item) => (
+            <NavLink key={item.name} to={item.href} className={getNavLinkClass}>
+              <item.icon className="h-5 w-5" />
+              <span>{item.name}</span>
+            </NavLink>
+          ))}
+        </div>
+        
+        <div className="pt-4">
+          <p className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+            Reports & Analytics
+          </p>
+          <div className="space-y-1">
+            {navigation.slice(4, 7).map((item) => (
+              <NavLink key={item.name} to={item.href} className={getNavLinkClass}>
+                <item.icon className="h-5 w-5" />
+                <span>{item.name}</span>
+              </NavLink>
+            ))}
+          </div>
+        </div>
+
+        <div className="pt-4">
+          <p className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+            Account
+          </p>
+          <div className="space-y-1">
+            {navigation.slice(7).map((item) => (
+              <NavLink key={item.name} to={item.href} className={getNavLinkClass}>
+                <item.icon className="h-5 w-5" />
+                <span>{item.name}</span>
+              </NavLink>
+            ))}
+          </div>
+        </div>
       </nav>
 
       {/* User Profile */}
