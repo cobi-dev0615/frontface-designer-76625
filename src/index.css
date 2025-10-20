@@ -1,0 +1,123 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 47% 11%;
+
+    /* DuxFit Primary Colors - Indigo/Purple Theme */
+    --primary: 243 75% 59%;        /* #6366f1 Indigo */
+    --primary-foreground: 0 0% 100%;
+    --primary-dark: 243 75% 50%;   /* Darker indigo for hover */
+    
+    --secondary: 258 90% 66%;      /* #8b5cf6 Purple */
+    --secondary-foreground: 0 0% 100%;
+    
+    --accent: 217 91% 60%;         /* Complementary blue */
+    --accent-foreground: 0 0% 100%;
+
+    --muted: 220 13% 95%;
+    --muted-foreground: 220 9% 46%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 243 75% 59%;
+
+    --radius: 0.75rem;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(258 90% 66%), hsl(243 75% 59%));
+    --gradient-hero: linear-gradient(135deg, hsl(258 90% 66%) 0%, hsl(243 75% 59%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(258 90% 98%) 100%);
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    --shadow-purple: 0 8px 16px -4px hsl(258 90% 66% / 0.3);
+    
+    /* Sidebar */
+    --sidebar-background: 249 14% 97%;
+    --sidebar-foreground: 220 9% 46%;
+    --sidebar-primary: 243 75% 59%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 258 90% 96%;
+    --sidebar-accent-foreground: 258 90% 30%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 243 75% 59%;
+  }
+
+  .dark {
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
+
+    --card: 224 71% 4%;
+    --card-foreground: 213 31% 91%;
+
+    --popover: 224 71% 4%;
+    --popover-foreground: 213 31% 91%;
+
+    --primary: 243 75% 59%;
+    --primary-foreground: 0 0% 100%;
+    --primary-dark: 243 75% 50%;
+
+    --secondary: 258 90% 66%;
+    --secondary-foreground: 0 0% 100%;
+
+    --accent: 217 91% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --muted: 223 47% 11%;
+    --muted-foreground: 215 20% 65%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 213 31% 91%;
+
+    --border: 216 34% 17%;
+    --input: 216 34% 17%;
+    --ring: 243 75% 59%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(258 90% 66%), hsl(243 75% 59%));
+    --gradient-hero: linear-gradient(135deg, hsl(258 90% 66%) 0%, hsl(243 75% 59%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(224 71% 4%) 0%, hsl(258 90% 8%) 100%);
+    
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3);
+    --shadow-purple: 0 8px 16px -4px hsl(258 90% 66% / 0.5);
+
+    --sidebar-background: 224 71% 4%;
+    --sidebar-foreground: 215 20% 65%;
+    --sidebar-primary: 243 75% 59%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 216 34% 17%;
+    --sidebar-accent-foreground: 213 31% 91%;
+    --sidebar-border: 216 34% 17%;
+    --sidebar-ring: 243 75% 59%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
