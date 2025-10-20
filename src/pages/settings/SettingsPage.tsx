@@ -6,6 +6,7 @@ import AIPromptsTab from "./tabs/AIPromptsTab";
 import WhatsAppTab from "./tabs/WhatsAppTab";
 import UsersTab from "./tabs/UsersTab";
 import IntegrationsTab from "./tabs/IntegrationsTab";
+import EvoIntegrationTab from "./tabs/EvoIntegrationTab";
 
 const SettingsPage = () => {
   const [activeTab, setActiveTab] = useState("gym");
@@ -18,7 +19,7 @@ const SettingsPage = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5 lg:w-[600px]">
+        <TabsList className="grid w-full grid-cols-6 lg:w-auto">
           <TabsTrigger value="gym" className="gap-2">
             <Building2 className="h-4 w-4" />
             <span className="hidden sm:inline">Gym Config</span>
@@ -38,6 +39,10 @@ const SettingsPage = () => {
           <TabsTrigger value="integrations" className="gap-2">
             <Plug className="h-4 w-4" />
             <span className="hidden sm:inline">Integrations</span>
+          </TabsTrigger>
+          <TabsTrigger value="evo" className="gap-2">
+            <Plug className="h-4 w-4" />
+            <span className="hidden sm:inline">EVO</span>
           </TabsTrigger>
         </TabsList>
 
@@ -59,6 +64,10 @@ const SettingsPage = () => {
 
         <TabsContent value="integrations">
           <IntegrationsTab />
+        </TabsContent>
+
+        <TabsContent value="evo">
+          <EvoIntegrationTab />
         </TabsContent>
       </Tabs>
     </div>

@@ -1,7 +1,8 @@
+import { useState, useEffect } from "react";
 import { Bell, Building2, Search, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Link } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,8 +11,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { GlobalSearch } from "@/components/GlobalSearch";
 
 export const Header = () => {
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setSearchOpen((open) => !open);
+      }
+    };
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
+
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b border-border bg-background px-6 shadow-sm">
       {/* Breadcrumbs */}
@@ -42,22 +57,25 @@ export const Header = () => {
       </DropdownMenu>
 
       {/* Search */}
-      <div className="relative hidden md:block">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          type="search"
-          placeholder="Search..."
-          className="w-64 pl-10"
-        />
-      </div>
+      <Button 
+        variant="ghost" 
+        size="icon"
+        onClick={() => setSearchOpen(true)}
+        title="Search (⌘K)"
+        className="hidden md:flex"
+      >
+        <Search className="h-5 w-5" />
+      </Button>
 
       {/* Notifications */}
-      <Button variant="ghost" size="icon" className="relative">
+      <Link to="/notifications">
+        <Button variant="ghost" size="icon" className="relative">
         <Bell className="h-5 w-5" />
-        <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
-          3
-        </span>
-      </Button>
+          <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
+            3
+          </span>
+        </Button>
+      </Link>
 
       {/* User Menu */}
       <DropdownMenu>
@@ -74,12 +92,20 @@ export const Header = () => {
         <DropdownMenuContent align="end" className="w-48 bg-popover">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Profile</DropdownMenuItem>
-          <DropdownMenuItem>Settings</DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to="/profile">Profile</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to="/settings">Settings</Link>
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className="text-destructive">Logout</DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to="/login" className="text-destructive">Logout</Link>
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} />
     </header>
   );
 };
