@@ -22,6 +22,7 @@ import SettingsPage from "./pages/settings/SettingsPage";
 import UserProfile from "./pages/profile/UserProfile";
 import UserManagement from "./pages/users/UserManagement";
 import GymManagement from "./pages/gyms/GymManagement";
+import ActivityLog from "./pages/activity/ActivityLog";
 import OnboardingFlow from "./pages/onboarding/OnboardingFlow";
 import NotFound from "./pages/NotFound";
 import Error403 from "./pages/errors/Error403";
@@ -70,6 +71,7 @@ const AppContent = () => {
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/users" element={<UserManagement />} />
         <Route path="/gyms" element={<GymManagement />} />
+        <Route path="/activity" element={<ActivityLog />} />
         <Route path="/profile" element={<UserProfile />} />
       </Route>
       <Route path="/403" element={<Error403 />} />

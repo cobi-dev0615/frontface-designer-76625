@@ -11,7 +11,8 @@ import {
   Bell,
   FileText,
   User,
-  UserCog
+  UserCog,
+  Activity
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ const navigation = [
   { name: "Conversations", href: "/conversations", icon: MessageCircle },
   { name: "Follow-ups", href: "/followups", icon: Calendar },
   { name: "Analytics", href: "/analytics", icon: BarChart },
+  { name: "Activity Log", href: "/activity", icon: Activity },
   { name: "Reports", href: "/reports", icon: FileText },
   { name: "Notifications", href: "/notifications", icon: Bell },
   { name: "Gyms", href: "/gyms", icon: Dumbbell },
@@ -89,7 +91,7 @@ export const Sidebar = () => {
             Reports & Analytics
           </p>
           <div className="space-y-1">
-            {navigation.slice(4, 7).map((item) => (
+            {navigation.slice(4, 8).map((item) => (
               <NavLink key={item.name} to={item.href} className={getNavLinkClass}>
                 <item.icon className="h-5 w-5" />
                 <span>{item.name}</span>
@@ -103,7 +105,7 @@ export const Sidebar = () => {
             Management
           </p>
           <div className="space-y-1">
-            {navigation.slice(7, 9).map((item) => (
+            {navigation.slice(8, 10).map((item) => (
               <NavLink key={item.name} to={item.href} className={getNavLinkClass}>
                 <item.icon className="h-5 w-5" />
                 <span>{item.name}</span>
@@ -117,7 +119,7 @@ export const Sidebar = () => {
             Account
           </p>
           <div className="space-y-1">
-            {navigation.slice(9).map((item) => (
+            {navigation.slice(10).map((item) => (
               <NavLink key={item.name} to={item.href} className={getNavLinkClass}>
                 <item.icon className="h-5 w-5" />
                 <span>{item.name}</span>

@@ -83,7 +83,7 @@ export default function FollowUpDetailModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[66vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             <div className={`p-2 rounded-lg ${getStatusColor(followUp.status)} text-white`}>
@@ -96,7 +96,7 @@ export default function FollowUpDetailModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4 overflow-y-auto flex-1 px-1">
           {/* Status Badge */}
           <div className="flex items-center gap-2">
             <Badge className={`${getStatusColor(followUp.status)} text-white`}>
@@ -229,7 +229,7 @@ export default function FollowUpDetailModal({
           </Card>
         </div>
 
-        <DialogFooter className="flex-col sm:flex-row gap-2">
+        <DialogFooter className="flex-col sm:flex-row gap-2 flex-shrink-0">
           {isPending && (
             <>
               {onReschedule && (

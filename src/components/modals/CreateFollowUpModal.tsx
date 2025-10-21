@@ -133,7 +133,7 @@ export default function CreateFollowUpModal({ isOpen, onClose, onSuccess }: Crea
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[66vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Schedule Follow-Up</DialogTitle>
           <DialogDescription>
@@ -141,7 +141,7 @@ export default function CreateFollowUpModal({ isOpen, onClose, onSuccess }: Crea
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto flex-1 px-1">
           {/* Lead Selection */}
           <div className="space-y-2">
             <Label htmlFor="lead">Lead *</Label>
@@ -311,8 +311,10 @@ export default function CreateFollowUpModal({ isOpen, onClose, onSuccess }: Crea
               rows={3}
             />
           </div>
+        </form>
 
-          <DialogFooter>
+        <DialogFooter className="flex-shrink-0">
+          <form onSubmit={handleSubmit} className="w-full flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>
@@ -326,8 +328,8 @@ export default function CreateFollowUpModal({ isOpen, onClose, onSuccess }: Crea
                 "Schedule Follow-Up"
               )}
             </Button>
-          </DialogFooter>
-        </form>
+          </form>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
