@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { Bell, Building2, Search, ChevronDown } from "lucide-react";
+import { Bell, Building2, Search, ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
 import {
@@ -17,8 +17,38 @@ import { GlobalSearch } from "@/components/GlobalSearch";
 
 export const Header = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout } = useAuthStore();
   const [searchOpen, setSearchOpen] = useState(false);
+
+  // Breadcrumb mapping based on sidebar structure
+  const getBreadcrumbs = () => {
+    const path = location.pathname;
+    
+    // Main Pages
+    if (path === '/dashboard') return { category: 'Dashboard', page: 'Overview' };
+    if (path === '/leads' || path.startsWith('/leads/')) return { category: 'Main', page: 'Leads' };
+    if (path === '/conversations') return { category: 'Main', page: 'Conversations' };
+    if (path === '/followups') return { category: 'Main', page: 'Follow-ups' };
+    
+    // Reports & Analytics
+    if (path === '/analytics') return { category: 'Reports & Analytics', page: 'Analytics' };
+    if (path === '/reports') return { category: 'Reports & Analytics', page: 'Reports' };
+    if (path === '/notifications') return { category: 'Reports & Analytics', page: 'Notifications' };
+    
+    // Management
+    if (path === '/gyms') return { category: 'Management', page: 'Gyms' };
+    if (path === '/users') return { category: 'Management', page: 'User Management' };
+    
+    // Account
+    if (path === '/profile') return { category: 'Account', page: 'Profile' };
+    if (path === '/settings') return { category: 'Account', page: 'Settings' };
+    
+    // Default
+    return { category: 'Dashboard', page: 'Overview' };
+  };
+
+  const breadcrumbs = getBreadcrumbs();
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -51,10 +81,10 @@ export const Header = () => {
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b border-border bg-background px-6 shadow-sm">
       {/* Breadcrumbs */}
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <span>Dashboard</span>
-        <span>›</span>
-        <span className="text-foreground font-medium">Overview</span>
+      <div className="flex items-center gap-2 text-sm">
+        <span className="text-muted-foreground">{breadcrumbs.category}</span>
+        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        <span className="text-foreground font-medium">{breadcrumbs.page}</span>
       </div>
 
       {/* Spacer */}
@@ -109,7 +139,7 @@ export const Header = () => {
               </AvatarFallback>
             </Avatar>
             <ChevronDown className="h-4 w-4 hidden sm:block" />
-          </Button>
+          </Button>                                                                
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48 bg-popover">
           <DropdownMenuLabel>
@@ -121,7 +151,7 @@ export const Header = () => {
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <Link to="/profile">Profile</Link>
-          </DropdownMenuItem>
+          </DropdownMenuItem>                    
           <DropdownMenuItem asChild>
             <Link to="/settings">Settings</Link>
           </DropdownMenuItem>
