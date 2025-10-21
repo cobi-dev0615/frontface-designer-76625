@@ -1,23 +1,55 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Dumbbell, Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Dumbbell, Eye, EyeOff, Mail, Lock, AlertCircle, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { useAuthStore } from "@/store/authStore";
 import gymHero from "@/assets/gym-hero.jpg";
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login, isAuthenticated, isLoading: authLoading } = useAuthStore();
+  
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && !authLoading) {
+      const from = (location.state as any)?.from?.pathname || '/dashboard';
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, authLoading, navigate, location]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // For now, just navigate to dashboard
-    navigate("/dashboard");
+    setError("");
+    setIsLoading(true);
+
+    try {
+      await login(email, password, rememberMe);
+      toast.success("Login successful! Welcome back!");
+      
+      // Navigate to intended destination or dashboard
+      const from = (location.state as any)?.from?.pathname || '/dashboard';
+      navigate(from, { replace: true });
+    } catch (err: any) {
+      console.error('Login error:', err);
+      setError(err.message || "Invalid email or password");
+      setPassword(""); // Clear password on error
+      toast.error(err.message || "Login failed");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -72,6 +104,14 @@ const Login = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Error Alert */}
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
             <div className="space-y-4">
               {/* Email Field */}
               <div className="space-y-2">
@@ -83,8 +123,12 @@ const Login = () => {
                     type="email"
                     placeholder="your@email.com"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setError(""); // Clear error on input change
+                    }}
                     className="pl-10"
+                    disabled={isLoading}
                     required
                   />
                 </div>
@@ -100,8 +144,12 @@ const Login = () => {
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setError(""); // Clear error on input change
+                    }}
                     className="pl-10 pr-10"
+                    disabled={isLoading}
                     required
                   />
                   <button
@@ -127,14 +175,31 @@ const Login = () => {
                   Remember me
                 </Label>
               </div>
-              <a href="#" className="text-sm text-primary hover:underline">
+              <button
+                type="button"
+                onClick={() => navigate('/forgot-password')}
+                className="text-sm text-primary hover:underline transition-colors"
+              >
                 Forgot password?
-              </a>
+              </button>
             </div>
 
             {/* Sign In Button */}
-            <Button type="submit" variant="gradient" className="w-full" size="lg">
-              Sign In
+            <Button 
+              type="submit" 
+              variant="gradient" 
+              className="w-full" 
+              size="lg"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                "Sign In"
+              )}
             </Button>
 
             {/* Divider */}
@@ -147,12 +212,17 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Contact Admin */}
+            {/* Sign Up Link */}
             <p className="text-center text-sm text-muted-foreground">
               Don't have an account?{" "}
-              <a href="#" className="text-primary hover:underline font-medium">
-                Contact admin
-              </a>
+              <Button
+                variant="link"
+                className="p-0 h-auto font-medium"
+                onClick={() => navigate('/register')}
+                disabled={isLoading}
+              >
+                Sign up
+              </Button>
             </p>
           </form>
         </div>

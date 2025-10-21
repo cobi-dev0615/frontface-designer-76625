@@ -1,46 +1,26 @@
-import { Bot, Copy, Save } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Bot, Copy, Save, Plus, Edit, Trash2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner";
+import { getAIPrompt, updateAIPrompt, type AIPrompt } from "@/services/aiPromptService";
+import { useGymStore } from "@/store/gymStore";
 
 const AIPromptsTab = () => {
-  const systemPrompt = `You are an AI sales assistant for DuxFit, the biggest gym in Piauí, Brazil.
+  const { selectedGym } = useGymStore();
+  const [aiPrompt, setAIPrompt] = useState<AIPrompt | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
-Your Objective:
-- Provide friendly, persuasive customer service
-- Qualify leads by collecting required information
-- Answer questions about plans, pricing, and facilities
-- Handle objections professionally
-- Guide customers toward registration
-
-Your Tone:
-- Friendly and energetic
-- Confident but not pushy
-- Use emojis appropriately (💪🔥👏)
-- Professional yet approachable
-
-Required Information to Collect:
-- Full Name
-- CPF
-- Date of Birth
-- Address + ZIP Code
-- Preferred Workout Time
-- Fitness Goal
-- Email Address
-
-When to Escalate to Human:
-- Billing disputes or refunds
-- Cancellation requests
-- HR or employment questions
-- Complex technical issues
-- Customer insists on speaking to human
-
-Redirect Rules:
-- For unlisted inquiries → Instagram @duxfit
-- For resumes/jobs → duxfitacademia@gmail.com`;
+  // Form states
+  const [systemPrompt, setSystemPrompt] = useState('');
+  const [greetingMessage, setGreetingMessage] = useState('');
+  const [faqs, setFaqs] = useState<any[]>([]);
+  const [objections, setObjections] = useState<any[]>([]);
 
   const variables = [
     "{gym_name}",
@@ -51,193 +31,347 @@ Redirect Rules:
     "{current_date}",
   ];
 
-  const greetingMessages = [
-    {
-      label: "Default Greeting",
-      text: "🎉 Hello! Welcome to DuxFit, the BIGGEST gym in Piauí! 💪🔥\n\nI'm here to help you achieve your fitness goals. How can I assist you today?",
-      active: true,
-    },
-    {
-      label: "Evening Greeting (6 PM - 10 PM)",
-      text: "Good evening! Welcome to DuxFit! 🌙💪\n\nReady to crush your fitness goals? I'm here to help!",
-      active: true,
-    },
-  ];
+  useEffect(() => {
+    if (selectedGym) {
+      loadAIPrompt(selectedGym.id);
+    }
+  }, [selectedGym]);
 
-  const objections = [
-    {
-      trigger: "I'll think about it / I need to think",
-      response: "I totally understand! Taking time to think is smart. Just so you know, our pre-sale offer ends soon, and spots are filling up fast. Can I secure your spot with just R$9.99 for the first month while you decide?",
-    },
-    {
-      trigger: "Too expensive / Can't afford",
-      response: "I hear you! That's exactly why we created our annual plan at R$99.99/month - less than R$3.50 per day. That's less than a coffee! Plus, investing in your health now saves you money on medical bills later. Would you like me to break down the savings?",
-    },
-  ];
+  const loadAIPrompt = async (gymId: string) => {
+    try {
+      setIsLoading(true);
+      const data = await getAIPrompt(gymId);
+      setAIPrompt(data);
+      
+      // Populate form
+      setSystemPrompt(data.systemPrompt || '');
+      setGreetingMessage(data.greetingMessage || '');
+      setFaqs(data.faqs?.questions || []);
+      setObjections(data.objectionHandling?.objections || []);
+      
+    } catch (error: any) {
+      console.error('Error loading AI prompt:', error);
+      toast.error(error.response?.data?.message || 'Failed to load AI prompt');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  const faqs = [
-    {
-      question: "What are your hours?",
-      answer: "We're open 24/5! That's 24 hours on Monday-Friday, and 7 AM to 7 PM on weekends and holidays. You can work out whenever it fits your schedule! 🕐",
-    },
-    {
-      question: "Do you have a kids room?",
-      answer: "Yes! Our DUX KIDS room welcomes children aged 2.5 to 10 years. It has a monitor and security cameras, and is open 6-9 AM and 4-9 PM. It's included FREE with all memberships! 👶",
-    },
-    {
-      question: "What equipment do you have?",
-      answer: "We have top-of-the-line Speedo equipment across 3,000m²! That includes cardio machines, free weights, machines, and everything you need for a complete workout. 🏋️",
-    },
-  ];
+  const handleSave = async () => {
+    if (!selectedGym || !aiPrompt) return;
+
+    setIsSaving(true);
+    try {
+      await updateAIPrompt(selectedGym.id, {
+        systemPrompt,
+        greetingMessage,
+        faqs: { questions: faqs },
+        objectionHandling: { objections }
+      });
+
+      toast.success('AI Prompt saved successfully!');
+      loadAIPrompt(selectedGym.id);
+    } catch (error: any) {
+      console.error('Error saving AI prompt:', error);
+      toast.error(error.response?.data?.message || 'Failed to save AI prompt');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCopyVariable = (variable: string) => {
+    navigator.clipboard.writeText(variable);
+    toast.success(`Copied ${variable}`);
+  };
+
+  const handleAddFAQ = () => {
+    setFaqs([...faqs, { question: '', keywords: '', answer: '' }]);
+  };
+
+  const handleUpdateFAQ = (index: number, field: string, value: string) => {
+    const updated = [...faqs];
+    updated[index] = { ...updated[index], [field]: value };
+    setFaqs(updated);
+  };
+
+  const handleDeleteFAQ = (index: number) => {
+    setFaqs(faqs.filter((_, i) => i !== index));
+    toast.success('FAQ removed');
+  };
+
+  const handleAddObjection = () => {
+    setObjections([...objections, { trigger: '', response: '' }]);
+  };
+
+  const handleUpdateObjection = (index: number, field: string, value: string) => {
+    const updated = [...objections];
+    updated[index] = { ...updated[index], [field]: value };
+    setObjections(updated);
+  };
+
+  const handleDeleteObjection = (index: number) => {
+    setObjections(objections.filter((_, i) => i !== index));
+    toast.success('Objection handler removed');
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <div className="text-center">
+          <RefreshCw className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading AI configuration...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!selectedGym) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <div className="text-center">
+          <Bot className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <p className="text-lg font-medium mb-1">No Gym Selected</p>
+          <p className="text-sm text-muted-foreground">Please select a gym from Gym Management</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {/* Template Selector */}
+      {/* Header Info */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Bot className="h-5 w-5" />
-            AI Behavior Configuration
-          </CardTitle>
-          <CardDescription>Configure how your AI assistant interacts with leads</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Select defaultValue="system">
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="system">System Prompt (Main Instructions)</SelectItem>
-              <SelectItem value="greeting">Greeting Message</SelectItem>
-              <SelectItem value="qualification">Lead Qualification Questions</SelectItem>
-              <SelectItem value="objections">Objection Handling</SelectItem>
-              <SelectItem value="faqs">FAQ Responses</SelectItem>
-            </SelectContent>
-          </Select>
-        </CardContent>
-      </Card>
-
-      {/* System Prompt */}
-      <Card>
-        <CardHeader>
-          <CardTitle>System Prompt</CardTitle>
-          <CardDescription>Core instructions that define how the AI assistant behaves</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label>Prompt Instructions</Label>
-            <Textarea
-              rows={16}
-              defaultValue={systemPrompt}
-              className="font-mono text-sm"
-            />
-          </div>
-
-          <div>
-            <Label className="text-sm font-medium mb-2 block">Available Variables</Label>
-            <div className="flex flex-wrap gap-2">
-              {variables.map((variable) => (
-                <Button
-                  key={variable}
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                  onClick={() => navigator.clipboard.writeText(variable)}
-                >
-                  {variable}
-                  <Copy className="h-3 w-3" />
-                </Button>
-              ))}
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Bot className="h-5 w-5" />
+                AI Configuration for {selectedGym.name}
+              </CardTitle>
+              <CardDescription>Configure how your AI assistant interacts with leads</CardDescription>
             </div>
-            <p className="text-xs text-muted-foreground mt-2">Click to copy and paste into your prompt</p>
+            <Button variant="outline" size="sm" onClick={() => selectedGym && loadAIPrompt(selectedGym.id)}>
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Reload
+            </Button>
           </div>
-        </CardContent>
+        </CardHeader>
       </Card>
 
-      {/* Greeting Messages */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Greeting Messages</CardTitle>
-          <CardDescription>First message sent to new contacts</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {greetingMessages.map((greeting, index) => (
-            <div key={index} className="border border-border rounded-lg p-4 space-y-3">
+      {/* Two-Column Layout */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Left Column: System Prompt + Objections */}
+        <div className="space-y-6">
+          {/* System Prompt */}
+          <Card>
+            <CardHeader>
+              <CardTitle>System Prompt</CardTitle>
+              <CardDescription>Core AI behavior instructions</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Prompt Instructions</Label>
+                <Textarea
+                  rows={12}
+                  value={systemPrompt}
+                  onChange={(e) => setSystemPrompt(e.target.value)}
+                  className="font-mono text-sm"
+                  placeholder="Enter your system prompt..."
+                />
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium mb-2 block">Available Variables</Label>
+                <div className="flex flex-wrap gap-2">
+                  {variables.map((variable) => (
+                    <Button
+                      key={variable}
+                      variant="outline"
+                      size="sm"
+                      className="gap-2 h-8 text-xs"
+                      onClick={() => handleCopyVariable(variable)}
+                    >
+                      {variable}
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">Click to copy</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Objection Handling */}
+          <Card>
+            <CardHeader>
               <div className="flex items-center justify-between">
-                <Label className="font-medium">{greeting.label}</Label>
-                <Badge className={greeting.active ? "bg-green-500" : "bg-gray-500"}>
-                  {greeting.active ? "Active" : "Inactive"}
-                </Badge>
+                <div>
+                  <CardTitle>Objection Handling</CardTitle>
+                  <CardDescription>Common objections</CardDescription>
+                </div>
+                <Button variant="outline" size="sm" onClick={handleAddObjection}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add
+                </Button>
               </div>
-              <Textarea rows={4} defaultValue={greeting.text} />
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" size="sm">Edit</Button>
-                <Button variant="ghost" size="sm" className="text-destructive">Delete</Button>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="max-h-[500px] overflow-y-auto pr-2 space-y-3">
+                {objections.map((objection, index) => (
+                  <div key={index} className="border border-border rounded-lg p-3 space-y-2">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Trigger Keywords</Label>
+                      <Input 
+                        value={objection.trigger}
+                        onChange={(e) => handleUpdateObjection(index, 'trigger', e.target.value)}
+                        placeholder="too expensive|can't afford"
+                        className="h-9 text-sm font-mono"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Response</Label>
+                      <Textarea 
+                        rows={3} 
+                        value={objection.response}
+                        onChange={(e) => handleUpdateObjection(index, 'response', e.target.value)}
+                        placeholder="Persuasive response..."
+                        className="text-sm"
+                      />
+                    </div>
+                    <div className="flex justify-end">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-destructive h-7 px-2"
+                        onClick={() => handleDeleteObjection(index)}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
-          ))}
-          <Button variant="outline" className="w-full">Add Greeting Variant</Button>
-        </CardContent>
-      </Card>
+              
+              {objections.length === 0 && (
+                <div className="text-center py-6 text-muted-foreground text-sm">
+                  No objections. Click "Add" to create one.
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
-      {/* Objection Handling */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Objection Handling</CardTitle>
-          <CardDescription>Pre-written responses to common objections</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {objections.map((objection, index) => (
-            <div key={index} className="border border-border rounded-lg p-4 space-y-3">
-              <div>
-                <Label className="text-sm font-medium">Trigger Keywords</Label>
-                <p className="text-sm text-muted-foreground mt-1">{objection.trigger}</p>
-              </div>
+        {/* Right Column: Greeting + FAQs */}
+        <div className="space-y-6">
+          {/* Greeting Message */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Greeting Message</CardTitle>
+              <CardDescription>First message to new contacts</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label>Response</Label>
-                <Textarea rows={3} defaultValue={objection.response} />
+                <Label>Default Greeting</Label>
+                <Textarea 
+                  rows={4} 
+                  value={greetingMessage}
+                  onChange={(e) => setGreetingMessage(e.target.value)}
+                  placeholder="Enter greeting message..."
+                />
+                <p className="text-xs text-muted-foreground">Use emojis! This is the first impression.</p>
               </div>
-              <Button variant="outline" size="sm">Edit</Button>
-            </div>
-          ))}
-          <Button variant="outline" className="w-full">Add Objection</Button>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
 
-      {/* FAQs */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Frequently Asked Questions</CardTitle>
-          <CardDescription>Common questions and their answers</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {faqs.map((faq, index) => (
-            <div key={index} className="border border-border rounded-lg p-4 space-y-3">
-              <div>
-                <Label className="text-sm font-medium">Question</Label>
-                <p className="text-sm mt-1">{faq.question}</p>
+          {/* FAQs */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>FAQs</CardTitle>
+                  <CardDescription>Common questions</CardDescription>
+                </div>
+                <Button variant="outline" size="sm" onClick={handleAddFAQ}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add
+                </Button>
               </div>
-              <div className="space-y-2">
-                <Label>Answer</Label>
-                <Textarea rows={3} defaultValue={faq.answer} />
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="max-h-[700px] overflow-y-auto pr-2 space-y-3">
+                {faqs.map((faq, index) => (
+                  <div key={index} className="border border-border rounded-lg p-3 space-y-2">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Question</Label>
+                      <Input 
+                        value={faq.question}
+                        onChange={(e) => handleUpdateFAQ(index, 'question', e.target.value)}
+                        placeholder="What are your hours?"
+                        className="h-9 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Keywords</Label>
+                      <Input 
+                        value={faq.keywords}
+                        onChange={(e) => handleUpdateFAQ(index, 'keywords', e.target.value)}
+                        placeholder="hours|open|close"
+                        className="h-9 text-sm font-mono"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Answer</Label>
+                      <Textarea 
+                        rows={2} 
+                        value={faq.answer}
+                        onChange={(e) => handleUpdateFAQ(index, 'answer', e.target.value)}
+                        placeholder="Answer..."
+                        className="text-sm"
+                      />
+                    </div>
+                    <div className="flex justify-end">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-destructive h-7 px-2"
+                        onClick={() => handleDeleteFAQ(index)}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <Button variant="outline" size="sm">Edit</Button>
-            </div>
-          ))}
-          <Button variant="outline" className="w-full">Add FAQ</Button>
-        </CardContent>
-      </Card>
+              
+              {faqs.length === 0 && (
+                <div className="text-center py-6 text-muted-foreground text-sm">
+                  No FAQs. Click "Add" to create one.
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
 
       {/* Footer Actions */}
-      <div className="sticky bottom-0 bg-background border-t border-border p-4 flex items-center justify-between shadow-lg rounded-t-lg">
-        <Button variant="outline">Reset to Default</Button>
-        <div className="flex gap-2">
-          <Button variant="outline">Cancel</Button>
-          <Button variant="gradient" className="gap-2">
-            <Save className="h-4 w-4" />
-            Save Changes
-          </Button>
-        </div>
+      <div className="flex items-center justify-end gap-3 sticky bottom-0 bg-background/95 backdrop-blur-sm border-t border-border p-4 -mx-6 -mb-6">
+        <Button variant="outline" onClick={() => selectedGym && loadAIPrompt(selectedGym.id)} disabled={isSaving}>
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Discard Changes
+        </Button>
+        <Button onClick={handleSave} disabled={isSaving}>
+          {isSaving ? (
+            <>
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent mr-2" />
+              Saving...
+            </>
+          ) : (
+            <>
+              <Save className="h-4 w-4 mr-2" />
+              Save Changes
+            </>
+          )}
+        </Button>
       </div>
     </div>
   );

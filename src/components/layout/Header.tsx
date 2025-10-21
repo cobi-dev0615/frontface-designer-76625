@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { Bell, Building2, Search, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Link } from "react-router-dom";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/store/authStore";
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +16,8 @@ import {
 import { GlobalSearch } from "@/components/GlobalSearch";
 
 export const Header = () => {
+  const navigate = useNavigate();
+  const { user, logout } = useAuthStore();
   const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
@@ -26,6 +30,23 @@ export const Header = () => {
     document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
   }, []);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+    toast.success('Logged out successfully');
+  };
+
+  // Get user initials
+  const getInitials = (name?: string) => {
+    if (!name) return 'AU';
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b border-border bg-background px-6 shadow-sm">
@@ -82,15 +103,21 @@ export const Header = () => {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="gap-2 px-2">
             <Avatar className="h-8 w-8">
+              {/* {user?.avatar ? <img src={`${import.meta.env.VITE_API_URL}/uploads/${user?.avatar}`} alt={user?.name} /> : */}
               <AvatarFallback className="bg-gradient-primary text-white text-xs font-semibold">
-                AU
+                {getInitials(user?.name)}
               </AvatarFallback>
             </Avatar>
             <ChevronDown className="h-4 w-4 hidden sm:block" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48 bg-popover">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuLabel>
+            <div className="flex flex-col">
+              <span className="font-medium">{user?.name || 'My Account'}</span>
+              <span className="text-xs text-muted-foreground font-normal">{user?.email}</span>
+            </div>
+          </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <Link to="/profile">Profile</Link>
@@ -99,8 +126,11 @@ export const Header = () => {
             <Link to="/settings">Settings</Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
-            <Link to="/login" className="text-destructive">Logout</Link>
+          <DropdownMenuItem 
+            onClick={handleLogout}
+            className="text-destructive cursor-pointer"
+          >
+            Logout
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

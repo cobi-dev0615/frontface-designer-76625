@@ -9,13 +9,13 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* Soft Dark Purple Vibrant Theme */
-    --background: 265 35% 12%;          /* Soft dark purple base */
+    --background: 265 35% 8%;           /* Darker purple base */
     --foreground: 270 10% 98%;          /* Slightly purple-tinted white */
 
-    --card: 265 40% 18% / 0.4;          /* Purple-tinted semi-transparent cards */
+    --card: 265 40% 12% / 0.4;          /* Darker purple-tinted semi-transparent cards */
     --card-foreground: 270 10% 98%;
 
-    --popover: 265 35% 20% / 0.95;      /* Soft purple popover */
+    --popover: 265 35% 15% / 0.95;      /* Darker soft purple popover */
     --popover-foreground: 270 10% 98%;
 
     /* DuxFit Primary Colors - Bright Vibrant Purple */
@@ -29,14 +29,14 @@ All colors MUST be HSL.
     --accent: 250 85% 65%;              /* Blue-purple accent */
     --accent-foreground: 0 0% 100%;
 
-    --muted: 265 25% 25% / 0.5;         /* Purple-tinted muted */
+    --muted: 265 25% 18% / 0.5;         /* Darker purple-tinted muted */
     --muted-foreground: 265 15% 75%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 270 30% 30% / 0.4;        /* Purple-tinted borders */
-    --input: 265 30% 20% / 0.6;         /* Purple-tinted inputs */
+    --border: 270 30% 25% / 0.4;        /* Darker purple-tinted borders */
+    --input: 265 30% 14% / 0.6;         /* Darker purple-tinted inputs */
     --ring: 270 80% 65%;
 
     --radius: 0.75rem;
@@ -44,8 +44,8 @@ All colors MUST be HSL.
     /* Vibrant Purple Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(270 80% 65%), hsl(285 70% 60%));
     --gradient-hero: linear-gradient(135deg, hsl(270 80% 65% / 0.9) 0%, hsl(285 70% 60% / 0.9) 100%);
-    --gradient-subtle: linear-gradient(180deg, hsl(265 35% 14%) 0%, hsl(280 50% 16%) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(265 40% 18% / 0.4), hsl(280 35% 20% / 0.4));
+    --gradient-subtle: linear-gradient(180deg, hsl(265 35% 10%) 0%, hsl(280 50% 12%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(265 40% 12% / 0.4), hsl(280 35% 14% / 0.4));
     
     /* Enhanced Shadows with Purple Glow */
     --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.3);
@@ -56,13 +56,13 @@ All colors MUST be HSL.
     --shadow-card: 0 4px 20px rgb(0 0 0 / 0.3);
     
     /* Glassmorphism Sidebar with Purple Tint */
-    --sidebar-background: 265 40% 14% / 0.9;
+    --sidebar-background: 265 40% 10% / 0.9;
     --sidebar-foreground: 265 15% 85%;
     --sidebar-primary: 270 80% 65%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 270 40% 22% / 0.5;
+    --sidebar-accent: 270 40% 16% / 0.5;
     --sidebar-accent-foreground: 270 10% 95%;
-    --sidebar-border: 270 30% 28% / 0.3;
+    --sidebar-border: 270 30% 22% / 0.3;
     --sidebar-ring: 270 80% 65%;
   }
 
@@ -124,11 +124,11 @@ All colors MUST be HSL.
   body {
     @apply text-foreground;
     background: linear-gradient(135deg, 
-                hsl(265 40% 10%) 0%, 
-                hsl(275 45% 12%) 25%,
-                hsl(285 50% 14%) 50%,
-                hsl(275 45% 12%) 75%,
-                hsl(265 40% 10%) 100%);
+                hsl(265 40% 6%) 0%, 
+                hsl(275 45% 8%) 25%,
+                hsl(285 50% 10%) 50%,
+                hsl(275 45% 8%) 75%,
+                hsl(265 40% 6%) 100%);
     background-attachment: fixed;
     background-size: 100% 100%;
   }
@@ -141,7 +141,7 @@ All colors MUST be HSL.
   /* Custom Scrollbar Styles */
   * {
     scrollbar-width: thin;
-    scrollbar-color: hsl(270 80% 65% / 0.4) hsl(265 35% 18% / 0.3);
+    scrollbar-color: hsl(270 80% 65% / 0.4) hsl(265 35% 12% / 0.3);
   }
 
   /* Webkit Browsers (Chrome, Safari, Edge) */
@@ -151,7 +151,7 @@ All colors MUST be HSL.
   }
 
   *::-webkit-scrollbar-track {
-    background: hsl(265 35% 18% / 0.3);
+    background: hsl(265 35% 12% / 0.3);
     border-radius: 10px;
   }
 

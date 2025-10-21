@@ -1,5 +1,7 @@
 import { Users, CheckCircle, Trophy, TrendingUp, TrendingDown, MessageCircle, UserPlus, Target } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuthStore } from "@/store/authStore";
 
 const kpiData = [
   {
@@ -53,23 +55,6 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6">
-      {/* Navigation Test - Remove this after testing */}
-      {/* <NavigationTest /> */}
-      
-      {/* Welcome Section */}
-      {/* <div className="rounded-xl bg-gradient-subtle p-8 shadow-sm border border-border">
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight mb-2">
-              Welcome back, Admin! 👋
-            </h1>
-            <p className="text-muted-foreground text-lg">
-              Here's what's happening with your gym today
-            </p>
-          </div>
-          <p className="text-sm text-muted-foreground">{today}</p>
-        </div>
-      </div> */}
 
       {/* KPI Cards */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
