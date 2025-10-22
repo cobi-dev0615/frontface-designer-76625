@@ -28,6 +28,7 @@ import NotFound from "./pages/NotFound";
 import Error403 from "./pages/errors/Error403";
 import Error500 from "./pages/errors/Error500";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
+import NotificationListener from "./components/NotificationListener";
 
 const queryClient = new QueryClient();
 
@@ -52,14 +53,16 @@ const AppContent = () => {
   }
 
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/onboarding" element={<OnboardingFlow />} />
-      <Route element={<PrivateRoute><DashboardLayout /></PrivateRoute>}>
+    <>
+      <NotificationListener />
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/onboarding" element={<OnboardingFlow />} />
+        <Route element={<PrivateRoute><DashboardLayout /></PrivateRoute>}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/leads" element={<LeadsList />} />
         <Route path="/leads/:id" element={<LeadDetail />} />
@@ -74,11 +77,12 @@ const AppContent = () => {
         <Route path="/activity" element={<ActivityLog />} />
         <Route path="/profile" element={<UserProfile />} />
       </Route>
-      <Route path="/403" element={<Error403 />} />
-      <Route path="/500" element={<Error500 />} />
-      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+        <Route path="/403" element={<Error403 />} />
+        <Route path="/500" element={<Error500 />} />
+        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </>
   );
 };
 

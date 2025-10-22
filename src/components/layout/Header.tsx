@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
+import { useNotificationStore } from "@/store/notificationStore";
 import { toast } from "sonner";
+import * as notificationService from "@/services/notificationService";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +21,24 @@ export const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuthStore();
+  const { unreadCount, setUnreadCount } = useNotificationStore();
   const [searchOpen, setSearchOpen] = useState(false);
+
+  // Load unread count on mount
+  useEffect(() => {
+    const loadUnreadCount = async () => {
+      try {
+        const response = await notificationService.getUnreadCount();
+        setUnreadCount(response.data.count);
+      } catch (error) {
+        console.error("Error loading unread count:", error);
+      }
+    };
+
+    if (user) {
+      loadUnreadCount();
+    }
+  }, [user, setUnreadCount]);
 
   // Breadcrumb mapping based on sidebar structure
   const getBreadcrumbs = () => {
@@ -33,6 +52,7 @@ export const Header = () => {
     
     // Reports & Analytics
     if (path === '/analytics') return { category: 'Reports & Analytics', page: 'Analytics' };
+    if (path === '/activity') return { category: 'Reports & Analytics', page: 'Activity Log' };
     if (path === '/reports') return { category: 'Reports & Analytics', page: 'Reports' };
     if (path === '/notifications') return { category: 'Reports & Analytics', page: 'Notifications' };
     
@@ -121,10 +141,12 @@ export const Header = () => {
       {/* Notifications */}
       <Link to="/notifications">
         <Button variant="ghost" size="icon" className="relative">
-        <Bell className="h-5 w-5" />
-          <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
-            3
-          </span>
+          <Bell className="h-5 w-5" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground animate-pulse">
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          )}
         </Button>
       </Link>
 
