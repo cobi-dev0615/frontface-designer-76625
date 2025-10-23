@@ -1470,6 +1470,9 @@ export const en = {
     hourAgo: 'h ago',
     // Messages
     loadFailed: 'Failed to load activities',
+    exportSuccess: 'Activity log exported successfully',
+    exportFailed: 'Failed to export activity log',
+    failedToLoad: 'Failed to load activity logs',
   },
 
   // Notifications

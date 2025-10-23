@@ -9,98 +9,91 @@ import { Separator } from "@/components/ui/separator";
 import { format } from "date-fns";
 import { useTranslation } from "@/hooks/useTranslation";
 import ActivityDetailModal from "@/components/modals/ActivityDetailModal";
+import * as activityLogService from "@/services/activityLogService";
+import type { ActivityLog, ActivityLogFilters } from "@/services/activityLogService";
+import { toast } from "sonner";
 
-// Mock data for now - will be replaced with backend data
-interface Activity {
-  id: string;
-  type: string;
-  description: string;
-  userId: string;
-  user: {
-    name: string;
-    email: string;
-    avatar?: string;
-  };
-  leadId?: string;
-  lead?: {
-    name: string;
-  };
-  metadata?: any;
-  createdAt: string;
-}
+// Activity interface is now imported from service
 
 const ActivityLog = () => {
   const { t } = useTranslation();
-  const [activities, setActivities] = useState<Activity[]>([]);
+  const [activities, setActivities] = useState<ActivityLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedType, setSelectedType] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [dateRange, setDateRange] = useState("today");
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+  const [selectedActivity, setSelectedActivity] = useState<ActivityLog | null>(null);
+  const [stats, setStats] = useState({
+    totalActivities: 0,
+    leadActivities: 0,
+    followUpActivities: 0,
+    messageActivities: 0,
+    userActivities: 0
+  });
+  const [pagination, setPagination] = useState({
+    total: 0,
+    limit: 50,
+    offset: 0,
+    hasMore: false
+  });
 
-  // Mock data - will be replaced with API call
+  // Load activity logs from API
   useEffect(() => {
-    // Simulate loading
-    setTimeout(() => {
-      setActivities([
-        {
-          id: "1",
-          type: "LEAD_CREATED",
-          description: "New lead: Maria Silva",
-          userId: "user1",
-          user: { name: "John Doe", email: "john@example.com" },
-          leadId: "lead1",
-          lead: { name: "Maria Silva" },
-          metadata: { source: "WhatsApp", score: 85 },
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: "2",
-          type: "FOLLOW_UP_CREATED",
-          description: "Follow-up scheduled for Maria Silva",
-          userId: "user1",
-          user: { name: "John Doe", email: "john@example.com" },
-          leadId: "lead1",
-          lead: { name: "Maria Silva" },
-          metadata: { type: "CALL", scheduledAt: "2025-10-25T14:00:00Z" },
-          createdAt: new Date(Date.now() - 3600000).toISOString()
-        },
-        {
-          id: "3",
-          type: "USER_LOGIN",
-          description: "User logged in: admin@duxfit.com",
-          userId: "user2",
-          user: { name: "Admin User", email: "admin@duxfit.com" },
-          metadata: {},
-          createdAt: new Date(Date.now() - 7200000).toISOString()
-        },
-        {
-          id: "4",
-          type: "LEAD_STATUS_CHANGED",
-          description: "Lead status changed for João Santos",
-          userId: "user1",
-          user: { name: "John Doe", email: "john@example.com" },
-          leadId: "lead2",
-          lead: { name: "João Santos" },
-          metadata: { previousStatus: "NEW", newStatus: "CONTACTED" },
-          createdAt: new Date(Date.now() - 10800000).toISOString()
-        },
-        {
-          id: "5",
-          type: "MESSAGE_SENT",
-          description: "WhatsApp message sent to Ana Costa",
-          userId: "user1",
-          user: { name: "John Doe", email: "john@example.com" },
-          leadId: "lead3",
-          lead: { name: "Ana Costa" },
-          metadata: { channel: "WHATSAPP", messageLength: 150 },
-          createdAt: new Date(Date.now() - 14400000).toISOString()
-        }
-      ]);
+    loadActivityLogs();
+  }, [selectedType, dateRange, searchQuery]);
+
+  const loadActivityLogs = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Calculate date range
+      const now = new Date();
+      let startDate: string | undefined;
+      let endDate: string | undefined;
+
+      switch (dateRange) {
+        case "today":
+          startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+          endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59).toISOString();
+          break;
+        case "week":
+          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          startDate = weekAgo.toISOString();
+          endDate = now.toISOString();
+          break;
+        case "month":
+          const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          startDate = monthAgo.toISOString();
+          endDate = now.toISOString();
+          break;
+        case "all":
+        default:
+          // No date filter
+          break;
+      }
+
+      const filters: ActivityLogFilters = {
+        type: selectedType === "all" ? undefined : selectedType,
+        search: searchQuery || undefined,
+        startDate,
+        endDate,
+        limit: 50,
+        offset: 0
+      };
+
+      const response = await activityLogService.getActivityLogs(filters);
+      
+      setActivities(response.data);
+      setStats(response.stats);
+      setPagination(response.pagination);
+    } catch (error: any) {
+      console.error("Error loading activity logs:", error);
+      toast.error(t("activity.failedToLoad"));
+    } finally {
       setIsLoading(false);
-    }, 1000);
-  }, [selectedType, dateRange]);
+    }
+  };
 
   const getActivityIcon = (type: string) => {
     switch (type) {
@@ -195,9 +188,67 @@ const ActivityLog = () => {
     return matchesType && matchesSearch;
   });
 
-  const handleViewDetails = (activity: Activity) => {
+  const handleViewDetails = (activity: ActivityLog) => {
     setSelectedActivity(activity);
     setIsDetailModalOpen(true);
+  };
+
+  const handleExport = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Calculate date range for export
+      const now = new Date();
+      let startDate: string | undefined;
+      let endDate: string | undefined;
+
+      switch (dateRange) {
+        case "today":
+          startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+          endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59).toISOString();
+          break;
+        case "week":
+          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          startDate = weekAgo.toISOString();
+          endDate = now.toISOString();
+          break;
+        case "month":
+          const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          startDate = monthAgo.toISOString();
+          endDate = now.toISOString();
+          break;
+        case "all":
+        default:
+          // No date filter
+          break;
+      }
+
+      const filters: ActivityLogFilters = {
+        type: selectedType === "all" ? undefined : selectedType,
+        search: searchQuery || undefined,
+        startDate,
+        endDate
+      };
+
+      const blob = await activityLogService.exportActivityLogs(filters);
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `activity-logs-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      toast.success(t("activity.exportSuccess"));
+    } catch (error: any) {
+      console.error("Error exporting activity logs:", error);
+      toast.error(t("activity.exportFailed"));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -210,9 +261,14 @@ const ActivityLog = () => {
             {t("activity.trackAllActivities")}
           </p>
         </div>
-        <Button variant="outline" className="border-2 border-border">
+        <Button 
+          variant="outline" 
+          className="border-2 border-border"
+          onClick={handleExport}
+          disabled={isLoading}
+        >
           <Download className="h-4 w-4 mr-2" />
-          {t("activity.exportLog")}
+          {isLoading ? t("common.exporting") : t("activity.exportLog")}
         </Button>
       </div>
 
@@ -224,7 +280,7 @@ const ActivityLog = () => {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{activities.length}</div>
+            <div className="text-2xl font-bold">{stats.totalActivities}</div>
             <p className="text-xs text-muted-foreground">{t("activity.inSelectedPeriod")}</p>
           </CardContent>
         </Card>
@@ -236,7 +292,7 @@ const ActivityLog = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {activities.filter(a => a.type.includes('LEAD')).length}
+              {stats.leadActivities}
             </div>
             <p className="text-xs text-muted-foreground">{t("activity.leadRelatedEvents")}</p>
           </CardContent>
@@ -249,7 +305,7 @@ const ActivityLog = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {activities.filter(a => a.type.includes('FOLLOW_UP')).length}
+              {stats.followUpActivities}
             </div>
             <p className="text-xs text-muted-foreground">{t("activity.followUpActions")}</p>
           </CardContent>
@@ -262,7 +318,7 @@ const ActivityLog = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {activities.filter(a => a.type.includes('MESSAGE')).length}
+              {stats.messageActivities}
             </div>
             <p className="text-xs text-muted-foreground">{t("activity.messagesSent")}</p>
           </CardContent>
@@ -416,14 +472,26 @@ const ActivityLog = () => {
       </Card>
 
       {/* Activity Detail Modal */}
-      <ActivityDetailModal
-        isOpen={isDetailModalOpen}
-        onClose={() => {
-          setIsDetailModalOpen(false);
-          setSelectedActivity(null);
-        }}
-        activity={selectedActivity}
-      />
+      {selectedActivity && (
+        <ActivityDetailModal
+          isOpen={isDetailModalOpen}
+          onClose={() => {
+            setIsDetailModalOpen(false);
+            setSelectedActivity(null);
+          }}
+          activity={{
+            id: selectedActivity.id,
+            type: selectedActivity.type,
+            description: selectedActivity.description,
+            userId: selectedActivity.userId || '',
+            user: selectedActivity.user || { name: 'Unknown', email: '' },
+            leadId: selectedActivity.leadId,
+            lead: selectedActivity.lead,
+            metadata: selectedActivity.metadata,
+            createdAt: selectedActivity.createdAt
+          }}
+        />
+      )}
     </div>
   );
 };

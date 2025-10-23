@@ -1470,6 +1470,9 @@ export const ptBR = {
     hourAgo: 'h atrás',
     // Messages
     loadFailed: 'Falha ao carregar atividades',
+    exportSuccess: 'Log de atividade exportado com sucesso',
+    exportFailed: 'Falha ao exportar log de atividade',
+    failedToLoad: 'Falha ao carregar logs de atividade',
   },
 
   // Notifications
