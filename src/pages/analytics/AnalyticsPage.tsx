@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useTranslation } from "@/hooks/useTranslation";
 import {
   LineChart,
   Line,
@@ -26,6 +27,7 @@ import * as analyticsService from "@/services/analyticsService";
 import type { AnalyticsData } from "@/services/analyticsService";
 
 const AnalyticsPage = () => {
+  const { t } = useTranslation();
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [dateRange, setDateRange] = useState("last-30");
@@ -42,7 +44,7 @@ const AnalyticsPage = () => {
       setAnalyticsData(response.data);
     } catch (error: any) {
       console.error("Error loading analytics data:", error);
-      toast.error("Failed to load analytics data");
+      toast.error(t("analytics.loadFailed"));
     } finally {
       setIsLoading(false);
     }
@@ -50,7 +52,7 @@ const AnalyticsPage = () => {
 
   const handleExportReport = () => {
     if (!analyticsData) {
-      toast.error("No data available to export");
+      toast.error(t("analytics.noDataToExport"));
       return;
     }
 
@@ -109,38 +111,38 @@ const AnalyticsPage = () => {
       link.click();
       document.body.removeChild(link);
 
-      toast.success("Analytics report exported successfully");
+      toast.success(t("analytics.exportSuccess"));
     } catch (error) {
       console.error("Error exporting report:", error);
-      toast.error("Failed to export report");
+      toast.error(t("analytics.exportFailed"));
     }
   };
 
   const summaryCardsConfig = [
     {
       key: 'totalConversations',
-      title: "Total Conversations",
+      title: t("analytics.totalConversations"),
       icon: MessageCircle,
       color: "text-blue-500",
       bgColor: "bg-blue-500/10",
     },
     {
       key: 'avgResponseTime',
-      title: "Avg Response Time",
+      title: t("analytics.avgResponseTime"),
       icon: Clock,
       color: "text-green-500",
       bgColor: "bg-green-500/10",
     },
     {
       key: 'messagesSent',
-      title: "Messages Sent",
+      title: t("analytics.messagesSent"),
       icon: Send,
       color: "text-purple-500",
       bgColor: "bg-purple-500/10",
     },
     {
       key: 'peakHours',
-      title: "Peak Hours",
+      title: t("analytics.peakHours"),
       icon: TrendingUp,
       color: "text-orange-500",
       bgColor: "bg-orange-500/10",
@@ -154,25 +156,25 @@ const AnalyticsPage = () => {
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
             <BarChartIcon className="h-8 w-8 text-primary" />
-            Analytics & Reports
+            {t("analytics.analyticsReports")}
           </h1>
-          <p className="text-muted-foreground mt-1">Track your gym's performance and lead conversion</p>
+          <p className="text-muted-foreground mt-1">{t("analytics.trackPerformance")}</p>
         </div>
         <div className="flex gap-2">
           <Select value={dateRange} onValueChange={setDateRange}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[180px] border-2 border-border">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="last-7">Last 7 days</SelectItem>
-              <SelectItem value="last-30">Last 30 days</SelectItem>
-              <SelectItem value="last-90">Last 90 days</SelectItem>
-              <SelectItem value="custom">Custom range</SelectItem>
+              <SelectItem value="last-7">{t("analytics.last7Days")}</SelectItem>
+              <SelectItem value="last-30">{t("analytics.last30Days")}</SelectItem>
+              <SelectItem value="last-90">{t("analytics.last90Days")}</SelectItem>
+              <SelectItem value="custom">{t("analytics.customRange")}</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" className="gap-2" onClick={handleExportReport} disabled={!analyticsData}>
+          <Button variant="outline" className="gap-2 border-2 border-border" onClick={handleExportReport} disabled={!analyticsData}>
             <Download className="h-4 w-4" />
-            Export Report
+            {t("analytics.exportReport")}
           </Button>
         </div>
       </div>
@@ -181,7 +183,7 @@ const AnalyticsPage = () => {
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <span className="ml-2 text-muted-foreground">Loading analytics...</span>
+          <span className="ml-2 text-muted-foreground">{t("analytics.loadingAnalytics")}</span>
         </div>
       ) : analyticsData ? (
         <>
@@ -216,8 +218,8 @@ const AnalyticsPage = () => {
         {/* Leads Acquisition Trend */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Leads Acquisition Trend</CardTitle>
-            <CardDescription>Daily new leads - Last 30 days</CardDescription>
+            <CardTitle>{t("analytics.leadsAcquisitionTrend")}</CardTitle>
+            <CardDescription>{t("analytics.dailyNewLeads")}</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -249,7 +251,7 @@ const AnalyticsPage = () => {
                   dataKey="total" 
                   stroke="#3b82f6" 
                   strokeWidth={2}
-                  name="Total Leads"
+                  name={t("analytics.totalLeads")}
                   dot={{ fill: '#3b82f6', r: 4 }}
                   activeDot={{ r: 6 }}
                 />
@@ -258,7 +260,7 @@ const AnalyticsPage = () => {
                   dataKey="qualified" 
                   stroke="#22c55e" 
                   strokeWidth={2}
-                  name="Qualified"
+                  name={t("analytics.qualified")}
                   dot={{ fill: '#22c55e', r: 4 }}
                   activeDot={{ r: 6 }}
                 />
@@ -267,7 +269,7 @@ const AnalyticsPage = () => {
                   dataKey="closed" 
                   stroke="#a855f7" 
                   strokeWidth={2}
-                  name="Closed"
+                  name={t("analytics.closed")}
                   dot={{ fill: '#a855f7', r: 4 }}
                   activeDot={{ r: 6 }}
                 />
@@ -283,8 +285,8 @@ const AnalyticsPage = () => {
         {/* Lead Status Distribution */}
         <Card>
           <CardHeader>
-            <CardTitle>Status Distribution</CardTitle>
-            <CardDescription>Current breakdown</CardDescription>
+            <CardTitle>{t("analytics.statusDistribution")}</CardTitle>
+            <CardDescription>{t("analytics.currentBreakdown")}</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={280}>
@@ -310,7 +312,7 @@ const AnalyticsPage = () => {
                 <Bar 
                   dataKey="count" 
                   fill="#8b5cf6" 
-                  name="Leads"
+                  name={t("analytics.leads")}
                   radius={[8, 8, 0, 0]}
                 />
               </BarChart>
@@ -321,8 +323,8 @@ const AnalyticsPage = () => {
         {/* Conversion Funnel */}
         <Card>
           <CardHeader>
-            <CardTitle>Conversion Funnel</CardTitle>
-            <CardDescription>Lead journey</CardDescription>
+            <CardTitle>{t("analytics.conversionFunnel")}</CardTitle>
+            <CardDescription>{t("analytics.leadJourney")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -349,8 +351,8 @@ const AnalyticsPage = () => {
         {/* Lead Sources */}
         <Card>
           <CardHeader>
-            <CardTitle>Lead Sources</CardTitle>
-            <CardDescription>Where leads come from</CardDescription>
+            <CardTitle>{t("analytics.leadSources")}</CardTitle>
+            <CardDescription>{t("analytics.whereLeadsComeFrom")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex h-[280px] flex-col items-center justify-center">
@@ -358,7 +360,7 @@ const AnalyticsPage = () => {
                 <div className="h-24 w-24 mx-auto rounded-full border-8 border-primary bg-muted flex items-center justify-center">
                   <div className="text-center">
                     <p className="text-xl font-bold">{analyticsData.leadSources.total}</p>
-                    <p className="text-xs text-muted-foreground">Total</p>
+                    <p className="text-xs text-muted-foreground">{t("analytics.total")}</p>
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -388,24 +390,24 @@ const AnalyticsPage = () => {
         {/* Peak Performance Times */}
         <Card>
           <CardHeader>
-            <CardTitle>Peak Performance Times</CardTitle>
-            <CardDescription>Best times for lead engagement</CardDescription>
+            <CardTitle>{t("analytics.peakPerformanceTimes")}</CardTitle>
+            <CardDescription>{t("analytics.bestTimesForEngagement")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-left p-3 font-medium">Time Slot</th>
-                    <th className="text-left p-3 font-medium">Messages</th>
-                    <th className="text-left p-3 font-medium">Conv. Rate</th>
+                    <th className="text-left p-3 font-medium">{t("analytics.timeSlot")}</th>
+                    <th className="text-left p-3 font-medium">{t("analytics.messages")}</th>
+                    <th className="text-left p-3 font-medium">{t("analytics.convRate")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {analyticsData.peakHours.length === 0 ? (
                     <tr>
                       <td colSpan={3} className="p-6 text-center text-muted-foreground">
-                        No peak hours data available
+                        {t("analytics.noPeakHoursData")}
                       </td>
                     </tr>
                   ) : (
@@ -428,25 +430,25 @@ const AnalyticsPage = () => {
         {/* Agent Performance */}
         <Card>
           <CardHeader>
-            <CardTitle>Agent Performance</CardTitle>
-            <CardDescription>Individual team member metrics</CardDescription>
+            <CardTitle>{t("analytics.agentPerformance")}</CardTitle>
+            <CardDescription>{t("analytics.individualTeamMetrics")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-left p-3 font-medium">Agent</th>
-                    <th className="text-left p-3 font-medium">Conv.</th>
-                    <th className="text-left p-3 font-medium">Closed</th>
-                    <th className="text-left p-3 font-medium">Rate</th>
+                    <th className="text-left p-3 font-medium">{t("analytics.agent")}</th>
+                    <th className="text-left p-3 font-medium">{t("analytics.conv")}</th>
+                    <th className="text-left p-3 font-medium">{t("analytics.closed")}</th>
+                    <th className="text-left p-3 font-medium">{t("common.rate")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {analyticsData.agentPerformance.length === 0 ? (
                     <tr>
                       <td colSpan={4} className="p-6 text-center text-muted-foreground">
-                        No agent performance data available
+                        {t("analytics.noAgentPerformanceData")}
                       </td>
                     </tr>
                   ) : (

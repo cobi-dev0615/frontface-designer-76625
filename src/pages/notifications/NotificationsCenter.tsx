@@ -7,12 +7,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useTranslation } from "@/hooks/useTranslation";
 import { formatDistanceToNow } from "date-fns";
 import * as notificationService from "@/services/notificationService";
 import type { Notification } from "@/services/notificationService";
 import { useNotificationStore } from "@/store/notificationStore";
 
 const NotificationsCenter = () => {
+  const { t } = useTranslation();
   const { notifications: storeNotifications, setNotifications, markAsRead, markAllAsRead: markAllAsReadStore, removeNotification } = useNotificationStore();
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
@@ -30,7 +32,7 @@ const NotificationsCenter = () => {
       setNotifications(response.data);
     } catch (error: any) {
       console.error("Error loading notifications:", error);
-      toast.error("Failed to load notifications");
+      toast.error(t("notifications.loadFailed"));
     } finally {
       setIsLoading(false);
     }
@@ -42,7 +44,7 @@ const NotificationsCenter = () => {
       markAsRead(notificationId);
     } catch (error: any) {
       console.error("Error marking notification as read:", error);
-      toast.error("Failed to mark as read");
+      toast.error(t("notifications.markAsReadFailed"));
     }
   };
 
@@ -54,7 +56,7 @@ const NotificationsCenter = () => {
       toast.success(response.message);
     } catch (error: any) {
       console.error("Error marking all as read:", error);
-      toast.error("Failed to mark all as read");
+      toast.error(t("notifications.markAllAsReadFailed"));
     } finally {
       setIsMarkingAllRead(false);
     }
@@ -64,10 +66,10 @@ const NotificationsCenter = () => {
     try {
       await notificationService.deleteNotification(notificationId);
       removeNotification(notificationId);
-      toast.success("Notification deleted");
+      toast.success(t("notifications.deleteSuccess"));
     } catch (error: any) {
       console.error("Error deleting notification:", error);
-      toast.error("Failed to delete notification");
+      toast.error(t("notifications.deleteFailed"));
     }
   };
 
@@ -79,7 +81,7 @@ const NotificationsCenter = () => {
       toast.success(response.message);
     } catch (error: any) {
       console.error("Error deleting read notifications:", error);
-      toast.error("Failed to delete read notifications");
+      toast.error(t("notifications.deleteReadFailed"));
     }
   };
 
@@ -116,30 +118,32 @@ const NotificationsCenter = () => {
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Notifications</h1>
-          <p className="text-muted-foreground">Stay updated with your latest activities</p>
+          <h1 className="text-3xl font-bold">{t("notifications.title")}</h1>
+          <p className="text-muted-foreground">{t("notifications.stayUpdated")}</p>
         </div>
         <div className="flex gap-2">
           <Button 
             variant="outline" 
+            className="border-2 border-primary"
             onClick={handleMarkAllAsRead}
             disabled={isMarkingAllRead || unreadNotifications.length === 0}
           >
             {isMarkingAllRead ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Marking...
+                {t("notifications.marking")}
               </>
             ) : (
-              "Mark All as Read"
+              t("notifications.markAllAsRead")
             )}
           </Button>
           <Button 
             variant="outline"
+            className="border-2 border-primary"
             onClick={handleDeleteReadNotifications}
           >
             <Trash2 className="h-4 w-4 mr-2" />
-            Clear Read
+            {t("notifications.clearRead")}
           </Button>
         </div>
       </div>
@@ -151,14 +155,14 @@ const NotificationsCenter = () => {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>All Notifications</CardTitle>
+                  <CardTitle>{t("notifications.allNotifications")}</CardTitle>
                   <CardDescription>
-                    {isLoading ? "Loading..." : `You have ${unreadNotifications.length} unread notifications`}
+                    {isLoading ? t("notifications.loading") : t("notifications.youHaveUnread", { count: unreadNotifications.length })}
                   </CardDescription>
                 </div>
                 {!isLoading && unreadNotifications.length > 0 && (
                   <Badge variant="outline" className="bg-primary/10">
-                    {unreadNotifications.length} New
+                    {unreadNotifications.length} {t("notifications.new")}
                   </Badge>
                 )}
               </div>
@@ -167,25 +171,25 @@ const NotificationsCenter = () => {
               {isLoading ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  <span className="ml-2 text-muted-foreground">Loading notifications...</span>
+                  <span className="ml-2 text-muted-foreground">{t("notifications.loading")}</span>
                 </div>
               ) : (
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
                   <TabsList className="w-full">
                     <TabsTrigger value="all" className="flex-1">
-                      All ({storeNotifications.length})
+                      {t("notifications.all")} ({storeNotifications.length})
                     </TabsTrigger>
                     <TabsTrigger value="unread" className="flex-1">
-                      Unread ({unreadNotifications.length})
+                      {t("notifications.unread")} ({unreadNotifications.length})
                     </TabsTrigger>
                     <TabsTrigger value="messages" className="flex-1">
-                      Messages ({messageNotifications.length})
+                      {t("notifications.messages")} ({messageNotifications.length})
                     </TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="all" className="space-y-2 mt-4">
                     {storeNotifications.length === 0 ? (
-                      <p className="text-center text-muted-foreground py-8">No notifications</p>
+                      <p className="text-center text-muted-foreground py-8">{t("notifications.noNotifications")}</p>
                     ) : (
                       storeNotifications.map((notification) => {
                         const NotificationIcon = getNotificationIcon(notification.type);
@@ -235,7 +239,7 @@ const NotificationsCenter = () => {
 
                   <TabsContent value="unread" className="space-y-2 mt-4">
                     {unreadNotifications.length === 0 ? (
-                      <p className="text-center text-muted-foreground py-8">No unread notifications</p>
+                      <p className="text-center text-muted-foreground py-8">{t("notifications.noUnreadNotifications")}</p>
                     ) : (
                       unreadNotifications.map((notification) => {
                         const NotificationIcon = getNotificationIcon(notification.type);
@@ -279,7 +283,7 @@ const NotificationsCenter = () => {
 
                   <TabsContent value="messages" className="space-y-2 mt-4">
                     {messageNotifications.length === 0 ? (
-                      <p className="text-center text-muted-foreground py-8">No message notifications</p>
+                      <p className="text-center text-muted-foreground py-8">{t("notifications.noMessageNotifications")}</p>
                     ) : (
                       messageNotifications.map((notification) => {
                         const NotificationIcon = getNotificationIcon(notification.type);
@@ -336,42 +340,42 @@ const NotificationsCenter = () => {
         <div className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Notification Preferences</CardTitle>
-              <CardDescription>Choose what you want to be notified about</CardDescription>
+              <CardTitle className="text-base">{t("notifications.notificationPreferences")}</CardTitle>
+              <CardDescription>{t("notifications.chooseWhatToBeNotified")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <Label htmlFor="new-leads" className="flex flex-col gap-1">
-                  <span className="font-medium">New Leads</span>
-                  <span className="text-xs text-muted-foreground">Get notified of new leads</span>
+                  <span className="font-medium">{t("notifications.newLeads")}</span>
+                  <span className="text-xs text-muted-foreground">{t("notifications.getNotifiedOfNewLeads")}</span>
                 </Label>
                 <Switch id="new-leads" defaultChecked />
               </div>
               <div className="flex items-center justify-between">
                 <Label htmlFor="messages" className="flex flex-col gap-1">
-                  <span className="font-medium">Messages</span>
-                  <span className="text-xs text-muted-foreground">WhatsApp and chat messages</span>
+                  <span className="font-medium">{t("notifications.messages")}</span>
+                  <span className="text-xs text-muted-foreground">{t("notifications.whatsappAndChatMessages")}</span>
                 </Label>
                 <Switch id="messages" defaultChecked />
               </div>
               <div className="flex items-center justify-between">
                 <Label htmlFor="followups" className="flex flex-col gap-1">
-                  <span className="font-medium">Follow-ups</span>
-                  <span className="text-xs text-muted-foreground">Upcoming follow-up reminders</span>
+                  <span className="font-medium">{t("notifications.followUps")}</span>
+                  <span className="text-xs text-muted-foreground">{t("notifications.upcomingFollowUpReminders")}</span>
                 </Label>
                 <Switch id="followups" defaultChecked />
               </div>
               <div className="flex items-center justify-between">
                 <Label htmlFor="conversions" className="flex flex-col gap-1">
-                  <span className="font-medium">Conversions</span>
-                  <span className="text-xs text-muted-foreground">Lead to customer conversions</span>
+                  <span className="font-medium">{t("notifications.conversions")}</span>
+                  <span className="text-xs text-muted-foreground">{t("notifications.leadToCustomerConversions")}</span>
                 </Label>
                 <Switch id="conversions" defaultChecked />
               </div>
               <div className="flex items-center justify-between">
                 <Label htmlFor="alerts" className="flex flex-col gap-1">
-                  <span className="font-medium">System Alerts</span>
-                  <span className="text-xs text-muted-foreground">Important system messages</span>
+                  <span className="font-medium">{t("notifications.systemAlerts")}</span>
+                  <span className="text-xs text-muted-foreground">{t("notifications.importantSystemMessages")}</span>
                 </Label>
                 <Switch id="alerts" defaultChecked />
               </div>
@@ -380,19 +384,19 @@ const NotificationsCenter = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Delivery Methods</CardTitle>
+              <CardTitle className="text-base">{t("notifications.deliveryMethods")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label htmlFor="push" className="font-medium">Push Notifications</Label>
+                <Label htmlFor="push" className="font-medium">{t("notifications.pushNotifications")}</Label>
                 <Switch id="push" defaultChecked />
               </div>
               <div className="flex items-center justify-between">
-                <Label htmlFor="email" className="font-medium">Email</Label>
+                <Label htmlFor="email" className="font-medium">{t("notifications.email")}</Label>
                 <Switch id="email" />
               </div>
               <div className="flex items-center justify-between">
-                <Label htmlFor="whatsapp" className="font-medium">WhatsApp</Label>
+                <Label htmlFor="whatsapp" className="font-medium">{t("notifications.whatsapp")}</Label>
                 <Switch id="whatsapp" />
               </div>
             </CardContent>

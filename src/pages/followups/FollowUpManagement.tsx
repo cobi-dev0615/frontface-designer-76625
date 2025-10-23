@@ -7,12 +7,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useTranslation } from "@/hooks/useTranslation";
 import * as followUpService from "@/services/followUpService";
 import type { FollowUp, FollowUpStats } from "@/services/followUpService";
 import CreateFollowUpModal from "@/components/modals/CreateFollowUpModal";
 import FollowUpDetailModal from "@/components/modals/FollowUpDetailModal";
 
 const FollowUpManagement = () => {
+  const { t } = useTranslation();
   const [followUps, setFollowUps] = useState<FollowUp[]>([]);
   const [stats, setStats] = useState<FollowUpStats>({
     pending: 0,
@@ -74,7 +76,7 @@ const FollowUpManagement = () => {
       setStats(response.stats);
     } catch (error: any) {
       console.error("Error loading follow-ups:", error);
-      toast.error(error.response?.data?.message || "Failed to load follow-ups");
+      toast.error(error.response?.data?.message || t("followUps.loadFailed"));
     } finally {
       setIsLoading(false);
     }
@@ -135,20 +137,20 @@ const FollowUpManagement = () => {
   const handleCompleteFollowUp = async (followUpId: string) => {
     try {
       await followUpService.completeFollowUp(followUpId);
-      toast.success("Follow-up completed successfully");
+      toast.success(t("followUps.completeSuccess"));
       loadFollowUps();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to complete follow-up");
+      toast.error(error.response?.data?.message || t("followUps.completeFailed"));
     }
   };
 
   const handleCancelFollowUp = async (followUpId: string) => {
     try {
       await followUpService.cancelFollowUp(followUpId);
-      toast.success("Follow-up cancelled successfully");
+      toast.success(t("followUps.cancelSuccess"));
       loadFollowUps();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to cancel follow-up");
+      toast.error(error.response?.data?.message || t("followUps.cancelFailed"));
     }
   };
 
@@ -160,13 +162,10 @@ const FollowUpManagement = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          
-        </div>
+      <div className="flex justify-end">
         <Button variant="gradient" onClick={() => setIsCreateModalOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
-          Schedule Follow-Up
+          {t("followUps.scheduleFollowUp")}
         </Button>
       </div>
 
@@ -174,45 +173,45 @@ const FollowUpManagement = () => {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Today's Follow-Ups</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("followUps.todaysFollowUps")}</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.today}</div>
-            <p className="text-xs text-muted-foreground">Scheduled for today</p>
+            <p className="text-xs text-muted-foreground">{t("followUps.scheduledForToday")}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("followUps.pending")}</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.pending}</div>
-            <p className="text-xs text-muted-foreground">Awaiting completion</p>
+            <p className="text-xs text-muted-foreground">{t("followUps.awaitingCompletion")}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Overdue</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("followUps.overdue")}</CardTitle>
             <AlertCircle className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-destructive">{stats.overdue}</div>
-            <p className="text-xs text-muted-foreground">Requires attention</p>
+            <p className="text-xs text-muted-foreground">{t("followUps.requiresAttention")}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("followUps.completed")}</CardTitle>
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.completed}</div>
-            <p className="text-xs text-muted-foreground">Successfully completed</p>
+            <p className="text-xs text-muted-foreground">{t("followUps.successfullyCompleted")}</p>
           </CardContent>
         </Card>
       </div>
@@ -220,43 +219,43 @@ const FollowUpManagement = () => {
       {/* Filters */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Filters</CardTitle>
+          <CardTitle className="text-base">{t("followUps.filters")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-4">
             <Select value={selectedType} onValueChange={setSelectedType}>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Follow-up Type" />
+                <SelectValue placeholder={t("followUps.followUpType")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="CALL">Call</SelectItem>
-                <SelectItem value="WHATSAPP">WhatsApp</SelectItem>
-                <SelectItem value="EMAIL">Email</SelectItem>
-                <SelectItem value="VISIT">Visit</SelectItem>
+                <SelectItem value="all">{t("followUps.allTypes")}</SelectItem>
+                <SelectItem value="CALL">{t("followUps.types.call")}</SelectItem>
+                <SelectItem value="WHATSAPP">{t("followUps.types.whatsapp")}</SelectItem>
+                <SelectItem value="EMAIL">{t("followUps.types.email")}</SelectItem>
+                <SelectItem value="VISIT">{t("followUps.types.visit")}</SelectItem>
               </SelectContent>
             </Select>
             <Select value={selectedStatus} onValueChange={setSelectedStatus}>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Status" />
+                <SelectValue placeholder={t("followUps.status")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="PENDING">Pending</SelectItem>
-                <SelectItem value="COMPLETED">Completed</SelectItem>
-                <SelectItem value="OVERDUE">Overdue</SelectItem>
-                <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                <SelectItem value="all">{t("followUps.allStatus")}</SelectItem>
+                <SelectItem value="PENDING">{t("followUps.pending")}</SelectItem>
+                <SelectItem value="COMPLETED">{t("followUps.completed")}</SelectItem>
+                <SelectItem value="OVERDUE">{t("followUps.overdue")}</SelectItem>
+                <SelectItem value="CANCELLED">{t("followUps.cancelled")}</SelectItem>
               </SelectContent>
             </Select>
             <Select value={dateRange} onValueChange={setDateRange}>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Date Range" />
+                <SelectValue placeholder={t("followUps.dateRange")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="today">Today</SelectItem>
-                <SelectItem value="week">This Week</SelectItem>
-                <SelectItem value="month">This Month</SelectItem>
-                <SelectItem value="all">All Time</SelectItem>
+                <SelectItem value="today">{t("followUps.today")}</SelectItem>
+                <SelectItem value="week">{t("followUps.thisWeek")}</SelectItem>
+                <SelectItem value="month">{t("followUps.thisMonth")}</SelectItem>
+                <SelectItem value="all">{t("followUps.allTime")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -266,26 +265,26 @@ const FollowUpManagement = () => {
       {/* Follow-ups Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Scheduled Follow-Ups</CardTitle>
-          <CardDescription>Manage your upcoming and past follow-ups</CardDescription>
+          <CardTitle>{t("followUps.scheduledFollowUps")}</CardTitle>
+          <CardDescription>{t("followUps.manageFollowUps")}</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <span className="ml-2 text-muted-foreground">Loading follow-ups...</span>
+              <span className="ml-2 text-muted-foreground">{t("followUps.loadingFollowUps")}</span>
             </div>
           ) : (
             <Tabs defaultValue="pending">
               <TabsList>
-                <TabsTrigger value="pending">Pending ({followUps.filter(f => f.status === 'PENDING').length})</TabsTrigger>
-                <TabsTrigger value="completed">Completed ({followUps.filter(f => f.status === 'COMPLETED').length})</TabsTrigger>
-                <TabsTrigger value="overdue">Overdue ({followUps.filter(f => f.status === 'OVERDUE').length})</TabsTrigger>
+                <TabsTrigger value="pending">{t("followUps.pending")} ({followUps.filter(f => f.status === 'PENDING').length})</TabsTrigger>
+                <TabsTrigger value="completed">{t("followUps.completed")} ({followUps.filter(f => f.status === 'COMPLETED').length})</TabsTrigger>
+                <TabsTrigger value="overdue">{t("followUps.overdue")} ({followUps.filter(f => f.status === 'OVERDUE').length})</TabsTrigger>
               </TabsList>
 
               <TabsContent value="pending" className="space-y-4 mt-4">
                 {followUps.filter(f => f.status === 'PENDING').length === 0 ? (
-                  <p className="text-center text-muted-foreground py-8">No pending follow-ups</p>
+                  <p className="text-center text-muted-foreground py-8">{t("followUps.noPendingFollowUps")}</p>
                 ) : (
                   followUps.filter(f => f.status === 'PENDING').map((followUp) => (
                     <div key={followUp.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => handleViewDetails(followUp)}>
@@ -302,7 +301,7 @@ const FollowUpManagement = () => {
                           <div className="flex items-center gap-2 mb-1">
                             <h4 className="font-medium">{followUp.lead.name}</h4>
                             <Badge className={`${getStatusColor(followUp.status)} text-white`}>
-                              {followUp.status}
+                              {t(`followUps.${followUp.status.toLowerCase()}`)}
                             </Badge>
                           </div>
                           <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -313,7 +312,7 @@ const FollowUpManagement = () => {
                             <span>•</span>
                             <span className="flex items-center gap-1">
                               {getTypeIcon(followUp.type)}
-                              {followUp.type}
+                              {t(`followUps.types.${followUp.type.toLowerCase()}`)}
                             </span>
                             <span>•</span>
                             <span>{followUp.lead.gym.name}</span>
@@ -324,14 +323,14 @@ const FollowUpManagement = () => {
                         </div>
                       </div>
                       <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                        <Button variant="outline" size="sm">Reschedule</Button>
+                        <Button variant="outline" size="sm">{t("followUps.reschedule")}</Button>
                         <Button 
                           variant="gradient" 
                           size="sm"
                           onClick={() => handleCompleteFollowUp(followUp.id)}
                         >
                           <CheckCircle className="h-4 w-4 mr-1" />
-                          Complete
+                          {t("followUps.complete")}
                         </Button>
                       </div>
                     </div>
@@ -341,7 +340,7 @@ const FollowUpManagement = () => {
 
               <TabsContent value="completed" className="space-y-4 mt-4">
                 {followUps.filter(f => f.status === 'COMPLETED').length === 0 ? (
-                  <p className="text-center text-muted-foreground py-8">No completed follow-ups</p>
+                  <p className="text-center text-muted-foreground py-8">{t("followUps.noCompletedFollowUps")}</p>
                 ) : (
                   followUps.filter(f => f.status === 'COMPLETED').map((followUp) => (
                     <div key={followUp.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => handleViewDetails(followUp)}>
@@ -358,7 +357,7 @@ const FollowUpManagement = () => {
                           <div className="flex items-center gap-2 mb-1">
                             <h4 className="font-medium">{followUp.lead.name}</h4>
                             <Badge className={`${getStatusColor(followUp.status)} text-white`}>
-                              {followUp.status}
+                              {t(`followUps.${followUp.status.toLowerCase()}`)}
                             </Badge>
                           </div>
                           <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -369,7 +368,7 @@ const FollowUpManagement = () => {
                             <span>•</span>
                             <span className="flex items-center gap-1">
                               {getTypeIcon(followUp.type)}
-                              {followUp.type}
+                              {t(`followUps.types.${followUp.type.toLowerCase()}`)}
                             </span>
                             <span>•</span>
                             <span>{followUp.lead.gym.name}</span>
@@ -380,7 +379,7 @@ const FollowUpManagement = () => {
                         </div>
                       </div>
                       <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                        <Button variant="outline" size="sm" onClick={() => handleViewDetails(followUp)}>View Details</Button>
+                        <Button variant="outline" size="sm" onClick={() => handleViewDetails(followUp)}>{t("followUps.viewDetails")}</Button>
                       </div>
                     </div>
                   ))
@@ -389,7 +388,7 @@ const FollowUpManagement = () => {
 
               <TabsContent value="overdue" className="space-y-4 mt-4">
                 {followUps.filter(f => f.status === 'OVERDUE').length === 0 ? (
-                  <p className="text-center text-muted-foreground py-8">No overdue follow-ups</p>
+                  <p className="text-center text-muted-foreground py-8">{t("followUps.noOverdueFollowUps")}</p>
                 ) : (
                   followUps.filter(f => f.status === 'OVERDUE').map((followUp) => (
                     <div key={followUp.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => handleViewDetails(followUp)}>
@@ -406,7 +405,7 @@ const FollowUpManagement = () => {
                           <div className="flex items-center gap-2 mb-1">
                             <h4 className="font-medium">{followUp.lead.name}</h4>
                             <Badge className={`${getStatusColor(followUp.status)} text-white`}>
-                              {followUp.status}
+                              {t(`followUps.${followUp.status.toLowerCase()}`)}
                             </Badge>
                           </div>
                           <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -417,7 +416,7 @@ const FollowUpManagement = () => {
                             <span>•</span>
                             <span className="flex items-center gap-1">
                               {getTypeIcon(followUp.type)}
-                              {followUp.type}
+                              {t(`followUps.types.${followUp.type.toLowerCase()}`)}
                             </span>
                             <span>•</span>
                             <span>{followUp.lead.gym.name}</span>
@@ -428,14 +427,14 @@ const FollowUpManagement = () => {
                         </div>
                       </div>
                       <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                        <Button variant="outline" size="sm">Reschedule</Button>
+                        <Button variant="outline" size="sm">{t("followUps.reschedule")}</Button>
                         <Button 
                           variant="gradient" 
                           size="sm"
                           onClick={() => handleCompleteFollowUp(followUp.id)}
                         >
                           <CheckCircle className="h-4 w-4 mr-1" />
-                          Complete
+                          {t("followUps.complete")}
                         </Button>
                       </div>
                     </div>

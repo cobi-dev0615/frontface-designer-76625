@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { format } from "date-fns";
+import { useTranslation } from "@/hooks/useTranslation";
 import ActivityDetailModal from "@/components/modals/ActivityDetailModal";
 
 // Mock data for now - will be replaced with backend data
@@ -29,6 +30,7 @@ interface Activity {
 }
 
 const ActivityLog = () => {
+  const { t } = useTranslation();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedType, setSelectedType] = useState("all");
@@ -147,7 +149,19 @@ const ActivityLog = () => {
   };
 
   const formatActivityType = (type: string) => {
-    return type
+    const typeMap: { [key: string]: string } = {
+      'LEAD_CREATED': t("activity.leadCreated"),
+      'LEAD_UPDATED': t("activity.leadUpdated"),
+      'LEAD_STATUS_CHANGED': t("activity.statusChanged"),
+      'MESSAGE_SENT': t("activity.messageSent"),
+      'FOLLOW_UP_CREATED': t("activity.followUpCreated"),
+      'FOLLOW_UP_COMPLETED': t("activity.followUpCompleted"),
+      'USER_LOGIN': t("activity.userLogin"),
+      'CONVERSATION_STARTED': t("activity.activityTypes.conversationStarted"),
+      'CONVERSATION_CLOSED': t("activity.activityTypes.conversationClosed"),
+    };
+    
+    return typeMap[type] || type
       .split('_')
       .map(word => word.charAt(0) + word.slice(1).toLowerCase())
       .join(' ');
@@ -158,9 +172,9 @@ const ActivityLog = () => {
     const now = new Date();
     const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / 60000);
 
-    if (diffInMinutes < 1) return 'Just now';
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+    if (diffInMinutes < 1) return t("activity.justNow");
+    if (diffInMinutes < 60) return `${diffInMinutes}${t("activity.minAgo")}`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}${t("activity.hourAgo")}`;
     return format(date, 'MMM d, h:mm a');
   };
 
@@ -191,14 +205,14 @@ const ActivityLog = () => {
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Activity Log</h1>
+          <h1 className="text-3xl font-bold">{t("activity.activityLog")}</h1>
           <p className="text-muted-foreground mt-1">
-            Track all activities and events in your CRM
+            {t("activity.trackAllActivities")}
           </p>
         </div>
-        <Button variant="outline">
+        <Button variant="outline" className="border-2 border-border">
           <Download className="h-4 w-4 mr-2" />
-          Export Log
+          {t("activity.exportLog")}
         </Button>
       </div>
 
@@ -206,51 +220,51 @@ const ActivityLog = () => {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Activities</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("activity.totalActivities")}</CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{activities.length}</div>
-            <p className="text-xs text-muted-foreground">In selected period</p>
+            <p className="text-xs text-muted-foreground">{t("activity.inSelectedPeriod")}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Lead Activities</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("activity.leadActivities")}</CardTitle>
             <UserPlus className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
               {activities.filter(a => a.type.includes('LEAD')).length}
             </div>
-            <p className="text-xs text-muted-foreground">Lead-related events</p>
+            <p className="text-xs text-muted-foreground">{t("activity.leadRelatedEvents")}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Follow-ups</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("activity.followUps")}</CardTitle>
             <Phone className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
               {activities.filter(a => a.type.includes('FOLLOW_UP')).length}
             </div>
-            <p className="text-xs text-muted-foreground">Follow-up actions</p>
+            <p className="text-xs text-muted-foreground">{t("activity.followUpActions")}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Messages</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("activity.messages")}</CardTitle>
             <MessageSquare className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
               {activities.filter(a => a.type.includes('MESSAGE')).length}
             </div>
-            <p className="text-xs text-muted-foreground">Messages sent</p>
+            <p className="text-xs text-muted-foreground">{t("activity.messagesSent")}</p>
           </CardContent>
         </Card>
       </div>
@@ -258,13 +272,13 @@ const ActivityLog = () => {
       {/* Filters */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Filters</CardTitle>
+          <CardTitle className="text-base">{t("activity.filters")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-4">
             <div className="flex-1 min-w-[200px]">
               <Input
-                placeholder="Search activities..."
+                placeholder={t("activity.searchActivities")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full"
@@ -272,28 +286,28 @@ const ActivityLog = () => {
             </div>
             <Select value={selectedType} onValueChange={setSelectedType}>
               <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Activity Type" />
+                <SelectValue placeholder={t("activity.activityType")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="LEAD_CREATED">Lead Created</SelectItem>
-                <SelectItem value="LEAD_UPDATED">Lead Updated</SelectItem>
-                <SelectItem value="LEAD_STATUS_CHANGED">Status Changed</SelectItem>
-                <SelectItem value="FOLLOW_UP_CREATED">Follow-up Created</SelectItem>
-                <SelectItem value="FOLLOW_UP_COMPLETED">Follow-up Completed</SelectItem>
-                <SelectItem value="MESSAGE_SENT">Message Sent</SelectItem>
-                <SelectItem value="USER_LOGIN">User Login</SelectItem>
+                <SelectItem value="all">{t("activity.allTypes")}</SelectItem>
+                <SelectItem value="LEAD_CREATED">{t("activity.leadCreated")}</SelectItem>
+                <SelectItem value="LEAD_UPDATED">{t("activity.leadUpdated")}</SelectItem>
+                <SelectItem value="LEAD_STATUS_CHANGED">{t("activity.statusChanged")}</SelectItem>
+                <SelectItem value="FOLLOW_UP_CREATED">{t("activity.followUpCreated")}</SelectItem>
+                <SelectItem value="FOLLOW_UP_COMPLETED">{t("activity.followUpCompleted")}</SelectItem>
+                <SelectItem value="MESSAGE_SENT">{t("activity.messageSent")}</SelectItem>
+                <SelectItem value="USER_LOGIN">{t("activity.userLogin")}</SelectItem>
               </SelectContent>
             </Select>
             <Select value={dateRange} onValueChange={setDateRange}>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Date Range" />
+                <SelectValue placeholder={t("activity.dateRange")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="today">Today</SelectItem>
-                <SelectItem value="week">This Week</SelectItem>
-                <SelectItem value="month">This Month</SelectItem>
-                <SelectItem value="all">All Time</SelectItem>
+                <SelectItem value="today">{t("activity.today")}</SelectItem>
+                <SelectItem value="week">{t("activity.thisWeek")}</SelectItem>
+                <SelectItem value="month">{t("activity.thisMonth")}</SelectItem>
+                <SelectItem value="all">{t("activity.allTime")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -303,21 +317,21 @@ const ActivityLog = () => {
       {/* Activity Timeline */}
       <Card>
         <CardHeader>
-          <CardTitle>Activity Timeline</CardTitle>
+          <CardTitle>{t("activity.activityTimeline")}</CardTitle>
           <CardDescription>
-            Chronological list of all activities in your CRM
+            {t("activity.chronologicalList")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <span className="ml-2 text-muted-foreground">Loading activities...</span>
+              <span className="ml-2 text-muted-foreground">{t("activity.loadingActivities")}</span>
             </div>
           ) : filteredActivities.length === 0 ? (
             <div className="text-center py-12">
               <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">No activities found</p>
+              <p className="text-muted-foreground">{t("activity.noActivitiesFound")}</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -361,7 +375,7 @@ const ActivityLog = () => {
                         {activity.lead && (
                           <>
                             <span>•</span>
-                            <span>Lead: {activity.lead.name}</span>
+                            <span>{t("activity.lead")}: {activity.lead.name}</span>
                           </>
                         )}
 
@@ -378,7 +392,7 @@ const ActivityLog = () => {
                                 handleViewDetails(activity);
                               }}
                             >
-                              View details
+                              {t("activity.viewDetails")}
                             </Button>
                           </>
                         )}
@@ -387,7 +401,7 @@ const ActivityLog = () => {
                       {/* Metadata Display (if any) */}
                       {activity.metadata && activity.type === 'LEAD_STATUS_CHANGED' && (
                         <div className="mt-2 text-xs text-muted-foreground">
-                          Status: <Badge variant="outline" className="text-xs">{activity.metadata.previousStatus}</Badge>
+                          {t("activity.status")}: <Badge variant="outline" className="text-xs">{activity.metadata.previousStatus}</Badge>
                           {' → '}
                           <Badge variant="outline" className="text-xs">{activity.metadata.newStatus}</Badge>
                         </div>

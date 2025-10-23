@@ -43,12 +43,14 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { formatDate } from "@/lib/utils";
+import { useTranslation } from "@/hooks/useTranslation";
 import { getAllUsers, deleteUser, bulkUpdateUserStatus, bulkDeleteUsers, type User } from "@/services/userManagementService";
 import CreateUserModal from "@/components/users/CreateUserModal";
 import EditUserModal from "@/components/users/EditUserModal";
 import DeleteUserDialog from "@/components/users/DeleteUserDialog";
 
 const UserManagement = () => {
+  const { t } = useTranslation();
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [searchInput, setSearchInput] = useState('');
@@ -86,7 +88,7 @@ const UserManagement = () => {
       setAllUsers(response.users);
     } catch (error: any) {
       console.error('Error loading users:', error);
-      toast.error(error.response?.data?.message || 'Failed to load users');
+      toast.error(error.response?.data?.message || t("users.loadFailed"));
     } finally {
       setIsLoading(false);
     }
@@ -149,11 +151,11 @@ const UserManagement = () => {
     if (selectedUsers.length === 0) return;
     try {
       await bulkUpdateUserStatus(selectedUsers, 'ACTIVE');
-      toast.success(`${selectedUsers.length} users activated`);
+      toast.success(t("users.activateSuccess", { count: selectedUsers.length }));
       setSelectedUsers([]);
       loadUsers();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to activate users');
+      toast.error(error.response?.data?.message || t("users.activateFailed"));
     }
   }, [selectedUsers, loadUsers]);
 
@@ -161,11 +163,11 @@ const UserManagement = () => {
     if (selectedUsers.length === 0) return;
     try {
       await bulkUpdateUserStatus(selectedUsers, 'INACTIVE');
-      toast.success(`${selectedUsers.length} users deactivated`);
+      toast.success(t("users.deactivateSuccess", { count: selectedUsers.length }));
       setSelectedUsers([]);
       loadUsers();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to deactivate users');
+      toast.error(error.response?.data?.message || t("users.deactivateFailed"));
     }
   }, [selectedUsers, loadUsers]);
 
@@ -173,11 +175,11 @@ const UserManagement = () => {
     if (selectedUsers.length === 0) return;
     try {
       await bulkDeleteUsers(selectedUsers);
-      toast.success(`${selectedUsers.length} users deleted`);
+      toast.success(t("users.deleteSuccess", { count: selectedUsers.length }));
       setSelectedUsers([]);
       loadUsers();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to delete users');
+      toast.error(error.response?.data?.message || t("users.deleteFailed"));
     }
   }, [selectedUsers, loadUsers]);
 
@@ -208,7 +210,7 @@ const UserManagement = () => {
       <div className="flex h-[50vh] items-center justify-center">
         <div className="text-center">
           <RefreshCw className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading users...</p>
+          <p className="text-muted-foreground">{t("users.loadingUsers")}</p>
         </div>
       </div>
     );
@@ -220,7 +222,7 @@ const UserManagement = () => {
       <div className="flex items-center justify-end">
         <Button onClick={() => setCreateModalOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
-          Add User
+          {t("users.addUser")}
         </Button>
       </div>
 
@@ -228,7 +230,7 @@ const UserManagement = () => {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("users.totalUsers")}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -238,7 +240,7 @@ const UserManagement = () => {
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("users.activeUsers")}</CardTitle>
             <UserCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -250,7 +252,7 @@ const UserManagement = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Admins</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("users.admins")}</CardTitle>
             <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -262,7 +264,7 @@ const UserManagement = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Managers</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("users.managers")}</CardTitle>
             <UserCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -274,7 +276,7 @@ const UserManagement = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Agents</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("users.agents")}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -288,8 +290,8 @@ const UserManagement = () => {
       {/* Filters and Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Users</CardTitle>
-          <CardDescription>Manage and monitor user accounts</CardDescription>
+          <CardTitle>{t("users.users")}</CardTitle>
+          <CardDescription>{t("users.manageAndMonitorUserAccounts")}</CardDescription>
         </CardHeader>
         <CardContent>
           {/* Filters */}
@@ -298,7 +300,7 @@ const UserManagement = () => {
               <div className="relative w-full md:w-64">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  placeholder="Search users..."
+                  placeholder={t("users.searchUsers")}
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
                   className="pl-10"
@@ -307,25 +309,25 @@ const UserManagement = () => {
               
               <Select value={filters.role} onValueChange={(value) => setFilters({ ...filters, role: value })}>
                 <SelectTrigger className="w-full md:w-40">
-                  <SelectValue placeholder="Role" />
+                  <SelectValue placeholder={t("users.role")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Roles</SelectItem>
-                  <SelectItem value="ADMIN">Admin</SelectItem>
-                  <SelectItem value="MANAGER">Manager</SelectItem>
-                  <SelectItem value="AGENT">Agent</SelectItem>
+                  <SelectItem value="all">{t("users.allRoles")}</SelectItem>
+                  <SelectItem value="ADMIN">{t("users.admin")}</SelectItem>
+                  <SelectItem value="MANAGER">{t("users.manager")}</SelectItem>
+                  <SelectItem value="AGENT">{t("users.agent")}</SelectItem>
                 </SelectContent>
               </Select>
 
               <Select value={filters.status} onValueChange={(value) => setFilters({ ...filters, status: value })}>
                 <SelectTrigger className="w-full md:w-40">
-                  <SelectValue placeholder="Status" />
+                  <SelectValue placeholder={t("users.status")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="ACTIVE">Active</SelectItem>
-                  <SelectItem value="INACTIVE">Inactive</SelectItem>
-                  <SelectItem value="SUSPENDED">Suspended</SelectItem>
+                  <SelectItem value="all">{t("users.allStatus")}</SelectItem>
+                  <SelectItem value="ACTIVE">{t("users.active")}</SelectItem>
+                  <SelectItem value="INACTIVE">{t("users.inactive")}</SelectItem>
+                  <SelectItem value="SUSPENDED">{t("users.suspended")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -335,21 +337,21 @@ const UserManagement = () => {
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={handleBulkActivate}>
                     <UserCheck className="h-4 w-4 mr-2" />
-                    Activate ({selectedUsers.length})
+                    {t("users.activate")} ({selectedUsers.length})
                   </Button>
                   <Button variant="outline" size="sm" onClick={handleBulkDeactivate}>
                     <UserX className="h-4 w-4 mr-2" />
-                    Deactivate ({selectedUsers.length})
+                    {t("users.deactivate")} ({selectedUsers.length})
                   </Button>
                   <Button variant="outline" size="sm" onClick={handleBulkDelete}>
                     <Trash2 className="h-4 w-4 mr-2" />
-                    Delete ({selectedUsers.length})
+                    {t("users.delete")} ({selectedUsers.length})
                   </Button>
                 </div>
               )}
               <Button variant="outline" size="sm" onClick={loadUsers}>
                 <RefreshCw className="h-4 w-4 mr-2" />
-                Refresh
+                {t("users.refresh")}
               </Button>
             </div>
           </div>
@@ -365,11 +367,11 @@ const UserManagement = () => {
                       onCheckedChange={handleSelectAll}
                     />
                   </TableHead>
-                  <TableHead>User</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Last Login</TableHead>
-                  <TableHead>Created</TableHead>
+                  <TableHead>{t("users.user")}</TableHead>
+                  <TableHead>{t("users.role")}</TableHead>
+                  <TableHead>{t("users.status")}</TableHead>
+                  <TableHead>{t("users.lastLogin")}</TableHead>
+                  <TableHead>{t("users.created")}</TableHead>
                   <TableHead className="w-12"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -410,7 +412,7 @@ const UserManagement = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {user.lastLogin ? formatDate(user.lastLogin) : 'Never'}
+                      {user.lastLogin ? formatDate(user.lastLogin) : t("users.never")}
                     </TableCell>
                     <TableCell>
                       {formatDate(user.createdAt)}
@@ -423,10 +425,10 @@ const UserManagement = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuLabel>{t("users.actions")}</DropdownMenuLabel>
                           <DropdownMenuItem onClick={() => handleEditUser(user)}>
                             <Edit className="h-4 w-4 mr-2" />
-                            Edit User
+                            {t("users.editUser")}
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem 
@@ -434,7 +436,7 @@ const UserManagement = () => {
                             onClick={() => handleDeleteUser(user)}
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
-                            Delete User
+                            {t("users.deleteUser")}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

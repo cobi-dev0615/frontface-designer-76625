@@ -8,10 +8,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useTranslation } from "@/hooks/useTranslation";
 import { getAllGyms, getGymById, updateGym, updateGymSettings, getGymPlans, createPlan, updatePlan, deletePlan, type Gym, type Plan } from "@/services/gymService";
 import { useGymStore } from "@/store/gymStore";
 
 const GymConfigTab = () => {
+  const { t } = useTranslation();
   const { selectedGym, setSelectedGym, gyms, setGyms } = useGymStore();
   
   const [gym, setGym] = useState<Gym | null>(null);
@@ -55,9 +57,18 @@ const GymConfigTab = () => {
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
 
   const features = [
-    "24/7 Access", "Cardio Equipment", "Weight Training", "Group Classes",
-    "Personal Training", "Locker Rooms", "Showers", "Parking",
-    "WiFi", "Kids Room (DUX KIDS)", "Lounge Area", "Juice Bar",
+    { key: "features24_7", label: t("gyms.features24_7") },
+    { key: "cardioEquipment", label: t("gyms.cardioEquipment") },
+    { key: "weightTraining", label: t("gyms.weightTraining") },
+    { key: "groupClasses", label: t("gyms.groupClasses") },
+    { key: "personalTraining", label: t("gyms.personalTraining") },
+    { key: "lockerRooms", label: t("gyms.lockerRooms") },
+    { key: "showers", label: t("gyms.showers") },
+    { key: "parking", label: t("gyms.parking") },
+    { key: "wifi", label: t("gyms.wifi") },
+    { key: "kidsRoom", label: t("gyms.kidsRoom") },
+    { key: "loungeArea", label: t("gyms.loungeArea") },
+    { key: "juiceBar", label: t("gyms.juiceBar") },
   ];
 
   const daysOfWeek = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
@@ -83,7 +94,7 @@ const GymConfigTab = () => {
       }
     } catch (error: any) {
       console.error('Error loading gyms:', error);
-      toast.error('Failed to load gyms');
+      toast.error(t("gyms.loadFailed"));
     }
   };
 
@@ -142,7 +153,7 @@ const GymConfigTab = () => {
 
     } catch (error: any) {
       console.error('Error loading gym data:', error);
-      toast.error(error.response?.data?.message || 'Failed to load gym data');
+      toast.error(error.response?.data?.message || t("gyms.loadFailed"));
     } finally {
       setIsLoading(false);
     }
@@ -181,13 +192,13 @@ const GymConfigTab = () => {
         features: selectedFeatures
       });
 
-      toast.success('Gym configuration saved successfully!');
+      toast.success(t("gyms.configurationSaved"));
       if (gym) {
         loadGymData(gym.id); // Reload to show updated data
       }
     } catch (error: any) {
       console.error('Error saving gym:', error);
-      toast.error(error.response?.data?.message || 'Failed to save gym configuration');
+      toast.error(error.response?.data?.message || t("gyms.saveFailed"));
     } finally {
       setIsSaving(false);
     }
@@ -206,12 +217,12 @@ const GymConfigTab = () => {
     
     try {
       await updatePlan(gym.id, planId, updates);
-      toast.success('Plan updated successfully!');
+      toast.success(t("gyms.planUpdated"));
       if (gym) {
         loadGymData(gym.id);
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to update plan');
+      toast.error(error.response?.data?.message || t("gyms.planUpdateFailed"));
     }
   };
 
@@ -220,12 +231,12 @@ const GymConfigTab = () => {
     
     try {
       await deletePlan(gym.id, planId);
-      toast.success('Plan deleted successfully!');
+      toast.success(t("gyms.planDeleted"));
       if (gym) {
         loadGymData(gym.id);
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to delete plan');
+      toast.error(error.response?.data?.message || t("gyms.planDeleteFailed"));
     }
   };
 
@@ -234,7 +245,7 @@ const GymConfigTab = () => {
       <div className="flex h-[50vh] items-center justify-center">
         <div className="text-center">
           <RefreshCw className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading gym configuration...</p>
+          <p className="text-muted-foreground">{t("gyms.loadingConfiguration")}</p>
         </div>
       </div>
     );
@@ -249,7 +260,7 @@ const GymConfigTab = () => {
           {/* Basic Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Basic Information</CardTitle>
+              <CardTitle>{t("gyms.basicInformation")}</CardTitle>
               <CardDescription>Core details about your gym</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -284,7 +295,7 @@ const GymConfigTab = () => {
                     checked={basicInfo.isWhatsApp}
                     onCheckedChange={(checked) => setBasicInfo({ ...basicInfo, isWhatsApp: checked as boolean })}
                   />
-                  <Label htmlFor="whatsapp" className="text-sm font-normal">WhatsApp number</Label>
+                  <Label htmlFor="whatsapp" className="text-sm font-normal">{t("gyms.whatsappNumber")}</Label>
                 </div>
               </div>
 
@@ -325,7 +336,7 @@ const GymConfigTab = () => {
           {/* Logo & Branding */}
           <Card>
             <CardHeader>
-              <CardTitle>Branding</CardTitle>
+              <CardTitle>{t("gyms.brandingSettings")}</CardTitle>
               <CardDescription>Logo and brand colors</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -333,7 +344,7 @@ const GymConfigTab = () => {
                 <Label>Logo</Label>
                 <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer">
                   <Upload className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
-                  <p className="text-sm text-muted-foreground">Upload logo</p>
+                  <p className="text-sm text-muted-foreground">{t("gyms.uploadLogo")}</p>
                   <p className="text-xs text-muted-foreground">SVG, PNG, JPG (max 2MB)</p>
                 </div>
               </div>
@@ -384,7 +395,7 @@ const GymConfigTab = () => {
           {/* Address & Location */}
           <Card>
             <CardHeader>
-              <CardTitle>Address & Location</CardTitle>
+              <CardTitle>{t("gyms.addressInformation")}</CardTitle>
               <CardDescription>Physical location</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -453,7 +464,7 @@ const GymConfigTab = () => {
           {/* Additional Info */}
           <Card>
             <CardHeader>
-              <CardTitle>Gym Details</CardTitle>
+              <CardTitle>{t("gyms.additionalInformation")}</CardTitle>
               <CardDescription>Size, equipment, capacity</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -502,20 +513,20 @@ const GymConfigTab = () => {
           {/* Gym Features - Compact */}
           <Card>
             <CardHeader>
-              <CardTitle>Amenities & Features</CardTitle>
+              <CardTitle>{t("gyms.features")}</CardTitle>
               <CardDescription>What your gym offers</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-3 grid-cols-2">
                 {features.map((feature) => (
-                  <div key={feature} className="flex items-center gap-2">
+                  <div key={feature.key} className="flex items-center gap-2">
                     <Checkbox 
-                      id={feature.toLowerCase().replace(/\s+/g, "-")} 
-                      checked={selectedFeatures.includes(feature)}
-                      onCheckedChange={() => handleToggleFeature(feature)}
+                      id={feature.key} 
+                      checked={selectedFeatures.includes(feature.key)}
+                      onCheckedChange={() => handleToggleFeature(feature.key)}
                     />
-                    <Label htmlFor={feature.toLowerCase().replace(/\s+/g, "-")} className="font-normal text-sm">
-                      {feature}
+                    <Label htmlFor={feature.key} className="font-normal text-sm">
+                      {feature.label}
                     </Label>
                   </div>
                 ))}
@@ -530,7 +541,7 @@ const GymConfigTab = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Membership Plans</CardTitle>
+              <CardTitle>{t("gyms.membershipPlans")}</CardTitle>
               <CardDescription>Configure pricing tiers</CardDescription>
             </div>
             <Button variant="outline" size="sm">
@@ -544,7 +555,7 @@ const GymConfigTab = () => {
             {plans.map((plan) => (
               <div key={plan.id} className="border border-border rounded-lg p-4 space-y-3">
                 <div className="space-y-2">
-                  <Label className="text-xs">Plan Name</Label>
+                  <Label className="text-xs">{t("gyms.planName")}</Label>
                   <Input 
                     value={plan.name}
                     onChange={(e) => handleUpdatePlan(plan.id, { name: e.target.value })}
@@ -562,7 +573,7 @@ const GymConfigTab = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-xs">Description</Label>
+                  <Label className="text-xs">{t("gyms.description")}</Label>
                   <Input 
                     value={plan.description || ''}
                     onChange={(e) => handleUpdatePlan(plan.id, { description: e.target.value })}
@@ -576,7 +587,7 @@ const GymConfigTab = () => {
                       checked={plan.active}
                       onCheckedChange={(checked) => handleUpdatePlan(plan.id, { active: checked as boolean })}
                     />
-                    <Label htmlFor={`plan-active-${plan.id}`} className="font-normal text-xs">Active</Label>
+                    <Label htmlFor={`plan-active-${plan.id}`} className="font-normal text-xs">{t("gyms.active")}</Label>
                   </div>
                   <Button 
                     variant="ghost" 
@@ -608,7 +619,7 @@ const GymConfigTab = () => {
           ) : (
             <>
               <Save className="h-4 w-4 mr-2" />
-              Save Changes
+              {t("gyms.saveConfiguration")}
             </>
           )}
         </Button>

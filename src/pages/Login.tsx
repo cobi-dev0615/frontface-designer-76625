@@ -7,10 +7,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Dumbbell, Eye, EyeOff, Mail, Lock, AlertCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "@/hooks/useTranslation";
 import { useAuthStore } from "@/store/authStore";
 import gymHero from "@/assets/gym-hero.jpg";
 
 const Login = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { login, isAuthenticated, isLoading: authLoading } = useAuthStore();
@@ -69,9 +71,9 @@ const Login = () => {
             </div>
             <span className="text-5xl font-bold">DuxFit</span>
           </div>
-          <h2 className="text-3xl font-bold text-center mb-4">The Biggest Gym in Piauí</h2>
+          <h2 className="text-3xl font-bold text-center mb-4">{t("login.heroTitle")}</h2>
           <p className="text-lg text-center text-white/90 max-w-md">
-            Transform your fitness journey with state-of-the-art equipment and expert guidance
+            {t("login.heroDescription")}
           </p>
           
           {/* Decorative pattern */}
@@ -98,8 +100,8 @@ const Login = () => {
 
           {/* Heading */}
           <div className="text-center">
-            <h1 className="text-3xl font-bold tracking-tight">Welcome Back</h1>
-            <p className="mt-2 text-muted-foreground">Sign in to your account</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("login.welcomeBack")}</h1>
+            <p className="mt-2 text-muted-foreground">{t("login.signInToAccount")}</p>
           </div>
 
           {/* Form */}
@@ -115,13 +117,13 @@ const Login = () => {
             <div className="space-y-4">
               {/* Email Field */}
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t("login.email")}</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="email"
                     type="email"
-                    placeholder="your@email.com"
+                    placeholder={t("login.emailPlaceholder")}
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
@@ -136,13 +138,13 @@ const Login = () => {
 
               {/* Password Field */}
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t("login.password")}</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
+                    placeholder={t("login.passwordPlaceholder")}
                     value={password}
                     onChange={(e) => {
                       setPassword(e.target.value);
@@ -172,7 +174,7 @@ const Login = () => {
                   onCheckedChange={(checked) => setRememberMe(checked as boolean)}
                 />
                 <Label htmlFor="remember" className="text-sm font-normal cursor-pointer">
-                  Remember me
+                  {t("login.rememberMe")}
                 </Label>
               </div>
               <button
@@ -180,7 +182,7 @@ const Login = () => {
                 onClick={() => navigate('/forgot-password')}
                 className="text-sm text-primary hover:underline transition-colors"
               >
-                Forgot password?
+                {t("login.forgotPassword")}
               </button>
             </div>
 
@@ -195,10 +197,10 @@ const Login = () => {
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Signing in...
+                  {t("login.signingIn")}
                 </>
               ) : (
-                "Sign In"
+                t("login.signIn")
               )}
             </Button>
 
@@ -214,14 +216,14 @@ const Login = () => {
 
             {/* Sign Up Link */}
             <p className="text-center text-sm text-muted-foreground">
-              Don't have an account?{" "}
+              {t("login.noAccount")}{" "}
               <Button
                 variant="link"
                 className="p-0 h-auto font-medium"
                 onClick={() => navigate('/register')}
                 disabled={isLoading}
               >
-                Sign up
+                {t("login.signUp")}
               </Button>
             </p>
           </form>

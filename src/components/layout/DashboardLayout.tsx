@@ -8,7 +8,7 @@ export const DashboardLayout = () => {
       <Sidebar />
       <div className="flex flex-1 flex-col h-full overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-y-auto bg-muted/30 p-6">
+        <main className="main-content colorful-scroll flex-1 overflow-y-auto bg-muted/30 p-6">
           <Outlet />
         </main>
       </div>

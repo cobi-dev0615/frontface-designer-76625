@@ -5,12 +5,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/authStore";
+import { useTranslation } from "@/hooks/useTranslation";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import * as dashboardService from "@/services/dashboardService";
 import type { DashboardData } from "@/services/dashboardService";
 
 const Dashboard = () => {
+  const { t } = useTranslation();
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -26,7 +28,7 @@ const Dashboard = () => {
       setDashboardData(response.data);
     } catch (error: any) {
       console.error("Error loading dashboard data:", error);
-      toast.error("Failed to load dashboard data");
+      toast.error(t("dashboard.failedToLoad"));
     } finally {
       setIsLoading(false);
     }
@@ -63,25 +65,25 @@ const Dashboard = () => {
   const kpiConfig = [
     {
       key: 'totalLeads',
-      title: "Total Leads",
+      title: t("dashboard.totalLeads"),
       icon: Users,
       iconBg: "bg-blue-500/10 text-blue-500",
     },
     {
       key: 'qualifiedLeads',
-      title: "Qualified Leads",
+      title: t("dashboard.qualifiedLeads"),
       icon: CheckCircle,
       iconBg: "bg-green-500/10 text-green-500",
     },
     {
       key: 'closedThisMonth',
-      title: "Closed This Month",
+      title: t("dashboard.closedThisMonth"),
       icon: Trophy,
       iconBg: "bg-secondary/20 text-secondary",
     },
     {
       key: 'conversionRate',
-      title: "Conversion Rate",
+      title: t("dashboard.conversionRate"),
       icon: Target,
       iconBg: "bg-orange-500/10 text-orange-500",
     },
@@ -94,7 +96,7 @@ const Dashboard = () => {
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <span className="ml-2 text-muted-foreground">Loading dashboard...</span>
+          <span className="ml-2 text-muted-foreground">{t("common.loading")}</span>
         </div>
       ) : dashboardData ? (
         <>
@@ -125,7 +127,7 @@ const Dashboard = () => {
                         {kpiData.trend.isPositive ? "+" : "-"}
                         {kpiData.trend.value}%
                       </span>
-                      <span className="text-sm text-muted-foreground">vs last month</span>
+                      <span className="text-sm text-muted-foreground">{t("dashboard.vsLastMonth")}</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -135,9 +137,9 @@ const Dashboard = () => {
         </>
       ) : (
         <div className="text-center py-12">
-          <p className="text-muted-foreground">Failed to load dashboard data</p>
+          <p className="text-muted-foreground">{t("errors.loadFailed")}</p>
           <Button variant="outline" onClick={loadDashboardData} className="mt-4">
-            Retry
+            {t("common.refresh")}
           </Button>
         </div>
       )}
@@ -147,14 +149,14 @@ const Dashboard = () => {
         {/* Leads Over Time Chart Placeholder */}
         <Card className="lg:col-span-4">
           <CardHeader>
-            <CardTitle>Leads Over Time</CardTitle>
-            <CardDescription>Last 30 days</CardDescription>
+            <CardTitle>{t("dashboard.leadsOverTime")}</CardTitle>
+            <CardDescription>{t("dashboard.last30Days")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex h-[300px] items-center justify-center rounded-lg border-2 border-dashed border-border bg-muted/30">
               <div className="text-center space-y-2">
                 <TrendingUp className="h-12 w-12 mx-auto text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Chart visualization coming soon</p>
+                <p className="text-sm text-muted-foreground">{t("dashboard.chartComingSoon")}</p>
               </div>
             </div>
           </CardContent>
@@ -163,12 +165,12 @@ const Dashboard = () => {
         {/* Recent Activity */}
         <Card className="lg:col-span-3">
           <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Latest updates from your leads</CardDescription>
+            <CardTitle>{t("dashboard.recentActivity")}</CardTitle>
+            <CardDescription>{t("dashboard.latestUpdates")}</CardDescription>
           </CardHeader>
           <CardContent>
             {!dashboardData || dashboardData.activities.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">No recent activities</p>
+              <p className="text-center text-muted-foreground py-8">{t("dashboard.noActivity")}</p>
             ) : (
               <div className="space-y-4 max-h-[300px] overflow-y-auto scrollbar-thin">
                 {dashboardData.activities.map((activity) => (
@@ -199,7 +201,7 @@ const Dashboard = () => {
         <div className="grid gap-6 sm:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Conversations</CardTitle>
+              <CardTitle className="text-sm font-medium">{t("dashboard.activeConversations")}</CardTitle>
               <MessageCircle className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -210,7 +212,7 @@ const Dashboard = () => {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">New Leads Today</CardTitle>
+              <CardTitle className="text-sm font-medium">{t("dashboard.newLeadsToday")}</CardTitle>
               <UserPlus className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -221,7 +223,7 @@ const Dashboard = () => {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Response Time</CardTitle>
+              <CardTitle className="text-sm font-medium">{t("dashboard.responseTime")}</CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>

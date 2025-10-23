@@ -16,6 +16,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { GlobalSearch } from "@/components/GlobalSearch";
+import { LanguageSelector } from "@/components/LanguageSelector";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const Header = () => {
   const navigate = useNavigate();
@@ -99,7 +101,7 @@ export const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b border-border bg-background px-6 shadow-sm">
+    <header className="header-enhanced sticky top-0 z-40 flex h-16 items-center gap-4 px-6 shadow-sm">
       {/* Breadcrumbs */}
       <div className="flex items-center gap-2 text-sm">
         <span className="text-muted-foreground">{breadcrumbs.category}</span>
@@ -110,22 +112,6 @@ export const Header = () => {
       {/* Spacer */}
       <div className="flex-1" />
 
-      {/* Gym Selector */}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="gap-2">
-            <Building2 className="h-4 w-4" />
-            <span className="hidden sm:inline">DuxFit - Piauí 1</span>
-            <ChevronDown className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48 bg-popover">
-          <DropdownMenuLabel>Select Gym</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>DuxFit - Piauí 1</DropdownMenuItem>
-          <DropdownMenuItem>DuxFit - Piauí 2</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
 
       {/* Search */}
       <Button 
@@ -133,14 +119,20 @@ export const Header = () => {
         size="icon"
         onClick={() => setSearchOpen(true)}
         title="Search (⌘K)"
-        className="hidden md:flex"
+        className="hidden md:flex border-2 border-border"
       >
         <Search className="h-5 w-5" />
       </Button>
 
+      {/* Theme Toggle */}
+      <ThemeToggle variant="icon" />
+
+      {/* Language Selector */}
+      <LanguageSelector variant="button" showLabel={false} />
+
       {/* Notifications */}
       <Link to="/notifications">
-        <Button variant="ghost" size="icon" className="relative">
+        <Button variant="ghost" size="icon" className="relative border-2 border-border">
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground animate-pulse">
@@ -153,7 +145,7 @@ export const Header = () => {
       {/* User Menu */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="gap-2 px-2">
+          <Button variant="ghost" className="gap-2 px-2 border-2 border-border">
             <Avatar className="h-8 w-8">
               {/* {user?.avatar ? <img src={`${import.meta.env.VITE_API_URL}/uploads/${user?.avatar}`} alt={user?.name} /> : */}
               <AvatarFallback className="bg-gradient-primary text-white text-xs font-semibold">

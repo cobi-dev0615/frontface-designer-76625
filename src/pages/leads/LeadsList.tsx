@@ -20,21 +20,23 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "@/hooks/useTranslation";
 import * as leadService from "@/services/leadService";
 import * as gymService from "@/services/gymService";
 import type { Lead, LeadStats } from "@/services/leadService";
 import type { Gym } from "@/services/gymService";
 
-const statusConfig = {
-  new: { label: "New", color: "bg-blue-500" },
-  contacted: { label: "Contacted", color: "bg-yellow-500" },
-  qualified: { label: "Qualified", color: "bg-green-500" },
-  negotiating: { label: "Negotiating", color: "bg-orange-500" },
-  closed: { label: "Closed", color: "bg-purple-500" },
-  lost: { label: "Lost", color: "bg-red-500" },
-};
+const getStatusConfig = (t: (key: string) => string) => ({
+  new: { label: t("leads.leadStatus.new"), color: "bg-blue-500" },
+  contacted: { label: t("leads.leadStatus.contacted"), color: "bg-yellow-500" },
+  qualified: { label: t("leads.leadStatus.qualified"), color: "bg-green-500" },
+  negotiating: { label: t("leads.leadStatus.negotiating"), color: "bg-orange-500" },
+  closed: { label: t("leads.leadStatus.closed"), color: "bg-purple-500" },
+  lost: { label: t("leads.leadStatus.lost"), color: "bg-red-500" },
+});
 
 const LeadsList = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [stats, setStats] = useState<LeadStats>({
@@ -101,7 +103,7 @@ const LeadsList = () => {
       setPagination(response.pagination);
     } catch (error: any) {
       console.error("Error loading leads:", error);
-      toast.error(error.response?.data?.message || "Failed to load leads");
+      toast.error(error.response?.data?.message || t("leads.loadFailed"));
     } finally {
       setIsLoading(false);
     }
@@ -142,56 +144,56 @@ const LeadsList = () => {
 
   const handleExportCSV = async () => {
     try {
-      toast.loading("Exporting leads...");
+      toast.loading(t("leads.exportLoading"));
       await leadService.exportLeads({
         search: searchQuery || undefined,
         status: selectedStatus !== "all" ? selectedStatus : undefined,
         gymId: selectedGymId !== "all-gyms" ? selectedGymId : undefined,
       });
       toast.dismiss();
-      toast.success("Leads exported successfully!");
+      toast.success(t("leads.exportSuccess"));
     } catch (error: any) {
       toast.dismiss();
-      toast.error(error.response?.data?.message || "Failed to export leads");
+      toast.error(error.response?.data?.message || t("leads.exportFailed"));
     }
   };
 
   const handleDeleteLead = async (leadId: string) => {
-    if (!confirm("Are you sure you want to delete this lead?")) return;
+    if (!confirm(t("leads.deleteConfirm"))) return;
 
     try {
       await leadService.deleteLead(leadId);
-      toast.success("Lead deleted successfully");
+      toast.success(t("leads.deleteSuccess"));
       loadLeads();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to delete lead");
+      toast.error(error.response?.data?.message || t("leads.deleteFailed"));
     }
   };
 
   const handleBulkStatusChange = async () => {
-    const newStatus = prompt("Enter new status (new, contacted, qualified, negotiating, closed, lost):");
+    const newStatus = prompt(t("leads.bulkStatusPrompt"));
     if (!newStatus) return;
 
     try {
       await leadService.bulkUpdateStatus(selectedLeads, newStatus);
-      toast.success(`${selectedLeads.length} leads updated successfully`);
+      toast.success(`${selectedLeads.length} ${t("leads.bulkStatusSuccess")}`);
       setSelectedLeads([]);
       loadLeads();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to update leads");
+      toast.error(error.response?.data?.message || t("leads.bulkStatusFailed"));
     }
   };
 
   const handleBulkDelete = async () => {
-    if (!confirm(`Are you sure you want to delete ${selectedLeads.length} leads?`)) return;
+    if (!confirm(`${t("leads.bulkDeleteConfirm")} ${selectedLeads.length} ${t("leads.leads")}?`)) return;
 
     try {
       await leadService.bulkDeleteLeads(selectedLeads);
-      toast.success(`${selectedLeads.length} leads deleted successfully`);
+      toast.success(`${selectedLeads.length} ${t("leads.bulkDeleteSuccess")}`);
       setSelectedLeads([]);
       loadLeads();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to delete leads");
+      toast.error(error.response?.data?.message || t("leads.bulkDeleteFailed"));
     }
   };
 
@@ -203,10 +205,10 @@ const LeadsList = () => {
     const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
 
-    if (minutes < 1) return "Just now";
-    if (minutes < 60) return `${minutes} min ago`;
-    if (hours < 24) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
-    return `${days} day${days > 1 ? "s" : ""} ago`;
+    if (minutes < 1) return t("leads.justNow");
+    if (minutes < 60) return `${minutes} ${t("leads.minAgo")}`;
+    if (hours < 24) return `${hours} ${hours > 1 ? t("leads.hoursAgo") : t("leads.hourAgo")}`;
+    return `${days} ${days > 1 ? t("leads.daysAgo") : t("leads.dayAgo")}`;
   };
 
   const handlePreviousPage = () => {
@@ -231,13 +233,9 @@ const LeadsList = () => {
     <div className="space-y-6 p-6">
       {/* Page Header */}
       <div className="flex items-center justify-end gap-2">
-        <Button variant="outline" className="gap-2" onClick={handleExportCSV}>
+        <Button variant="outline" className="gap-2 border-2 border-primary" onClick={handleExportCSV}>
           <Download className="h-4 w-4" />
-          Export CSV
-        </Button>
-        <Button variant="gradient" className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Lead
+          {t("leads.exportCsv")}
         </Button>
       </div>
 
@@ -245,19 +243,19 @@ const LeadsList = () => {
       <div className="flex flex-wrap gap-2">
         <Button
           variant={selectedStatus === "all" ? "default" : "outline"}
-          className={`gap-2 ${selectedStatus === "all" ? "bg-primary text-primary-foreground" : ""}`}
+          className={`gap-2 border-2 ${selectedStatus === "all" ? "bg-primary text-primary-foreground border-primary" : "border-border"}`}
           onClick={() => setSelectedStatus("all")}
         >
-          All
+{t("common.all")}
           <Badge variant="secondary" className="ml-1">
             {stats.all}
           </Badge>
         </Button>
-        {Object.entries(statusConfig).map(([status, config]) => (
+        {Object.entries(getStatusConfig(t)).map(([status, config]) => (
           <Button
             key={status}
             variant={selectedStatus === status ? "default" : "outline"}
-            className={`gap-2 ${selectedStatus === status ? "bg-primary text-primary-foreground" : ""}`}
+            className={`gap-2 border-2 ${selectedStatus === status ? "bg-primary text-primary-foreground border-primary" : "border-border"}`}
             onClick={() => setSelectedStatus(status)}
           >
             {config.label}
@@ -274,20 +272,20 @@ const LeadsList = () => {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search by name, phone, or email..."
+              placeholder={t("leads.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 border-2 border-border"
             />
           </div>
         </div>
         <Select value={selectedGymId} onValueChange={setSelectedGymId}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[180px] border-2 border-border">
             <Building2 className="h-4 w-4 mr-2" />
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all-gyms">All Gyms</SelectItem>
+            <SelectItem value="all-gyms">{t("leads.filters.allGyms")}</SelectItem>
             {gyms.map((gym) => (
               <SelectItem key={gym.id} value={gym.id}>
                 {gym.name}
@@ -296,14 +294,14 @@ const LeadsList = () => {
           </SelectContent>
         </Select>
         <Select value={dateRange} onValueChange={setDateRange}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[180px] border-2 border-border">
             <Calendar className="h-4 w-4 mr-2" />
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="last-7">Last 7 days</SelectItem>
-            <SelectItem value="last-30">Last 30 days</SelectItem>
-            <SelectItem value="last-90">Last 90 days</SelectItem>
+            <SelectItem value="last-7">{t("leads.last7Days")}</SelectItem>
+            <SelectItem value="last-30">{t("leads.last30Days")}</SelectItem>
+            <SelectItem value="last-90">{t("leads.last90Days")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -313,13 +311,13 @@ const LeadsList = () => {
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="ml-2 text-muted-foreground">Loading leads...</span>
+            <span className="ml-2 text-muted-foreground">{t("leads.loadingLeads")}</span>
           </div>
         ) : leads.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12">
             <Users className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No leads found</h3>
-            <p className="text-muted-foreground">Try adjusting your filters or create a new lead</p>
+            <h3 className="text-lg font-semibold mb-2">{t("leads.noLeadsFound")}</h3>
+            <p className="text-muted-foreground">{t("leads.noLeadsDescription")}</p>
           </div>
         ) : (
           <>
@@ -333,12 +331,12 @@ const LeadsList = () => {
                         onCheckedChange={toggleSelectAll}
                       />
                     </th>
-                    <th className="p-4 text-left font-medium">Lead</th>
-                    <th className="p-4 text-left font-medium">Status</th>
-                    <th className="p-4 text-left font-medium">Gym</th>
-                    <th className="p-4 text-left font-medium">Created</th>
-                    <th className="p-4 text-left font-medium">Source</th>
-                    <th className="p-4 text-left font-medium">Actions</th>
+                    <th className="p-4 text-left font-medium">{t("leads.lead")}</th>
+                    <th className="p-4 text-left font-medium">{t("leads.status")}</th>
+                    <th className="p-4 text-left font-medium">{t("leads.gym")}</th>
+                    <th className="p-4 text-left font-medium">{t("leads.created")}</th>
+                    <th className="p-4 text-left font-medium">{t("leads.source")}</th>
+                    <th className="p-4 text-left font-medium">{t("leads.actions")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -366,9 +364,9 @@ const LeadsList = () => {
                       <td className="p-4">
                         <Badge
                           variant="secondary"
-                          className={`${statusConfig[lead.status.toLowerCase() as keyof typeof statusConfig]?.color || "bg-gray-500"} text-white`}
+                          className={`${getStatusConfig(t)[lead.status.toLowerCase() as keyof ReturnType<typeof getStatusConfig>]?.color || "bg-gray-500"} text-white`}
                         >
-                          {statusConfig[lead.status.toLowerCase() as keyof typeof statusConfig]?.label || lead.status}
+                          {getStatusConfig(t)[lead.status.toLowerCase() as keyof ReturnType<typeof getStatusConfig>]?.label || lead.status}
                         </Badge>
                       </td>
                       <td className="p-4 text-sm">{lead.gym.name}</td>
@@ -384,22 +382,22 @@ const LeadsList = () => {
                           <DropdownMenuContent align="end" className="bg-popover">
                             <DropdownMenuItem className="gap-2" onClick={() => navigate(`/leads/${lead.id}`)}>
                               <Eye className="h-4 w-4" />
-                              View Details
+                              {t("leads.viewDetails")}
                             </DropdownMenuItem>
                             <DropdownMenuItem className="gap-2">
                               <Pencil className="h-4 w-4" />
-                              Edit Lead
+                              {t("leads.editLead")}
                             </DropdownMenuItem>
                             <DropdownMenuItem className="gap-2">
                               <MessageCircle className="h-4 w-4" />
-                              Send Message
+                              {t("leads.sendMessage")}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               className="gap-2 text-destructive"
                               onClick={() => handleDeleteLead(lead.id)}
                             >
                               <Trash2 className="h-4 w-4" />
-                              Delete
+                              {t("leads.delete")}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -413,7 +411,7 @@ const LeadsList = () => {
             {/* Pagination */}
             <div className="border-t border-border p-4 flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
-                Showing {pagination.offset + 1}-{Math.min(pagination.offset + pagination.limit, pagination.total)} of {pagination.total} leads
+                {t("leads.showing")} {pagination.offset + 1}-{Math.min(pagination.offset + pagination.limit, pagination.total)} {t("leads.of")} {pagination.total} {t("leads.leads")}
               </p>
               <div className="flex gap-2">
                 <Button
@@ -422,7 +420,7 @@ const LeadsList = () => {
                   onClick={handlePreviousPage}
                   disabled={pagination.offset === 0}
                 >
-                  Previous
+                  {t("leads.previous")}
                 </Button>
                 <Button
                   variant="outline"
@@ -430,7 +428,7 @@ const LeadsList = () => {
                   onClick={handleNextPage}
                   disabled={!pagination.hasMore}
                 >
-                  Next
+                  {t("leads.next")}
                 </Button>
               </div>
             </div>
@@ -441,19 +439,19 @@ const LeadsList = () => {
       {/* Bulk Actions Bar */}
       {selectedLeads.length > 0 && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground rounded-lg shadow-lg p-4 flex items-center gap-4 z-50">
-          <span className="font-medium">{selectedLeads.length} leads selected</span>
+          <span className="font-medium">{selectedLeads.length} {t("leads.leadsSelected")}</span>
           <div className="flex gap-2">
             <Button size="sm" variant="secondary" onClick={handleBulkStatusChange}>
-              Change Status
+              {t("leads.changeStatus")}
             </Button>
             <Button size="sm" variant="secondary">
-              Send Message
+              {t("leads.sendMessage")}
             </Button>
             <Button size="sm" variant="secondary" onClick={handleExportCSV}>
-              Export
+              {t("leads.export")}
             </Button>
             <Button size="sm" variant="destructive" onClick={handleBulkDelete}>
-              Delete
+              {t("leads.delete")}
             </Button>
           </div>
         </div>

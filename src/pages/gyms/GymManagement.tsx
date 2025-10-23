@@ -36,11 +36,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "@/hooks/useTranslation";
 import { getAllGyms, type Gym } from "@/services/gymService";
 import { useGymStore } from "@/store/gymStore";
 import CreateGymModal from "@/components/gyms/CreateGymModal";
 
 const GymManagement = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { setSelectedGym } = useGymStore();
   const [gyms, setGyms] = useState<Gym[]>([]);
@@ -65,7 +67,7 @@ const GymManagement = () => {
       setGyms(response.gyms);
     } catch (error: any) {
       console.error('Error loading gyms:', error);
-      toast.error(error.response?.data?.message || 'Failed to load gyms');
+      toast.error(error.response?.data?.message || t("gyms.loadFailed"));
     } finally {
       setIsLoading(false);
     }
@@ -94,7 +96,7 @@ const GymManagement = () => {
   const handleConfigureGym = (gym: Gym) => {
     setSelectedGym(gym);
     navigate('/settings'); // Navigate to settings with this gym selected
-    toast.success(`Configuring ${gym.name}`);
+    toast.success(t("gyms.configuringGym", { gymName: gym.name }));
   };
 
   const getStatusBadgeColor = (status: string) => {
@@ -115,7 +117,7 @@ const GymManagement = () => {
       <div className="flex h-[50vh] items-center justify-center">
         <div className="text-center">
           <RefreshCw className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading gyms...</p>
+          <p className="text-muted-foreground">{t("gyms.loadingGyms")}</p>
         </div>
       </div>
     );
@@ -127,7 +129,7 @@ const GymManagement = () => {
       <div className="flex items-center justify-end">
         <Button onClick={() => setCreateModalOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
-          Add Gym
+          {t("gyms.addGym")}
         </Button>
       </div>
 
@@ -135,7 +137,7 @@ const GymManagement = () => {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Gyms</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("gyms.totalGyms")}</CardTitle>
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -145,7 +147,7 @@ const GymManagement = () => {
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Gyms</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("gyms.activeGyms")}</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -157,7 +159,7 @@ const GymManagement = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Leads</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("gyms.totalLeads")}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -169,7 +171,7 @@ const GymManagement = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Staff</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("gyms.totalStaff")}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -183,8 +185,8 @@ const GymManagement = () => {
       {/* Filters and Gym List */}
       <Card>
         <CardHeader>
-          <CardTitle>Registered Gyms</CardTitle>
-          <CardDescription>View and manage all gym locations</CardDescription>
+          <CardTitle>{t("gyms.registeredGyms")}</CardTitle>
+          <CardDescription>{t("gyms.viewAndManageAllGyms")}</CardDescription>
         </CardHeader>
         <CardContent>
           {/* Filters */}
@@ -193,7 +195,7 @@ const GymManagement = () => {
               <div className="relative w-full md:w-64">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  placeholder="Search gyms..."
+                  placeholder={t("gyms.searchGyms")}
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
                   className="pl-10"
@@ -202,20 +204,20 @@ const GymManagement = () => {
               
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-full md:w-40">
-                  <SelectValue placeholder="Status" />
+                  <SelectValue placeholder={t("gyms.status")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="ACTIVE">Active</SelectItem>
-                  <SelectItem value="INACTIVE">Inactive</SelectItem>
-                  <SelectItem value="TRIAL">Trial</SelectItem>
+                  <SelectItem value="all">{t("gyms.allStatus")}</SelectItem>
+                  <SelectItem value="ACTIVE">{t("gyms.active")}</SelectItem>
+                  <SelectItem value="INACTIVE">{t("gyms.inactive")}</SelectItem>
+                  <SelectItem value="TRIAL">{t("gyms.trial")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <Button variant="outline" size="sm" onClick={loadGyms}>
               <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh
+              {t("gyms.refresh")}
             </Button>
           </div>
 
@@ -243,19 +245,19 @@ const GymManagement = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuLabel>{t("gyms.actions")}</DropdownMenuLabel>
                         <DropdownMenuItem onClick={() => handleConfigureGym(gym)}>
                           <SettingsIcon className="h-4 w-4 mr-2" />
-                          Configure
+                          {t("gyms.configure")}
                         </DropdownMenuItem>
                         <DropdownMenuItem>
                           <Edit className="h-4 w-4 mr-2" />
-                          Edit Details
+                          {t("gyms.editDetails")}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="text-destructive">
                           <Trash2 className="h-4 w-4 mr-2" />
-                          Delete Gym
+                          {t("gyms.deleteGym")}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -294,15 +296,15 @@ const GymManagement = () => {
                   <div className="flex items-center justify-between pt-3 border-t border-border">
                     <div className="text-center">
                       <div className="text-lg font-bold">{gym._count?.leads || 0}</div>
-                      <div className="text-xs text-muted-foreground">Leads</div>
+                      <div className="text-xs text-muted-foreground">{t("gyms.leads")}</div>
                     </div>
                     <div className="text-center">
                       <div className="text-lg font-bold">{gym._count?.users || 0}</div>
-                      <div className="text-xs text-muted-foreground">Staff</div>
+                      <div className="text-xs text-muted-foreground">{t("gyms.staff")}</div>
                     </div>
                     <div className="text-center">
                       <div className="text-lg font-bold">{gym._count?.plans || 0}</div>
-                      <div className="text-xs text-muted-foreground">Plans</div>
+                      <div className="text-xs text-muted-foreground">{t("gyms.plans")}</div>
                     </div>
                   </div>
 
@@ -313,7 +315,7 @@ const GymManagement = () => {
                     onClick={() => handleConfigureGym(gym)}
                   >
                     <SettingsIcon className="h-4 w-4 mr-2" />
-                    Configure
+                    {t("gyms.configure")}
                   </Button>
                 </CardContent>
               </Card>
@@ -324,11 +326,11 @@ const GymManagement = () => {
           {filteredGyms.length === 0 && (
             <div className="text-center py-12">
               <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-lg font-medium mb-1">No gyms found</p>
+              <p className="text-lg font-medium mb-1">{t("gyms.noGymsFound")}</p>
               <p className="text-sm text-muted-foreground">
                 {searchInput || statusFilter !== 'all' 
-                  ? 'Try adjusting your search or filters' 
-                  : 'Get started by clicking "Add Gym" above'}
+                  ? t("gyms.tryAdjustingSearch") 
+                  : t("gyms.getStartedByAdding")}
               </p>
             </div>
           )}

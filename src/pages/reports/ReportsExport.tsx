@@ -7,12 +7,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { useTranslation } from "@/hooks/useTranslation";
 import { format } from "date-fns";
 import * as reportsService from "@/services/reportsService";
 import type { ReportTemplate, ExportHistory, ExportStatistics } from "@/services/reportsService";
 import CustomReportModal from "@/components/modals/CustomReportModal";
 
 const ReportsExport = () => {
+  const { t } = useTranslation();
   const [templates, setTemplates] = useState<ReportTemplate[]>([]);
   const [exportHistory, setExportHistory] = useState<ExportHistory[]>([]);
   const [statistics, setStatistics] = useState<ExportStatistics | null>(null);
@@ -44,7 +46,7 @@ const ReportsExport = () => {
       setStatistics(statsRes.data);
     } catch (error: any) {
       console.error("Error loading reports data:", error);
-      toast.error("Failed to load reports data");
+      toast.error(t("reports.loadFailed"));
     } finally {
       setIsLoading(false);
     }
@@ -63,6 +65,17 @@ const ReportsExport = () => {
       default:
         return FileText;
     }
+  };
+
+  const getCategoryTranslation = (category: string) => {
+    const categoryMap: { [key: string]: string } = {
+      'Performance': t("reports.categories.performance"),
+      'Leads': t("reports.categories.leads"),
+      'Analytics': t("reports.categories.analytics"),
+      'Communication': t("reports.categories.communication"),
+    };
+    
+    return categoryMap[category] || category;
   };
 
   const handleGenerateTemplate = async (template: ReportTemplate) => {
@@ -86,18 +99,18 @@ const ReportsExport = () => {
           response = await reportsService.generateActivityReport();
           break;
         default:
-          throw new Error('Unknown report type');
+          throw new Error(t("reports.unknownReportType"));
       }
 
       // Download the report
       reportsService.downloadReport(response.data.content, filename, 'csv');
-      toast.success(response.message);
+      toast.success(t("reports.generateSuccess"));
       
       // Reload history
       loadReportsData();
     } catch (error: any) {
       console.error("Error generating report:", error);
-      toast.error(error.response?.data?.message || "Failed to generate report");
+      toast.error(error.response?.data?.message || t("reports.generateFailed"));
     } finally {
       setGeneratingReport(null);
     }
@@ -124,18 +137,18 @@ const ReportsExport = () => {
           response = await reportsService.generateActivityReport({ format: reportFormat.toUpperCase() as any });
           break;
         default:
-          throw new Error('Unknown report type');
+          throw new Error(t("reports.unknownReportType"));
       }
 
       // Download the report
       reportsService.downloadReport(response.data.content, filename, reportFormat);
-      toast.success(response.message);
+      toast.success(t("reports.generateSuccess"));
       
       // Reload history
       loadReportsData();
     } catch (error: any) {
       console.error("Error generating custom report:", error);
-      toast.error(error.response?.data?.message || "Failed to generate report");
+      toast.error(error.response?.data?.message || t("reports.generateFailed"));
     } finally {
       setGeneratingReport(null);
     }
@@ -146,12 +159,12 @@ const ReportsExport = () => {
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Reports & Export</h1>
-          <p className="text-muted-foreground">Generate and download custom reports</p>
+          <h1 className="text-3xl font-bold">{t("reports.reportsExport")}</h1>
+          <p className="text-muted-foreground">{t("reports.generateDownloadReports")}</p>
         </div>
         <Button variant="gradient" onClick={() => setIsCustomModalOpen(true)}>
           <FileText className="h-4 w-4 mr-2" />
-          Create Custom Report
+          {t("reports.createCustomReport")}
         </Button>
       </div>
 
@@ -160,8 +173,8 @@ const ReportsExport = () => {
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Report Templates</CardTitle>
-              <CardDescription>Pre-configured reports ready to generate</CardDescription>
+              <CardTitle>{t("reports.reportTemplates")}</CardTitle>
+              <CardDescription>{t("reports.preConfiguredReports")}</CardDescription>
             </CardHeader>
             <CardContent>
               {isLoading ? (
@@ -183,7 +196,7 @@ const ReportsExport = () => {
                           <div className="flex-1">
                             <h4 className="font-medium mb-1">{template.name}</h4>
                             <p className="text-sm text-muted-foreground mb-2">{template.description}</p>
-                            <Badge variant="outline" className="text-xs">{template.category}</Badge>
+                            <Badge variant="outline" className="text-xs">{getCategoryTranslation(template.category)}</Badge>
                           </div>
                         </div>
                         <Button 
@@ -196,12 +209,12 @@ const ReportsExport = () => {
                           {isGenerating ? (
                             <>
                               <Loader2 className="h-3 w-3 mr-2 animate-spin" />
-                              Generating...
+                              {t("reports.generating")}
                             </>
                           ) : (
                             <>
                               <Download className="h-3 w-3 mr-2" />
-                              Generate Report
+                              {t("reports.generateReport")}
                             </>
                           )}
                         </Button>
@@ -216,66 +229,66 @@ const ReportsExport = () => {
           {/* Custom Report Builder */}
           <Card>
             <CardHeader>
-              <CardTitle>Custom Report Builder</CardTitle>
-              <CardDescription>Configure your own report with custom parameters</CardDescription>
+              <CardTitle>{t("reports.customReportBuilder")}</CardTitle>
+              <CardDescription>{t("reports.configureCustomParameters")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>Report Type</Label>
+                  <Label>{t("reports.reportType")}</Label>
                   <Select value={reportType} onValueChange={setReportType}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="leads">Leads Report</SelectItem>
-                      <SelectItem value="performance">Performance Report</SelectItem>
-                      <SelectItem value="conversion">Conversion Report</SelectItem>
-                      <SelectItem value="activity">Activity Report</SelectItem>
+                      <SelectItem value="leads">{t("reports.reportTypes.leads")}</SelectItem>
+                      <SelectItem value="performance">{t("reports.reportTypes.performance")}</SelectItem>
+                      <SelectItem value="conversion">{t("reports.reportTypes.conversion")}</SelectItem>
+                      <SelectItem value="activity">{t("reports.reportTypes.activity")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Date Range</Label>
+                  <Label>{t("reports.dateRange")}</Label>
                   <Select value={dateRange} onValueChange={setDateRange}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="today">Today</SelectItem>
-                      <SelectItem value="week">This Week</SelectItem>
-                      <SelectItem value="month">This Month</SelectItem>
-                      <SelectItem value="quarter">This Quarter</SelectItem>
-                      <SelectItem value="year">This Year</SelectItem>
-                      <SelectItem value="custom">Custom Range</SelectItem>
+                      <SelectItem value="today">{t("reports.today")}</SelectItem>
+                      <SelectItem value="week">{t("reports.thisWeek")}</SelectItem>
+                      <SelectItem value="month">{t("reports.thisMonth")}</SelectItem>
+                      <SelectItem value="quarter">{t("reports.thisQuarter")}</SelectItem>
+                      <SelectItem value="year">{t("reports.thisYear")}</SelectItem>
+                      <SelectItem value="custom">{t("reports.customRange")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Format</Label>
+                  <Label>{t("reports.format")}</Label>
                   <Select value={reportFormat} onValueChange={setReportFormat}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="csv">CSV File</SelectItem>
-                      <SelectItem value="json">JSON Data</SelectItem>
+                      <SelectItem value="csv">{t("reports.csvFile")}</SelectItem>
+                      <SelectItem value="json">{t("reports.jsonData")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Include</Label>
+                  <Label>{t("reports.include")}</Label>
                   <Select value={includeLevel} onValueChange={setIncludeLevel}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Data</SelectItem>
-                      <SelectItem value="summary">Summary Only</SelectItem>
-                      <SelectItem value="detailed">Detailed View</SelectItem>
+                      <SelectItem value="all">{t("reports.allData")}</SelectItem>
+                      <SelectItem value="summary">{t("reports.summaryOnly")}</SelectItem>
+                      <SelectItem value="detailed">{t("reports.detailedView")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -286,7 +299,7 @@ const ReportsExport = () => {
               <div className="flex gap-2">
                 <Button variant="outline" className="flex-1">
                   <Filter className="h-4 w-4 mr-2" />
-                  Advanced Filters
+                  {t("reports.advancedFilters")}
                 </Button>
                 <Button 
                   variant="gradient" 
@@ -297,12 +310,12 @@ const ReportsExport = () => {
                   {generatingReport === 'custom' ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Generating...
+                      {t("reports.generating")}
                     </>
                   ) : (
                     <>
                       <Download className="h-4 w-4 mr-2" />
-                      Generate & Download
+                      {t("reports.generateDownload")}
                     </>
                   )}
                 </Button>
@@ -313,12 +326,12 @@ const ReportsExport = () => {
           {/* Recent Exports */}
           <Card>
             <CardHeader>
-              <CardTitle>Recent Exports</CardTitle>
-              <CardDescription>Your previously generated reports</CardDescription>
+              <CardTitle>{t("reports.recentExports")}</CardTitle>
+              <CardDescription>{t("reports.previouslyGeneratedReports")}</CardDescription>
             </CardHeader>
             <CardContent>
               {exportHistory.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">No export history</p>
+                <p className="text-center text-muted-foreground py-8">{t("reports.noExportHistory")}</p>
               ) : (
                 <div className="space-y-3">
                   {exportHistory.map((export_item) => (
@@ -347,23 +360,23 @@ const ReportsExport = () => {
         <div className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Export Statistics</CardTitle>
+              <CardTitle className="text-base">{t("reports.exportStatistics")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {statistics ? (
                 <>
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">Reports This Month</p>
+                    <p className="text-sm text-muted-foreground mb-1">{t("reports.reportsThisMonth")}</p>
                     <p className="text-2xl font-bold">{statistics.reportsThisMonth}</p>
                   </div>
                   <Separator />
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">Total Size</p>
+                    <p className="text-sm text-muted-foreground mb-1">{t("reports.totalSize")}</p>
                     <p className="text-2xl font-bold">{statistics.totalSize}</p>
                   </div>
                   <Separator />
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">Most Popular</p>
+                    <p className="text-sm text-muted-foreground mb-1">{t("reports.mostPopular")}</p>
                     <p className="font-medium">{statistics.mostPopular}</p>
                   </div>
                 </>
@@ -377,43 +390,43 @@ const ReportsExport = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Scheduled Reports</CardTitle>
-              <CardDescription>Automated report generation</CardDescription>
+              <CardTitle className="text-base">{t("reports.scheduledReports")}</CardTitle>
+              <CardDescription>{t("reports.automatedReportGeneration")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-sm">Monthly Summary</p>
-                  <p className="text-xs text-muted-foreground">Every 1st of month</p>
+                  <p className="font-medium text-sm">{t("reports.monthlySummary")}</p>
+                  <p className="text-xs text-muted-foreground">{t("reports.every1stOfMonth")}</p>
                 </div>
-                <Badge className="bg-green-500">Active</Badge>
+                <Badge className="bg-green-500">{t("reports.active")}</Badge>
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-sm">Weekly Leads</p>
-                  <p className="text-xs text-muted-foreground">Every Monday</p>
+                  <p className="font-medium text-sm">{t("reports.weeklyLeads")}</p>
+                  <p className="text-xs text-muted-foreground">{t("reports.everyMonday")}</p>
                 </div>
-                <Badge className="bg-green-500">Active</Badge>
+                <Badge className="bg-green-500">{t("reports.active")}</Badge>
               </div>
               <Button variant="outline" className="w-full mt-2" size="sm">
                 <Calendar className="h-3 w-3 mr-2" />
-                Manage Schedule
+                {t("reports.manageSchedule")}
               </Button>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Quick Actions</CardTitle>
+              <CardTitle className="text-base">{t("reports.quickActions")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <Button variant="outline" className="w-full justify-start" size="sm">
                 <FileText className="h-4 w-4 mr-2" />
-                Email Report
+                {t("reports.emailReport")}
               </Button>
               <Button variant="outline" className="w-full justify-start" size="sm">
                 <Download className="h-4 w-4 mr-2" />
-                Bulk Download
+                {t("reports.bulkDownload")}
               </Button>
             </CardContent>
           </Card>

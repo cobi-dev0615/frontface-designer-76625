@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
@@ -13,7 +14,9 @@ import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import LeadsList from "./pages/leads/LeadsList";
 import LeadDetail from "./pages/leads/LeadDetail";
+import ConversationsList from "./pages/conversations/ConversationsList";
 import ConversationView from "./pages/conversations/ConversationView";
+import PlanManagement from "./pages/plans/PlanManagement";
 import FollowUpManagement from "./pages/followups/FollowUpManagement";
 import AnalyticsPage from "./pages/analytics/AnalyticsPage";
 import NotificationsCenter from "./pages/notifications/NotificationsCenter";
@@ -66,7 +69,9 @@ const AppContent = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/leads" element={<LeadsList />} />
         <Route path="/leads/:id" element={<LeadDetail />} />
-        <Route path="/conversations" element={<ConversationView />} />
+        <Route path="/conversations" element={<ConversationsList />} />
+        <Route path="/conversations/:id" element={<ConversationView />} />
+        <Route path="/plans" element={<PlanManagement />} />
         <Route path="/followups" element={<FollowUpManagement />} />
         <Route path="/analytics" element={<AnalyticsPage />} />
         <Route path="/notifications" element={<NotificationsCenter />} />
@@ -88,13 +93,15 @@ const AppContent = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AppContent />
-      </BrowserRouter>
-    </TooltipProvider>
+    <ThemeProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AppContent />
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

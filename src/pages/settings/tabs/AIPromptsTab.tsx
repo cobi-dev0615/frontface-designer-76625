@@ -9,8 +9,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner";
 import { getAIPrompt, updateAIPrompt, type AIPrompt } from "@/services/aiPromptService";
 import { useGymStore } from "@/store/gymStore";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const AIPromptsTab = () => {
+  const { t } = useTranslation();
   const { selectedGym } = useGymStore();
   const [aiPrompt, setAIPrompt] = useState<AIPrompt | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,7 +53,7 @@ const AIPromptsTab = () => {
       
     } catch (error: any) {
       console.error('Error loading AI prompt:', error);
-      toast.error(error.response?.data?.message || 'Failed to load AI prompt');
+      toast.error(error.response?.data?.message || t("aiPrompts.loadFailed"));
     } finally {
       setIsLoading(false);
     }
@@ -69,11 +71,11 @@ const AIPromptsTab = () => {
         objectionHandling: { objections }
       });
 
-      toast.success('AI Prompt saved successfully!');
+      toast.success(t("aiPrompts.configurationUpdated"));
       loadAIPrompt(selectedGym.id);
     } catch (error: any) {
       console.error('Error saving AI prompt:', error);
-      toast.error(error.response?.data?.message || 'Failed to save AI prompt');
+      toast.error(error.response?.data?.message || t("aiPrompts.updateFailed"));
     } finally {
       setIsSaving(false);
     }
@@ -81,7 +83,7 @@ const AIPromptsTab = () => {
 
   const handleCopyVariable = (variable: string) => {
     navigator.clipboard.writeText(variable);
-    toast.success(`Copied ${variable}`);
+    toast.success(`${t("common.copied")} ${variable}`);
   };
 
   const handleAddFAQ = () => {
@@ -96,7 +98,7 @@ const AIPromptsTab = () => {
 
   const handleDeleteFAQ = (index: number) => {
     setFaqs(faqs.filter((_, i) => i !== index));
-    toast.success('FAQ removed');
+    toast.success(t("common.deleted"));
   };
 
   const handleAddObjection = () => {
@@ -111,7 +113,7 @@ const AIPromptsTab = () => {
 
   const handleDeleteObjection = (index: number) => {
     setObjections(objections.filter((_, i) => i !== index));
-    toast.success('Objection handler removed');
+    toast.success(t("common.deleted"));
   };
 
   if (isLoading) {
@@ -119,7 +121,7 @@ const AIPromptsTab = () => {
       <div className="flex h-[50vh] items-center justify-center">
         <div className="text-center">
           <RefreshCw className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading AI configuration...</p>
+          <p className="text-muted-foreground">{t("aiPrompts.loadingConfiguration")}</p>
         </div>
       </div>
     );
@@ -130,8 +132,8 @@ const AIPromptsTab = () => {
       <div className="flex h-[50vh] items-center justify-center">
         <div className="text-center">
           <Bot className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <p className="text-lg font-medium mb-1">No Gym Selected</p>
-          <p className="text-sm text-muted-foreground">Please select a gym from Gym Management</p>
+          <p className="text-lg font-medium mb-1">{t("aiPrompts.noGymSelected")}</p>
+          <p className="text-sm text-muted-foreground">{t("aiPrompts.pleaseSelectGym")}</p>
         </div>
       </div>
     );
@@ -146,13 +148,13 @@ const AIPromptsTab = () => {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Bot className="h-5 w-5" />
-                AI Configuration for {selectedGym.name}
+                {t("aiPrompts.configurationFor")} {selectedGym.name}
               </CardTitle>
-              <CardDescription>Configure how your AI assistant interacts with leads</CardDescription>
+              <CardDescription>{t("aiPrompts.configureAI")}</CardDescription>
             </div>
             <Button variant="outline" size="sm" onClick={() => selectedGym && loadAIPrompt(selectedGym.id)}>
               <RefreshCw className="h-4 w-4 mr-2" />
-              Reload
+              {t("aiPrompts.refresh")}
             </Button>
           </div>
         </CardHeader>
@@ -165,12 +167,12 @@ const AIPromptsTab = () => {
           {/* System Prompt */}
           <Card>
             <CardHeader>
-              <CardTitle>System Prompt</CardTitle>
-              <CardDescription>Core AI behavior instructions</CardDescription>
+              <CardTitle>{t("aiPrompts.systemPrompt")}</CardTitle>
+              <CardDescription>{t("aiPrompts.coreInstructions")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label>Prompt Instructions</Label>
+                <Label>{t("aiPrompts.promptInstructions")}</Label>
                 <Textarea
                   rows={12}
                   value={systemPrompt}
@@ -181,7 +183,7 @@ const AIPromptsTab = () => {
               </div>
 
               <div>
-                <Label className="text-sm font-medium mb-2 block">Available Variables</Label>
+                <Label className="text-sm font-medium mb-2 block">{t("aiPrompts.availableVariables")}</Label>
                 <div className="flex flex-wrap gap-2">
                   {variables.map((variable) => (
                     <Button
@@ -196,7 +198,7 @@ const AIPromptsTab = () => {
                     </Button>
                   ))}
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">Click to copy</p>
+                <p className="text-xs text-muted-foreground mt-2">{t("aiPrompts.clickToCopy")}</p>
               </div>
             </CardContent>
           </Card>
@@ -206,12 +208,12 @@ const AIPromptsTab = () => {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Objection Handling</CardTitle>
-                  <CardDescription>Common objections</CardDescription>
+                  <CardTitle>{t("aiPrompts.objectionHandling")}</CardTitle>
+                  <CardDescription>{t("aiPrompts.commonObjections")}</CardDescription>
                 </div>
                 <Button variant="outline" size="sm" onClick={handleAddObjection}>
                   <Plus className="h-4 w-4 mr-2" />
-                  Add
+                  {t("aiPrompts.add")}
                 </Button>
               </div>
             </CardHeader>
@@ -220,7 +222,7 @@ const AIPromptsTab = () => {
                 {objections.map((objection, index) => (
                   <div key={index} className="border border-border rounded-lg p-3 space-y-2">
                     <div className="space-y-1">
-                      <Label className="text-xs">Trigger Keywords</Label>
+                      <Label className="text-xs">{t("aiPrompts.triggerKeywords")}</Label>
                       <Input 
                         value={objection.trigger}
                         onChange={(e) => handleUpdateObjection(index, 'trigger', e.target.value)}
@@ -229,7 +231,7 @@ const AIPromptsTab = () => {
                       />
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-xs">Response</Label>
+                      <Label className="text-xs">{t("aiPrompts.response")}</Label>
                       <Textarea 
                         rows={3} 
                         value={objection.response}
@@ -254,7 +256,7 @@ const AIPromptsTab = () => {
               
               {objections.length === 0 && (
                 <div className="text-center py-6 text-muted-foreground text-sm">
-                  No objections. Click "Add" to create one.
+                  {t("aiPrompts.noObjections")}
                 </div>
               )}
             </CardContent>
@@ -266,12 +268,12 @@ const AIPromptsTab = () => {
           {/* Greeting Message */}
           <Card>
             <CardHeader>
-              <CardTitle>Greeting Message</CardTitle>
-              <CardDescription>First message to new contacts</CardDescription>
+              <CardTitle>{t("aiPrompts.greetingMessage")}</CardTitle>
+              <CardDescription>{t("aiPrompts.firstMessage")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label>Default Greeting</Label>
+                <Label>{t("aiPrompts.defaultGreeting")}</Label>
                 <Textarea 
                   rows={4} 
                   value={greetingMessage}
@@ -288,12 +290,12 @@ const AIPromptsTab = () => {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>FAQs</CardTitle>
-                  <CardDescription>Common questions</CardDescription>
+                  <CardTitle>{t("aiPrompts.faqs")}</CardTitle>
+                  <CardDescription>{t("aiPrompts.commonQuestions")}</CardDescription>
                 </div>
                 <Button variant="outline" size="sm" onClick={handleAddFAQ}>
                   <Plus className="h-4 w-4 mr-2" />
-                  Add
+                  {t("aiPrompts.add")}
                 </Button>
               </div>
             </CardHeader>
@@ -302,7 +304,7 @@ const AIPromptsTab = () => {
                 {faqs.map((faq, index) => (
                   <div key={index} className="border border-border rounded-lg p-3 space-y-2">
                     <div className="space-y-1">
-                      <Label className="text-xs">Question</Label>
+                      <Label className="text-xs">{t("aiPrompts.question")}</Label>
                       <Input 
                         value={faq.question}
                         onChange={(e) => handleUpdateFAQ(index, 'question', e.target.value)}
@@ -311,7 +313,7 @@ const AIPromptsTab = () => {
                       />
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-xs">Keywords</Label>
+                      <Label className="text-xs">{t("aiPrompts.keywords")}</Label>
                       <Input 
                         value={faq.keywords}
                         onChange={(e) => handleUpdateFAQ(index, 'keywords', e.target.value)}
@@ -320,7 +322,7 @@ const AIPromptsTab = () => {
                       />
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-xs">Answer</Label>
+                      <Label className="text-xs">{t("aiPrompts.answer")}</Label>
                       <Textarea 
                         rows={2} 
                         value={faq.answer}
@@ -345,7 +347,7 @@ const AIPromptsTab = () => {
               
               {faqs.length === 0 && (
                 <div className="text-center py-6 text-muted-foreground text-sm">
-                  No FAQs. Click "Add" to create one.
+                  {t("aiPrompts.noFaqs")}
                 </div>
               )}
             </CardContent>
@@ -368,7 +370,7 @@ const AIPromptsTab = () => {
           ) : (
             <>
               <Save className="h-4 w-4 mr-2" />
-              Save Changes
+              {t("aiPrompts.saveChanges")}
             </>
           )}
         </Button>

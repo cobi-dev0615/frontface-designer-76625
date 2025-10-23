@@ -12,31 +12,37 @@ import {
   FileText,
   User,
   UserCog,
-  Activity
+  Activity,
+  CreditCard
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/authStore";
+import { useTranslation } from "@/hooks/useTranslation";
 import { toast } from "sonner";
 
-const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: Home },
-  { name: "Leads", href: "/leads", icon: Users },
-  { name: "Conversations", href: "/conversations", icon: MessageCircle },
-  { name: "Follow-ups", href: "/followups", icon: Calendar },
-  { name: "Analytics", href: "/analytics", icon: BarChart },
-  { name: "Activity Log", href: "/activity", icon: Activity },
-  { name: "Reports", href: "/reports", icon: FileText },
-  { name: "Notifications", href: "/notifications", icon: Bell },
-  { name: "Gyms", href: "/gyms", icon: Dumbbell },
-  { name: "User Management", href: "/users", icon: UserCog },
-  { name: "Profile", href: "/profile", icon: User },
-  { name: "Settings", href: "/settings", icon: Settings },
+const getNavigation = (t: (key: string) => string) => [
+  { name: t("navigation.dashboard"), href: "/dashboard", icon: Home },
+  { name: t("navigation.leads"), href: "/leads", icon: Users },
+  { name: t("navigation.conversations"), href: "/conversations", icon: MessageCircle },
+  { name: t("navigation.followUps"), href: "/followups", icon: Calendar },
+  { name: t("navigation.analytics"), href: "/analytics", icon: BarChart },
+  { name: t("navigation.activity"), href: "/activity", icon: Activity },
+  { name: t("navigation.reports"), href: "/reports", icon: FileText },
+  { name: t("navigation.notifications"), href: "/notifications", icon: Bell },
+  { name: t("navigation.gyms"), href: "/gyms", icon: Dumbbell },
+  { name: t("navigation.plans"), href: "/plans", icon: CreditCard },
+  { name: t("navigation.user"), href: "/users", icon: UserCog },
+  { name: t("navigation.profile"), href: "/profile", icon: User },
+  { name: t("navigation.settings"), href: "/settings", icon: Settings },
 ];
 
 export const Sidebar = () => {
   const navigate = useNavigate();
   const { logout, user } = useAuthStore();
+  const { t } = useTranslation();
+  
+  const navigation = getNavigation(t);
 
   const getNavLinkClass = ({ isActive }: { isActive: boolean }) => {
     return `flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
@@ -49,7 +55,7 @@ export const Sidebar = () => {
   const handleLogout = () => {
     logout();
     navigate('/login');
-    toast.success('Logged out successfully');
+    toast.success(t('auth.logoutSuccess'));
   };
 
   // Get user initials
@@ -64,7 +70,7 @@ export const Sidebar = () => {
   };
 
   return (
-    <aside className="flex h-screen w-60 flex-col border-r border-sidebar-border bg-sidebar backdrop-blur-xl">
+    <aside className="sidebar-enhanced colorful-scroll flex h-screen w-60 flex-col backdrop-blur-xl">
       {/* Logo */}
       <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-6 backdrop-blur-sm">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary">
@@ -88,7 +94,7 @@ export const Sidebar = () => {
         
         <div className="pt-4">
           <p className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-            Reports & Analytics
+            {t("navigation.reportsAnalytics")}
           </p>
           <div className="space-y-1">
             {navigation.slice(4, 8).map((item) => (
@@ -102,10 +108,10 @@ export const Sidebar = () => {
 
         <div className="pt-4">
           <p className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-            Management
+            {t("navigation.management")}
           </p>
           <div className="space-y-1">
-            {navigation.slice(8, 10).map((item) => (
+            {navigation.slice(8, 11).map((item) => (
               <NavLink key={item.name} to={item.href} className={getNavLinkClass}>
                 <item.icon className="h-5 w-5" />
                 <span>{item.name}</span>
@@ -116,10 +122,10 @@ export const Sidebar = () => {
 
         <div className="pt-4">
           <p className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-            Account
+            {t("navigation.account")}
           </p>
           <div className="space-y-1">
-            {navigation.slice(10).map((item) => (
+            {navigation.slice(11).map((item) => (
               <NavLink key={item.name} to={item.href} className={getNavLinkClass}>
                 <item.icon className="h-5 w-5" />
                 <span>{item.name}</span>
@@ -151,7 +157,7 @@ export const Sidebar = () => {
             size="icon" 
             className="h-8 w-8 flex-shrink-0"
             onClick={handleLogout}
-            title="Logout"
+            title={t("navigation.logout")}
           >
             <LogOut className="h-4 w-4" />
           </Button>

@@ -17,8 +17,10 @@ import IntegrationsTab from "./tabs/IntegrationsTab";
 import EvoIntegrationTab from "./tabs/EvoIntegrationTab";
 import { useGymStore } from "@/store/gymStore";
 import { getAllGyms } from "@/services/gymService";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const SettingsPage = () => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("gym");
   const { selectedGym, setSelectedGym, gyms, setGyms } = useGymStore();
 
@@ -46,7 +48,7 @@ const SettingsPage = () => {
       {gyms.length > 0 && (
         <div className="flex items-center justify-end gap-3">
           <Label htmlFor="gym-selector" className="text-sm font-medium whitespace-nowrap">
-            Configure Gym:
+            {t("settings.configureGym")}
           </Label>
           <Select 
             value={selectedGym?.id} 
@@ -58,7 +60,7 @@ const SettingsPage = () => {
             <SelectTrigger id="gym-selector" className="w-[280px]">
               <div className="flex items-center gap-2">
                 <Dumbbell className="h-4 w-4" />
-                <SelectValue placeholder="Select a gym" />
+                <SelectValue placeholder={t("settings.selectGym")} />
               </div>
             </SelectTrigger>
             <SelectContent>
@@ -79,27 +81,27 @@ const SettingsPage = () => {
         <TabsList className="grid w-full grid-cols-6 lg:w-auto">
           <TabsTrigger value="gym" className="gap-2">
             <Building2 className="h-4 w-4" />
-            <span className="hidden sm:inline">Gym Config</span>
+            <span className="hidden sm:inline">{t("settings.gymConfig")}</span>
           </TabsTrigger>
           <TabsTrigger value="ai" className="gap-2">
             <Bot className="h-4 w-4" />
-            <span className="hidden sm:inline">AI Prompts</span>
+            <span className="hidden sm:inline">{t("settings.aiPrompts")}</span>
           </TabsTrigger>
           <TabsTrigger value="whatsapp" className="gap-2">
             <MessageSquare className="h-4 w-4" />
-            <span className="hidden sm:inline">WhatsApp</span>
+            <span className="hidden sm:inline">{t("settings.whatsapp")}</span>
           </TabsTrigger>
           <TabsTrigger value="users" className="gap-2">
             <Users className="h-4 w-4" />
-            <span className="hidden sm:inline">Users</span>
+            <span className="hidden sm:inline">{t("settings.users")}</span>
           </TabsTrigger>
           <TabsTrigger value="integrations" className="gap-2">
             <Plug className="h-4 w-4" />
-            <span className="hidden sm:inline">Integrations</span>
+            <span className="hidden sm:inline">{t("settings.integrations")}</span>
           </TabsTrigger>
           <TabsTrigger value="evo" className="gap-2">
             <Plug className="h-4 w-4" />
-            <span className="hidden sm:inline">EVO</span>
+            <span className="hidden sm:inline">{t("settings.evo")}</span>
           </TabsTrigger>
         </TabsList>
 
