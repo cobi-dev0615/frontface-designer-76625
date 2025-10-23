@@ -23,8 +23,11 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const UsersTab = () => {
+  const { t } = useTranslation();
+  
   // Password Policy
   const [passwordMinLength, setPasswordMinLength] = useState("8");
   const [requireUppercase, setRequireUppercase] = useState(true);
@@ -56,7 +59,7 @@ const UsersTab = () => {
   const [notifyRoleChanged, setNotifyRoleChanged] = useState(true);
 
   const handleSave = () => {
-    toast.success("User settings saved successfully!");
+    toast.success(t("users.userSettingsSavedSuccessfully"));
   };
 
   return (
@@ -64,8 +67,8 @@ const UsersTab = () => {
       {/* Header */}
       <Card>
         <CardHeader>
-          <CardTitle>User System Settings</CardTitle>
-          <CardDescription>Configure system-wide user policies and security</CardDescription>
+          <CardTitle>{t("users.userSystemSettings")}</CardTitle>
+          <CardDescription>{t("users.configureSystemWideUserPolicies")}</CardDescription>
         </CardHeader>
       </Card>
 
@@ -78,14 +81,14 @@ const UsersTab = () => {
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Lock className="h-5 w-5 text-primary" />
-                <CardTitle>Password Policy</CardTitle>
+                <CardTitle>{t("users.passwordPolicy")}</CardTitle>
               </div>
-              <CardDescription>Password requirements</CardDescription>
+              <CardDescription>{t("users.passwordRequirements")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="passwordMinLength" className="text-sm">Min Length</Label>
+                  <Label htmlFor="passwordMinLength" className="text-sm">{t("users.minLength")}</Label>
                   <Input
                     id="passwordMinLength"
                     type="number"
@@ -98,7 +101,7 @@ const UsersTab = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="passwordExpiry" className="text-sm">Expiry (days)</Label>
+                  <Label htmlFor="passwordExpiry" className="text-sm">{t("users.expiryDays")}</Label>
                   <Input
                     id="passwordExpiry"
                     type="number"
@@ -106,7 +109,7 @@ const UsersTab = () => {
                     max="365"
                     value={passwordExpiry}
                     onChange={(e) => setPasswordExpiry(e.target.value)}
-                    placeholder="0 = never"
+                    placeholder={t("users.never")}
                     className="h-9"
                   />
                 </div>
@@ -115,10 +118,10 @@ const UsersTab = () => {
               <Separator />
 
               <div className="space-y-2">
-                <Label className="text-sm">Requirements</Label>
+                <Label className="text-sm">{t("users.requirements")}</Label>
                 
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="requireUppercase" className="font-normal text-sm">Uppercase (A-Z)</Label>
+                  <Label htmlFor="requireUppercase" className="font-normal text-sm">{t("users.uppercase")}</Label>
                   <Switch
                     id="requireUppercase"
                     checked={requireUppercase}
@@ -127,7 +130,7 @@ const UsersTab = () => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="requireLowercase" className="font-normal text-sm">Lowercase (a-z)</Label>
+                  <Label htmlFor="requireLowercase" className="font-normal text-sm">{t("users.lowercase")}</Label>
                   <Switch
                     id="requireLowercase"
                     checked={requireLowercase}
@@ -136,7 +139,7 @@ const UsersTab = () => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="requireNumbers" className="font-normal text-sm">Numbers (0-9)</Label>
+                  <Label htmlFor="requireNumbers" className="font-normal text-sm">{t("users.numbers")}</Label>
                   <Switch
                     id="requireNumbers"
                     checked={requireNumbers}
@@ -145,7 +148,7 @@ const UsersTab = () => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="requireSpecialChars" className="font-normal text-sm">Special Chars (!@#$)</Label>
+                  <Label htmlFor="requireSpecialChars" className="font-normal text-sm">{t("users.specialChars")}</Label>
                   <Switch
                     id="requireSpecialChars"
                     checked={requireSpecialChars}
@@ -161,13 +164,13 @@ const UsersTab = () => {
             <CardHeader>
               <div className="flex items-center gap-2">
                 <UserCheck className="h-5 w-5 text-primary" />
-                <CardTitle>User Registration</CardTitle>
+                <CardTitle>{t("users.userRegistration")}</CardTitle>
               </div>
-              <CardDescription>Registration policies</CardDescription>
+              <CardDescription>{t("users.registrationPolicies")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label htmlFor="allowSelfRegistration" className="font-normal text-sm">Allow Self-Registration</Label>
+                <Label htmlFor="allowSelfRegistration" className="font-normal text-sm">{t("users.allowSelfRegistration")}</Label>
                 <Switch
                   id="allowSelfRegistration"
                   checked={allowSelfRegistration}
@@ -176,7 +179,7 @@ const UsersTab = () => {
               </div>
 
               <div className="flex items-center justify-between">
-                <Label htmlFor="requireEmailVerification" className="font-normal text-sm">Require Email Verification</Label>
+                <Label htmlFor="requireEmailVerification" className="font-normal text-sm">{t("users.requireEmailVerification")}</Label>
                 <Switch
                   id="requireEmailVerification"
                   checked={requireEmailVerification}
@@ -188,21 +191,21 @@ const UsersTab = () => {
 
               <div className="grid gap-4 grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="defaultRole" className="text-sm">Default Role</Label>
+                  <Label htmlFor="defaultRole" className="text-sm">{t("users.defaultRole")}</Label>
                   <Select value={defaultRole} onValueChange={setDefaultRole}>
                     <SelectTrigger id="defaultRole" className="h-9">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="AGENT">Agent</SelectItem>
-                      <SelectItem value="MANAGER">Manager</SelectItem>
-                      <SelectItem value="ADMIN">Admin</SelectItem>
+                      <SelectItem value="AGENT">{t("users.agent")}</SelectItem>
+                      <SelectItem value="MANAGER">{t("users.manager")}</SelectItem>
+                      <SelectItem value="ADMIN">{t("users.admin")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="invitationExpiry" className="text-sm">Invitation Expiry</Label>
+                  <Label htmlFor="invitationExpiry" className="text-sm">{t("users.invitationExpiry")}</Label>
                   <Input
                     id="invitationExpiry"
                     type="number"
@@ -225,14 +228,14 @@ const UsersTab = () => {
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Clock className="h-5 w-5 text-primary" />
-                <CardTitle>Session & Security</CardTitle>
+                <CardTitle>{t("users.sessionAndSecurity")}</CardTitle>
               </div>
-              <CardDescription>Session and security policies</CardDescription>
+              <CardDescription>{t("users.sessionAndSecurityPolicies")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 grid-cols-3">
                 <div className="space-y-2">
-                  <Label htmlFor="sessionTimeout" className="text-sm">Timeout (min)</Label>
+                  <Label htmlFor="sessionTimeout" className="text-sm">{t("users.timeoutMin")}</Label>
                   <Input
                     id="sessionTimeout"
                     type="number"
@@ -245,7 +248,7 @@ const UsersTab = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="maxLoginAttempts" className="text-sm">Max Attempts</Label>
+                  <Label htmlFor="maxLoginAttempts" className="text-sm">{t("users.maxAttempts")}</Label>
                   <Input
                     id="maxLoginAttempts"
                     type="number"
@@ -258,7 +261,7 @@ const UsersTab = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="lockoutDuration" className="text-sm">Lockout (min)</Label>
+                  <Label htmlFor="lockoutDuration" className="text-sm">{t("users.lockoutMin")}</Label>
                   <Input
                     id="lockoutDuration"
                     type="number"
@@ -275,7 +278,7 @@ const UsersTab = () => {
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="enforce2FA" className="font-normal text-sm">Enforce 2FA</Label>
+                  <Label htmlFor="enforce2FA" className="font-normal text-sm">{t("users.enforce2FA")}</Label>
                   <Switch
                     id="enforce2FA"
                     checked={enforce2FA}
@@ -284,7 +287,7 @@ const UsersTab = () => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="allowMultipleSessions" className="font-normal text-sm">Multiple Sessions</Label>
+                  <Label htmlFor="allowMultipleSessions" className="font-normal text-sm">{t("users.multipleSessions")}</Label>
                   <Switch
                     id="allowMultipleSessions"
                     checked={allowMultipleSessions}
@@ -300,14 +303,14 @@ const UsersTab = () => {
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Database className="h-5 w-5 text-primary" />
-                <CardTitle>Data Retention</CardTitle>
+                <CardTitle>{t("users.dataRetention")}</CardTitle>
               </div>
-              <CardDescription>LGPD/GDPR compliance</CardDescription>
+              <CardDescription>{t("users.lgpdGdprCompliance")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="inactiveUserDays" className="text-sm">Inactive Warning</Label>
+                  <Label htmlFor="inactiveUserDays" className="text-sm">{t("users.inactiveWarning")}</Label>
                   <Input
                     id="inactiveUserDays"
                     type="number"
@@ -317,11 +320,11 @@ const UsersTab = () => {
                     onChange={(e) => setInactiveUserDays(e.target.value)}
                     className="h-9"
                   />
-                  <p className="text-xs text-muted-foreground">Days</p>
+                  <p className="text-xs text-muted-foreground">{t("users.days")}</p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="deletedUserRetention" className="text-sm">Deleted Retention</Label>
+                  <Label htmlFor="deletedUserRetention" className="text-sm">{t("users.deletedRetention")}</Label>
                   <Input
                     id="deletedUserRetention"
                     type="number"
@@ -331,7 +334,7 @@ const UsersTab = () => {
                     onChange={(e) => setDeletedUserRetention(e.target.value)}
                     className="h-9"
                   />
-                  <p className="text-xs text-muted-foreground">Days</p>
+                  <p className="text-xs text-muted-foreground">{t("users.days")}</p>
                 </div>
               </div>
 
@@ -340,10 +343,10 @@ const UsersTab = () => {
                   <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-500 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-xs font-medium text-yellow-800 dark:text-yellow-200">
-                      LGPD Compliance
+                      {t("users.lgpdCompliance")}
                     </p>
                     <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-0.5">
-                      Consult legal before changing.
+                      {t("users.consultLegalBeforeChanging")}
                     </p>
                   </div>
                 </div>
@@ -356,13 +359,13 @@ const UsersTab = () => {
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Bell className="h-5 w-5 text-primary" />
-                <CardTitle>Admin Notifications</CardTitle>
+                <CardTitle>{t("users.adminNotifications")}</CardTitle>
               </div>
-              <CardDescription>User event notifications</CardDescription>
+              <CardDescription>{t("users.userEventNotifications")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="notifyNewUser" className="font-normal text-sm">New User Created</Label>
+                <Label htmlFor="notifyNewUser" className="font-normal text-sm">{t("users.newUserCreated")}</Label>
                 <Switch
                   id="notifyNewUser"
                   checked={notifyNewUser}
@@ -371,7 +374,7 @@ const UsersTab = () => {
               </div>
 
               <div className="flex items-center justify-between">
-                <Label htmlFor="notifyUserDeleted" className="font-normal text-sm">User Deleted</Label>
+                <Label htmlFor="notifyUserDeleted" className="font-normal text-sm">{t("users.userDeleted")}</Label>
                 <Switch
                   id="notifyUserDeleted"
                   checked={notifyUserDeleted}
@@ -380,7 +383,7 @@ const UsersTab = () => {
               </div>
 
               <div className="flex items-center justify-between">
-                <Label htmlFor="notifyRoleChanged" className="font-normal text-sm">Role Changed</Label>
+                <Label htmlFor="notifyRoleChanged" className="font-normal text-sm">{t("users.roleChanged")}</Label>
                 <Switch
                   id="notifyRoleChanged"
                   checked={notifyRoleChanged}
@@ -395,11 +398,11 @@ const UsersTab = () => {
       {/* Footer Actions */}
       <div className="flex items-center justify-end gap-3 sticky bottom-0 bg-background/95 backdrop-blur-sm border-t border-border p-4 -mx-6 -mb-6">
         <Button variant="outline">
-          Reset to Defaults
+          {t("users.resetToDefaults")}
         </Button>
         <Button onClick={handleSave}>
           <Save className="h-4 w-4 mr-2" />
-          Save Settings
+          {t("users.saveSettings")}
         </Button>
       </div>
     </div>

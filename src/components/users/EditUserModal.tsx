@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useTranslation } from "@/hooks/useTranslation";
 import { updateUser, type User as UserType } from "@/services/userManagementService";
 
 interface EditUserModalProps {
@@ -36,6 +37,7 @@ interface FormData {
 }
 
 const EditUserModal = ({ open, onOpenChange, user, onUserUpdated }: EditUserModalProps) => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
@@ -62,15 +64,15 @@ const EditUserModal = ({ open, onOpenChange, user, onUserUpdated }: EditUserModa
     const newErrors: Partial<FormData> = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
+      newErrors.name = t("modals.userManagement.edit.nameRequired");
     } else if (formData.name.trim().length < 2) {
-      newErrors.name = 'Name must be at least 2 characters';
+      newErrors.name = t("modals.userManagement.edit.nameMinLength");
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = t("modals.userManagement.edit.emailRequired");
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Invalid email format';
+      newErrors.email = t("modals.userManagement.edit.invalidEmailFormat");
     }
 
     setErrors(newErrors);
@@ -92,12 +94,12 @@ const EditUserModal = ({ open, onOpenChange, user, onUserUpdated }: EditUserModa
         phone: formData.phone.trim() || undefined
       });
 
-      toast.success('User updated successfully!');
+      toast.success(t("modals.userManagement.edit.userUpdatedSuccess"));
       handleClose();
       onUserUpdated();
     } catch (error: any) {
       console.error('Error updating user:', error);
-      toast.error(error.response?.data?.message || 'Failed to update user');
+      toast.error(error.response?.data?.message || t("modals.userManagement.edit.updateUserFailed"));
     } finally {
       setIsLoading(false);
     }
@@ -121,23 +123,23 @@ const EditUserModal = ({ open, onOpenChange, user, onUserUpdated }: EditUserModa
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />
-            Edit User
+            {t("modals.userManagement.edit.title")}
           </DialogTitle>
           <DialogDescription>
-            Update user information, role, and status.
+            {t("modals.userManagement.edit.description")}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Name */}
           <div className="space-y-2">
-            <Label htmlFor="name">Full Name *</Label>
+            <Label htmlFor="name">{t("modals.userManagement.edit.fullName")}</Label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="name"
                 type="text"
-                placeholder="Enter full name"
+                placeholder={t("modals.userManagement.edit.enterFullName")}
                 value={formData.name}
                 onChange={(e) => handleInputChange('name', e.target.value)}
                 className={`pl-10 ${errors.name ? 'border-destructive' : ''}`}
@@ -150,13 +152,13 @@ const EditUserModal = ({ open, onOpenChange, user, onUserUpdated }: EditUserModa
 
           {/* Email */}
           <div className="space-y-2">
-            <Label htmlFor="email">Email Address *</Label>
+            <Label htmlFor="email">{t("modals.userManagement.edit.emailAddress")}</Label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="email"
                 type="email"
-                placeholder="Enter email address"
+                placeholder={t("modals.userManagement.edit.enterEmailAddress")}
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
                 className={`pl-10 ${errors.email ? 'border-destructive' : ''}`}
@@ -169,13 +171,13 @@ const EditUserModal = ({ open, onOpenChange, user, onUserUpdated }: EditUserModa
 
           {/* Phone */}
           <div className="space-y-2">
-            <Label htmlFor="phone">Phone Number</Label>
+            <Label htmlFor="phone">{t("modals.userManagement.edit.phoneNumber")}</Label>
             <div className="relative">
               <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="phone"
                 type="tel"
-                placeholder="+55 (86) 99999-9999"
+                placeholder={t("modals.userManagement.edit.phonePlaceholder")}
                 value={formData.phone}
                 onChange={(e) => handleInputChange('phone', e.target.value)}
                 className="pl-10"
@@ -185,30 +187,30 @@ const EditUserModal = ({ open, onOpenChange, user, onUserUpdated }: EditUserModa
 
           {/* Role */}
           <div className="space-y-2">
-            <Label htmlFor="role">Role *</Label>
+            <Label htmlFor="role">{t("modals.userManagement.edit.role")}</Label>
             <Select value={formData.role} onValueChange={(value: 'ADMIN' | 'MANAGER' | 'AGENT') => handleInputChange('role', value)}>
               <SelectTrigger>
-                <SelectValue placeholder="Select role" />
+                <SelectValue placeholder={t("modals.userManagement.edit.selectRole")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="AGENT">Agent - Basic access</SelectItem>
-                <SelectItem value="MANAGER">Manager - Gym management</SelectItem>
-                <SelectItem value="ADMIN">Admin - Full system access</SelectItem>
+                <SelectItem value="AGENT">{t("modals.userManagement.edit.roleDescriptions.agent")}</SelectItem>
+                <SelectItem value="MANAGER">{t("modals.userManagement.edit.roleDescriptions.manager")}</SelectItem>
+                <SelectItem value="ADMIN">{t("modals.userManagement.edit.roleDescriptions.admin")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* Status */}
           <div className="space-y-2">
-            <Label htmlFor="status">Status *</Label>
+            <Label htmlFor="status">{t("modals.userManagement.edit.status")}</Label>
             <Select value={formData.status} onValueChange={(value: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED') => handleInputChange('status', value)}>
               <SelectTrigger>
-                <SelectValue placeholder="Select status" />
+                <SelectValue placeholder={t("modals.userManagement.edit.selectStatus")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ACTIVE">Active</SelectItem>
-                <SelectItem value="INACTIVE">Inactive</SelectItem>
-                <SelectItem value="SUSPENDED">Suspended</SelectItem>
+                <SelectItem value="ACTIVE">{t("modals.userManagement.edit.statusOptions.active")}</SelectItem>
+                <SelectItem value="INACTIVE">{t("modals.userManagement.edit.statusOptions.inactive")}</SelectItem>
+                <SelectItem value="SUSPENDED">{t("modals.userManagement.edit.statusOptions.suspended")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -217,18 +219,18 @@ const EditUserModal = ({ open, onOpenChange, user, onUserUpdated }: EditUserModa
           <div className="flex justify-end gap-3 pt-4">
             <Button type="button" variant="outline" onClick={handleClose} disabled={isLoading}>
               <X className="h-4 w-4 mr-2" />
-              Cancel
+              {t("modals.userManagement.edit.cancel")}
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent mr-2" />
-                  Saving...
+                  {t("modals.userManagement.edit.saving")}
                 </>
               ) : (
                 <>
                   <Save className="h-4 w-4 mr-2" />
-                  Save Changes
+                  {t("modals.userManagement.edit.saveChanges")}
                 </>
               )}
             </Button>

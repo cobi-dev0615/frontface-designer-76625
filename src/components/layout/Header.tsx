@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Bell, Building2, Search, ChevronDown, ChevronRight } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link, useNavigate, useLocation } from "react-router-dom";
@@ -20,6 +21,7 @@ import { LanguageSelector } from "@/components/LanguageSelector";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const Header = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuthStore();
@@ -47,27 +49,27 @@ export const Header = () => {
     const path = location.pathname;
     
     // Main Pages
-    if (path === '/dashboard') return { category: 'Dashboard', page: 'Overview' };
-    if (path === '/leads' || path.startsWith('/leads/')) return { category: 'Main', page: 'Leads' };
-    if (path === '/conversations') return { category: 'Main', page: 'Conversations' };
-    if (path === '/followups') return { category: 'Main', page: 'Follow-ups' };
+    if (path === '/dashboard') return { category: t("header.breadcrumbs.dashboard"), page: t("header.breadcrumbs.overview") };
+    if (path === '/leads' || path.startsWith('/leads/')) return { category: t("header.breadcrumbs.main"), page: t("header.breadcrumbs.leads") };
+    if (path === '/conversations') return { category: t("header.breadcrumbs.main"), page: t("header.breadcrumbs.conversations") };
+    if (path === '/followups') return { category: t("header.breadcrumbs.main"), page: t("header.breadcrumbs.followups") };
     
     // Reports & Analytics
-    if (path === '/analytics') return { category: 'Reports & Analytics', page: 'Analytics' };
-    if (path === '/activity') return { category: 'Reports & Analytics', page: 'Activity Log' };
-    if (path === '/reports') return { category: 'Reports & Analytics', page: 'Reports' };
-    if (path === '/notifications') return { category: 'Reports & Analytics', page: 'Notifications' };
+    if (path === '/analytics') return { category: t("header.breadcrumbs.reportsAnalytics"), page: t("header.breadcrumbs.analytics") };
+    if (path === '/activity') return { category: t("header.breadcrumbs.reportsAnalytics"), page: t("header.breadcrumbs.activityLog") };
+    if (path === '/reports') return { category: t("header.breadcrumbs.reportsAnalytics"), page: t("header.breadcrumbs.reports") };
+    if (path === '/notifications') return { category: t("header.breadcrumbs.reportsAnalytics"), page: t("header.breadcrumbs.notifications") };
     
     // Management
-    if (path === '/gyms') return { category: 'Management', page: 'Gyms' };
-    if (path === '/users') return { category: 'Management', page: 'User Management' };
+    if (path === '/gyms') return { category: t("header.breadcrumbs.management"), page: t("header.breadcrumbs.gyms") };
+    if (path === '/users') return { category: t("header.breadcrumbs.management"), page: t("header.breadcrumbs.userManagement") };
     
     // Account
-    if (path === '/profile') return { category: 'Account', page: 'Profile' };
-    if (path === '/settings') return { category: 'Account', page: 'Settings' };
+    if (path === '/profile') return { category: t("header.breadcrumbs.account"), page: t("header.breadcrumbs.profile") };
+    if (path === '/settings') return { category: t("header.breadcrumbs.account"), page: t("header.breadcrumbs.settings") };
     
     // Default
-    return { category: 'Dashboard', page: 'Overview' };
+    return { category: t("header.breadcrumbs.dashboard"), page: t("header.breadcrumbs.overview") };
   };
 
   const breadcrumbs = getBreadcrumbs();
@@ -86,7 +88,7 @@ export const Header = () => {
   const handleLogout = () => {
     logout();
     navigate('/login');
-    toast.success('Logged out successfully');
+    toast.success(t("header.messages.loggedOutSuccess"));
   };
 
   // Get user initials
@@ -118,7 +120,7 @@ export const Header = () => {
         variant="ghost" 
         size="icon"
         onClick={() => setSearchOpen(true)}
-        title="Search (⌘K)"
+        title={t("header.search.title")}
         className="hidden md:flex border-2 border-border"
       >
         <Search className="h-5 w-5" />
@@ -158,23 +160,23 @@ export const Header = () => {
         <DropdownMenuContent align="end" className="w-48 bg-popover">
           <DropdownMenuLabel>
             <div className="flex flex-col">
-              <span className="font-medium">{user?.name || 'My Account'}</span>
+              <span className="font-medium">{user?.name || t("header.userMenu.myAccount")}</span>
               <span className="text-xs text-muted-foreground font-normal">{user?.email}</span>
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
-            <Link to="/profile">Profile</Link>
+            <Link to="/profile">{t("header.userMenu.profile")}</Link>
           </DropdownMenuItem>                    
           <DropdownMenuItem asChild>
-            <Link to="/settings">Settings</Link>
+            <Link to="/settings">{t("header.userMenu.settings")}</Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem 
             onClick={handleLogout}
             className="text-destructive cursor-pointer"
           >
-            Logout
+{t("header.userMenu.logout")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

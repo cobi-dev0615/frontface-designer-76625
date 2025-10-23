@@ -7,10 +7,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ArrowLeft, Lock, Eye, EyeOff, CheckCircle, AlertCircle, Loader2, Dumbbell, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "@/hooks/useTranslation";
 import axios from "axios";
 import gymHero from "@/assets/gym-hero.jpg";
 
 const ResetPassword = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
@@ -30,7 +32,7 @@ const ResetPassword = () => {
   // Verify token on mount
   useEffect(() => {
     if (!token) {
-      toast.error("Invalid reset link");
+      toast.error(t("resetPassword.invalidResetLink"));
       navigate('/login');
       return;
     }
@@ -49,12 +51,12 @@ const ResetPassword = () => {
         setUserEmail(response.data.email);
       } else {
         setIsValidToken(false);
-        toast.error("Invalid or expired reset link");
+        toast.error(t("resetPassword.invalidOrExpiredLink"));
       }
     } catch (err: any) {
       console.error('Token verification error:', err);
       setIsValidToken(false);
-      toast.error(err.response?.data?.message || "Invalid or expired reset link");
+      toast.error(err.response?.data?.message || t("resetPassword.invalidOrExpiredLink"));
     } finally {
       setIsVerifying(false);
     }
@@ -64,19 +66,19 @@ const ResetPassword = () => {
     const errors: string[] = [];
     
     if (pwd.length < 8) {
-      errors.push("At least 8 characters");
+      errors.push(t("resetPassword.atLeast8Characters"));
     }
     if (!/[A-Z]/.test(pwd)) {
-      errors.push("One uppercase letter");
+      errors.push(t("resetPassword.oneUppercaseLetter"));
     }
     if (!/[a-z]/.test(pwd)) {
-      errors.push("One lowercase letter");
+      errors.push(t("resetPassword.oneLowercaseLetter"));
     }
     if (!/[0-9]/.test(pwd)) {
-      errors.push("One number");
+      errors.push(t("resetPassword.oneNumber"));
     }
     if (!/[^A-Za-z0-9]/.test(pwd)) {
-      errors.push("One special character");
+      errors.push(t("resetPassword.oneSpecialCharacter"));
     }
     
     return errors;
@@ -95,15 +97,15 @@ const ResetPassword = () => {
 
     // Client-side validation
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      toast.error("Passwords do not match");
+      setError(t("resetPassword.passwordsDoNotMatchError"));
+      toast.error(t("resetPassword.passwordsDoNotMatchError"));
       return;
     }
 
     const errors = validatePassword(password);
     if (errors.length > 0) {
-      setError("Password does not meet requirements");
-      toast.error("Password does not meet requirements");
+      setError(t("resetPassword.passwordDoesNotMeetRequirements"));
+      toast.error(t("resetPassword.passwordDoesNotMeetRequirements"));
       return;
     }
 
@@ -118,7 +120,7 @@ const ResetPassword = () => {
 
       if (response.data.success) {
         setSuccess(true);
-        toast.success("Password reset successfully!");
+        toast.success(t("resetPassword.passwordResetSuccess"));
         
         // Redirect to login after 3 seconds
         setTimeout(() => {
@@ -127,7 +129,7 @@ const ResetPassword = () => {
       }
     } catch (err: any) {
       console.error('Reset password error:', err);
-      const errorMessage = err.response?.data?.message || "Failed to reset password";
+      const errorMessage = err.response?.data?.message || t("resetPassword.passwordResetFailed");
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -142,7 +144,7 @@ const ResetPassword = () => {
         <Card className="glass-card border-purple-500/20 w-full max-w-md">
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Loader2 className="h-12 w-12 animate-spin text-purple-500 mb-4" />
-            <p className="text-muted-foreground">Verifying reset link...</p>
+            <p className="text-muted-foreground">{t("resetPassword.verifyingResetLink")}</p>
           </CardContent>
         </Card>
       </div>
@@ -158,16 +160,16 @@ const ResetPassword = () => {
             <div className="h-16 w-16 rounded-full bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center mb-4 mx-auto">
               <AlertCircle className="h-8 w-8 text-white" />
             </div>
-            <CardTitle className="text-2xl text-center text-red-600">Invalid Reset Link</CardTitle>
+            <CardTitle className="text-2xl text-center text-red-600">{t("resetPassword.invalidResetLink")}</CardTitle>
             <CardDescription className="text-center">
-              This password reset link is invalid or has expired
+{t("resetPassword.invalidResetLinkDescription")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                Password reset links expire after 1 hour for security reasons.
+                {t("resetPassword.resetLinkExpired")}
               </AlertDescription>
             </Alert>
             
@@ -177,14 +179,14 @@ const ResetPassword = () => {
                 variant="gradient"
                 className="w-full"
               >
-                Request New Reset Link
+                {t("resetPassword.requestNewResetLink")}
               </Button>
               <Button 
                 onClick={() => navigate('/login')} 
                 variant="outline"
                 className="w-full"
               >
-                Back to Login
+                {t("resetPassword.backToLogin")}
               </Button>
             </div>
           </CardContent>
@@ -218,10 +220,10 @@ const ResetPassword = () => {
           {/* Hero Text */}
           <div className="text-center max-w-2xl">
             <h2 className="text-4xl font-bold mb-6 leading-tight">
-              Create a Strong New Password
+{t("resetPassword.heroTitle")}
             </h2>
             <p className="text-xl text-gray-300 leading-relaxed">
-              Choose a secure password to protect your account. Make it unique and memorable!
+{t("resetPassword.heroDescription")}
             </p>
           </div>
 
@@ -233,8 +235,8 @@ const ResetPassword = () => {
                   <ShieldCheck className="h-5 w-5 text-purple-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-1">Strong Password</h3>
-                  <p className="text-sm text-gray-400">Use a mix of letters, numbers, and symbols</p>
+                  <h3 className="font-semibold mb-1">{t("resetPassword.strongPassword")}</h3>
+                  <p className="text-sm text-gray-400">{t("resetPassword.strongPasswordDescription")}</p>
                 </div>
               </div>
             </div>
@@ -244,8 +246,8 @@ const ResetPassword = () => {
                   <Lock className="h-5 w-5 text-purple-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-1">Secure & Unique</h3>
-                  <p className="text-sm text-gray-400">Don't reuse passwords from other sites</p>
+                  <h3 className="font-semibold mb-1">{t("resetPassword.secureAndUnique")}</h3>
+                  <p className="text-sm text-gray-400">{t("resetPassword.secureAndUniqueDescription")}</p>
                 </div>
               </div>
             </div>
@@ -264,7 +266,7 @@ const ResetPassword = () => {
             className="mb-6"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Login
+{t("resetPassword.backToLogin")}
           </Button>
 
           {!success ? (
@@ -273,9 +275,9 @@ const ResetPassword = () => {
                 <div className="h-12 w-12 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center mb-4 mx-auto">
                   <Lock className="h-6 w-6 text-white" />
                 </div>
-                <CardTitle className="text-2xl text-center">Reset Password</CardTitle>
+                <CardTitle className="text-2xl text-center">{t("resetPassword.resetPasswordTitle")}</CardTitle>
                 <CardDescription className="text-center">
-                  Enter your new password for <strong>{userEmail}</strong>
+{t("resetPassword.enterNewPasswordDescription")} <strong>{userEmail}</strong>
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -290,13 +292,13 @@ const ResetPassword = () => {
 
                   {/* New Password Field */}
                   <div className="space-y-2">
-                    <Label htmlFor="password">New Password</Label>
+                    <Label htmlFor="password">{t("resetPassword.newPassword")}</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         id="password"
                         type={showPassword ? "text" : "password"}
-                        placeholder="Enter your new password"
+                        placeholder={t("resetPassword.enterNewPassword")}
                         value={password}
                         onChange={(e) => handlePasswordChange(e.target.value)}
                         className="pl-10 pr-10"
@@ -315,14 +317,14 @@ const ResetPassword = () => {
                     {/* Password Requirements */}
                     {password && (
                       <div className="text-xs space-y-1 mt-2">
-                        <p className="font-medium text-muted-foreground">Password must contain:</p>
+                        <p className="font-medium text-muted-foreground">{t("resetPassword.passwordRequirements")}</p>
                         <ul className="space-y-1">
                           {[
-                            { text: "At least 8 characters", valid: password.length >= 8 },
-                            { text: "One uppercase letter", valid: /[A-Z]/.test(password) },
-                            { text: "One lowercase letter", valid: /[a-z]/.test(password) },
-                            { text: "One number", valid: /[0-9]/.test(password) },
-                            { text: "One special character", valid: /[^A-Za-z0-9]/.test(password) },
+                            { text: t("resetPassword.atLeast8Characters"), valid: password.length >= 8 },
+                            { text: t("resetPassword.oneUppercaseLetter"), valid: /[A-Z]/.test(password) },
+                            { text: t("resetPassword.oneLowercaseLetter"), valid: /[a-z]/.test(password) },
+                            { text: t("resetPassword.oneNumber"), valid: /[0-9]/.test(password) },
+                            { text: t("resetPassword.oneSpecialCharacter"), valid: /[^A-Za-z0-9]/.test(password) },
                           ].map((req, idx) => (
                             <li key={idx} className={`flex items-center gap-2 ${req.valid ? 'text-green-600' : 'text-muted-foreground'}`}>
                               {req.valid ? (
@@ -340,13 +342,13 @@ const ResetPassword = () => {
 
                   {/* Confirm Password Field */}
                   <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm Password</Label>
+                    <Label htmlFor="confirmPassword">{t("resetPassword.confirmPassword")}</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         id="confirmPassword"
                         type={showConfirmPassword ? "text" : "password"}
-                        placeholder="Confirm your new password"
+                        placeholder={t("resetPassword.confirmNewPassword")}
                         value={confirmPassword}
                         onChange={(e) => {
                           setConfirmPassword(e.target.value);
@@ -371,12 +373,12 @@ const ResetPassword = () => {
                         {password === confirmPassword ? (
                           <>
                             <CheckCircle className="h-3 w-3" />
-                            Passwords match
+                            {t("resetPassword.passwordsMatch")}
                           </>
                         ) : (
                           <>
                             <AlertCircle className="h-3 w-3" />
-                            Passwords do not match
+                            {t("resetPassword.passwordsDoNotMatch")}
                           </>
                         )}
                       </p>
@@ -394,12 +396,12 @@ const ResetPassword = () => {
                     {isLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Resetting Password...
+                        {t("resetPassword.resettingPassword")}
                       </>
                     ) : (
                       <>
                         <Lock className="mr-2 h-4 w-4" />
-                        Reset Password
+                        {t("resetPassword.resetPassword")}
                       </>
                     )}
                   </Button>
@@ -413,16 +415,16 @@ const ResetPassword = () => {
                 <div className="h-16 w-16 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center mb-4 mx-auto">
                   <CheckCircle className="h-8 w-8 text-white" />
                 </div>
-                <CardTitle className="text-2xl text-center text-green-600">Password Reset Successful!</CardTitle>
+                <CardTitle className="text-2xl text-center text-green-600">{t("resetPassword.passwordResetSuccessful")}</CardTitle>
                 <CardDescription className="text-center">
-                  Your password has been successfully reset
+{t("resetPassword.passwordResetDescription")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <Alert className="border-green-500/20 bg-green-500/10">
                   <CheckCircle className="h-4 w-4 text-green-600" />
                   <AlertDescription className="text-green-600">
-                    You can now log in with your new password
+                    {t("resetPassword.canLoginWithNewPassword")}
                   </AlertDescription>
                 </Alert>
 
@@ -431,11 +433,11 @@ const ResetPassword = () => {
                   variant="gradient"
                   className="w-full"
                 >
-                  Go to Login
+                  {t("resetPassword.goToLogin")}
                 </Button>
 
                 <p className="text-xs text-center text-muted-foreground">
-                  Redirecting to login in 3 seconds...
+                  {t("resetPassword.redirectingToLogin")}
                 </p>
               </CardContent>
             </Card>

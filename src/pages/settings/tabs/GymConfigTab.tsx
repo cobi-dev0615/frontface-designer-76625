@@ -261,11 +261,11 @@ const GymConfigTab = () => {
           <Card>
             <CardHeader>
               <CardTitle>{t("gyms.basicInformation")}</CardTitle>
-              <CardDescription>Core details about your gym</CardDescription>
+              <CardDescription>{t("gyms.coreDetailsAboutGym")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="gym-name">Gym Name <span className="text-destructive">*</span></Label>
+                <Label htmlFor="gym-name">{t("gyms.gymName")} <span className="text-destructive">*</span></Label>
                 <Input 
                   id="gym-name" 
                   value={basicInfo.name}
@@ -274,7 +274,7 @@ const GymConfigTab = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="location">Location/Branch</Label>
+                <Label htmlFor="location">{t("gyms.locationBranch")}</Label>
                 <Input 
                   id="location" 
                   value={basicInfo.location}
@@ -283,7 +283,7 @@ const GymConfigTab = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
+                <Label htmlFor="phone">{t("gyms.phoneNumber")}</Label>
                 <Input 
                   id="phone" 
                   value={basicInfo.phone}
@@ -300,7 +300,7 @@ const GymConfigTab = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t("gyms.email")}</Label>
                 <Input 
                   id="email" 
                   type="email" 
@@ -310,7 +310,7 @@ const GymConfigTab = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="website">Website</Label>
+                <Label htmlFor="website">{t("gyms.website")}</Label>
                 <Input 
                   id="website" 
                   value={basicInfo.website}
@@ -319,7 +319,7 @@ const GymConfigTab = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="instagram">Instagram</Label>
+                <Label htmlFor="instagram">{t("gyms.instagram")}</Label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">@</span>
                   <Input 
@@ -337,21 +337,21 @@ const GymConfigTab = () => {
           <Card>
             <CardHeader>
               <CardTitle>{t("gyms.brandingSettings")}</CardTitle>
-              <CardDescription>Logo and brand colors</CardDescription>
+              <CardDescription>{t("gyms.logoAndBrandColors")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label>Logo</Label>
+                <Label>{t("gyms.logo")}</Label>
                 <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer">
                   <Upload className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
                   <p className="text-sm text-muted-foreground">{t("gyms.uploadLogo")}</p>
-                  <p className="text-xs text-muted-foreground">SVG, PNG, JPG (max 2MB)</p>
+                  <p className="text-xs text-muted-foreground">{t("gyms.svgPngJpgMax2mb")}</p>
                 </div>
               </div>
 
               <div className="grid gap-4 grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="primary-color">Primary Color</Label>
+                  <Label htmlFor="primary-color">{t("gyms.primaryColor")}</Label>
                   <div className="flex gap-2">
                     <Input 
                       id="primary-color" 
@@ -368,7 +368,7 @@ const GymConfigTab = () => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="secondary-color">Secondary</Label>
+                  <Label htmlFor="secondary-color">{t("gyms.secondary")}</Label>
                   <div className="flex gap-2">
                     <Input 
                       id="secondary-color" 
@@ -396,11 +396,11 @@ const GymConfigTab = () => {
           <Card>
             <CardHeader>
               <CardTitle>{t("gyms.addressInformation")}</CardTitle>
-              <CardDescription>Physical location</CardDescription>
+              <CardDescription>{t("gyms.physicalLocation")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="address">Street Address</Label>
+                <Label htmlFor="address">{t("gyms.streetAddress")}</Label>
                 <Input 
                   id="address" 
                   value={address.street}
@@ -409,7 +409,7 @@ const GymConfigTab = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="neighborhood">Neighborhood</Label>
+                <Label htmlFor="neighborhood">{t("gyms.neighborhood")}</Label>
                 <Input 
                   id="neighborhood" 
                   value={address.neighborhood}
@@ -419,7 +419,7 @@ const GymConfigTab = () => {
 
               <div className="grid gap-4 grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="city">City</Label>
+                  <Label htmlFor="city">{t("gyms.city")}</Label>
                   <Input 
                     id="city" 
                     value={address.city}
@@ -427,13 +427,13 @@ const GymConfigTab = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="state">State</Label>
+                  <Label htmlFor="state">{t("gyms.state")}</Label>
                   <Select 
                     value={address.state}
                     onValueChange={(value) => setAddress({ ...address, state: value })}
                   >
                     <SelectTrigger id="state">
-                      <SelectValue placeholder="State" />
+                      <SelectValue placeholder={t("gyms.state")} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="PI">Piauí</SelectItem>
@@ -447,7 +447,7 @@ const GymConfigTab = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="zip">ZIP Code</Label>
+                <Label htmlFor="zip">{t("gyms.zipCode")}</Label>
                 <div className="flex gap-2">
                   <Input 
                     id="zip" 
@@ -455,7 +455,7 @@ const GymConfigTab = () => {
                     onChange={(e) => setAddress({ ...address, zipCode: e.target.value })}
                     className="flex-1" 
                   />
-                  <Button variant="outline" size="sm">Search</Button>
+                  <Button variant="outline" size="sm">{t("gyms.search")}</Button>
                 </div>
               </div>
             </CardContent>
@@ -465,12 +465,12 @@ const GymConfigTab = () => {
           <Card>
             <CardHeader>
               <CardTitle>{t("gyms.additionalInformation")}</CardTitle>
-              <CardDescription>Size, equipment, capacity</CardDescription>
+              <CardDescription>{t("gyms.additionalInformation")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 grid-cols-3">
                 <div className="space-y-2">
-                  <Label htmlFor="gym-size">Size (m²)</Label>
+                  <Label htmlFor="gym-size">{t("gyms.sizeM2")}</Label>
                   <Input 
                     id="gym-size" 
                     type="number"
@@ -479,7 +479,7 @@ const GymConfigTab = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="equipment-brand">Equipment</Label>
+                  <Label htmlFor="equipment-brand">{t("gyms.equipment")}</Label>
                   <Input 
                     id="equipment-brand" 
                     value={additionalInfo.equipmentBrand}
@@ -487,7 +487,7 @@ const GymConfigTab = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="capacity">Capacity</Label>
+                  <Label htmlFor="capacity">{t("gyms.capacity")}</Label>
                   <Input 
                     id="capacity" 
                     type="number"
@@ -498,13 +498,13 @@ const GymConfigTab = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">{t("gyms.description")}</Label>
                 <Textarea
                   id="description"
                   rows={4}
                   value={additionalInfo.description}
                   onChange={(e) => setAdditionalInfo({ ...additionalInfo, description: e.target.value })}
-                  placeholder="Describe your gym..."
+                  placeholder={t("gyms.describeYourGym")}
                 />
               </div>
             </CardContent>
@@ -514,7 +514,7 @@ const GymConfigTab = () => {
           <Card>
             <CardHeader>
               <CardTitle>{t("gyms.features")}</CardTitle>
-              <CardDescription>What your gym offers</CardDescription>
+              <CardDescription>{t("gyms.whatYourGymOffers")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-3 grid-cols-2">
@@ -542,11 +542,11 @@ const GymConfigTab = () => {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>{t("gyms.membershipPlans")}</CardTitle>
-              <CardDescription>Configure pricing tiers</CardDescription>
+              <CardDescription>{t("gyms.configurePricingTiers")}</CardDescription>
             </div>
             <Button variant="outline" size="sm">
               <Plus className="h-4 w-4 mr-2" />
-              Add Plan
+              {t("gyms.addPlan")}
             </Button>
           </div>
         </CardHeader>
@@ -563,7 +563,7 @@ const GymConfigTab = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-xs">Price (R$)</Label>
+                  <Label className="text-xs">{t("gyms.priceBRL")}</Label>
                   <Input 
                     type="number" 
                     step="0.01"
@@ -608,13 +608,13 @@ const GymConfigTab = () => {
       <div className="flex items-center justify-end gap-3 sticky bottom-0 bg-background/95 backdrop-blur-sm border-t border-border p-4 -mx-6 -mb-6">
         <Button variant="outline" onClick={() => gym && loadGymData(gym.id)} disabled={isSaving}>
           <RefreshCw className="h-4 w-4 mr-2" />
-          Reload
+          {t("gyms.reload")}
         </Button>
         <Button onClick={handleSave} disabled={isSaving}>
           {isSaving ? (
             <>
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent mr-2" />
-              Saving...
+              {t("gyms.saving")}
             </>
           ) : (
             <>

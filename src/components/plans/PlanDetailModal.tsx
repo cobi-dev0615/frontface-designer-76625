@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { CheckCircle, XCircle, Calendar, DollarSign, Clock, Building2 } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Plan } from "@/services/planService";
 
 interface PlanDetailModalProps {
@@ -12,6 +13,7 @@ interface PlanDetailModalProps {
 }
 
 const PlanDetailModal = ({ isOpen, onClose, plan }: PlanDetailModalProps) => {
+  const { t } = useTranslation();
   if (!plan) return null;
 
   const formatPrice = (price: number) => {
@@ -60,7 +62,7 @@ const PlanDetailModal = ({ isOpen, onClose, plan }: PlanDetailModalProps) => {
             <Building2 className="h-5 w-5" />
             {plan.name}
             <Badge variant={plan.active ? "default" : "secondary"}>
-              {plan.active ? "Active" : "Inactive"}
+              {plan.active ? t("modals.plans.detail.active") : t("modals.plans.detail.inactive")}
             </Badge>
           </DialogTitle>
         </DialogHeader>
@@ -69,14 +71,14 @@ const PlanDetailModal = ({ isOpen, onClose, plan }: PlanDetailModalProps) => {
           {/* Basic Information */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Plan Details</CardTitle>
+              <CardTitle className="text-lg">{t("modals.plans.detail.planDetails")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center gap-2">
                   <DollarSign className="h-4 w-4 text-muted-foreground" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Price</p>
+                    <p className="text-sm text-muted-foreground">{t("modals.plans.detail.price")}</p>
                     <p className="font-semibold">{formatPrice(plan.price)}/month</p>
                   </div>
                 </div>
@@ -84,7 +86,7 @@ const PlanDetailModal = ({ isOpen, onClose, plan }: PlanDetailModalProps) => {
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-muted-foreground" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Duration</p>
+                    <p className="text-sm text-muted-foreground">{t("modals.plans.detail.duration")}</p>
                     <p className="font-semibold">{formatDuration(plan.duration)}</p>
                   </div>
                 </div>
@@ -92,7 +94,7 @@ const PlanDetailModal = ({ isOpen, onClose, plan }: PlanDetailModalProps) => {
 
               {plan.description && (
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Description</p>
+                  <p className="text-sm text-muted-foreground mb-1">{t("modals.plans.detail.description")}</p>
                   <p className="text-sm">{plan.description}</p>
                 </div>
               )}
@@ -101,11 +103,11 @@ const PlanDetailModal = ({ isOpen, onClose, plan }: PlanDetailModalProps) => {
 
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-muted-foreground">Created</p>
+                  <p className="text-muted-foreground">{t("modals.plans.detail.created")}</p>
                   <p className="font-medium">{formatDate(plan.createdAt)}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Last Updated</p>
+                  <p className="text-muted-foreground">{t("modals.plans.detail.lastUpdated")}</p>
                   <p className="font-medium">{formatDate(plan.updatedAt)}</p>
                 </div>
               </div>
@@ -115,7 +117,7 @@ const PlanDetailModal = ({ isOpen, onClose, plan }: PlanDetailModalProps) => {
           {/* Features */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Features</CardTitle>
+              <CardTitle className="text-lg">{t("modals.plans.detail.features")}</CardTitle>
             </CardHeader>
             <CardContent>
               {includedFeatures.length > 0 ? (
@@ -130,14 +132,14 @@ const PlanDetailModal = ({ isOpen, onClose, plan }: PlanDetailModalProps) => {
                           <XCircle className="h-4 w-4 text-muted-foreground" />
                         )}
                         <span className={isIncluded ? "text-foreground" : "text-muted-foreground"}>
-                          {feature}
+                          {t(`modals.plans.detail.planFeatures.${feature}`)}
                         </span>
                       </div>
                     );
                   })}
                 </div>
               ) : (
-                <p className="text-muted-foreground">No features defined for this plan.</p>
+                <p className="text-muted-foreground">{t("modals.plans.detail.noFeaturesDefined")}</p>
               )}
             </CardContent>
           </Card>
@@ -146,7 +148,7 @@ const PlanDetailModal = ({ isOpen, onClose, plan }: PlanDetailModalProps) => {
           {plan.gym && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Gym Information</CardTitle>
+                <CardTitle className="text-lg">{t("modals.plans.detail.gymInformation")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-2">

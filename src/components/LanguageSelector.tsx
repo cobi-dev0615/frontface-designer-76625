@@ -4,6 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useLanguageStore } from '@/store/languageStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { toast } from 'sonner';
@@ -164,7 +170,7 @@ export const LanguageSelector = ({
     );
   }
 
-  // Default button variant
+  // Default button variant with dropdown
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       {showLabel && (
@@ -172,52 +178,37 @@ export const LanguageSelector = ({
           {t('settings.language')}:
         </span>
       )}
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 border-2 border-border"
-      >
-        <span className="text-lg">{currentLanguage?.flag}</span>
-        <span className="hidden sm:inline">{currentLanguage?.nativeName}</span>
-        <ChevronDown className="h-4 w-4" />
-      </Button>
-
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-[400px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Globe className="h-5 w-5" />
-              {t('languageSelector.title')}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-2">
-            {languages.map((lang) => (
-              <div
-                key={lang.code}
-                className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors hover:bg-muted ${
-                  language === lang.code ? 'bg-primary/5 border-primary' : ''
-                }`}
-                onClick={() => handleLanguageChange(lang.code)}
-              >
-                <span className="text-2xl">{lang.flag}</span>
-                <div className="flex-1">
-                  <p className="font-medium">{lang.nativeName}</p>
-                  <p className="text-sm text-muted-foreground">{lang.name}</p>
-                </div>
-                {language === lang.code && (
-                  <Check className="h-5 w-5 text-primary" />
-                )}
+      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2 border-2 border-border"
+          >
+            <span className="text-lg">{currentLanguage?.flag}</span>
+            <span className="hidden sm:inline">{currentLanguage?.nativeName}</span>
+            <ChevronDown className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56">
+          {languages.map((lang) => (
+            <DropdownMenuItem
+              key={lang.code}
+              onClick={() => handleLanguageChange(lang.code)}
+              className="flex items-center gap-3 p-3 cursor-pointer"
+            >
+              <span className="text-xl">{lang.flag}</span>
+              <div className="flex-1">
+                <p className="font-medium">{lang.nativeName}</p>
+                <p className="text-xs text-muted-foreground">{lang.name}</p>
               </div>
-            ))}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsOpen(false)}>
-              {t('common.close')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+              {language === lang.code && (
+                <Check className="h-4 w-4 text-primary" />
+              )}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };

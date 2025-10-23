@@ -1,5 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Phone, Mail, MessageCircle, Calendar, MapPin, Clock, Tag, TrendingUp, Activity } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +9,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 
 const LeadDetail = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
 
   return (
@@ -21,11 +23,11 @@ const LeadDetail = () => {
         </Link>
         <div className="flex-1">
           <h1 className="text-3xl font-bold">Maria Silva</h1>
-          <p className="text-muted-foreground">Lead ID: {id}</p>
+          <p className="text-muted-foreground">{t("leadDetail.leadId")}: {id}</p>
         </div>
         <Button variant="gradient">
           <MessageCircle className="h-4 w-4 mr-2" />
-          Send Message
+{t("leadDetail.sendMessage")}
         </Button>
       </div>
 
@@ -35,27 +37,27 @@ const LeadDetail = () => {
           {/* Contact Info Card */}
           <Card>
             <CardHeader>
-              <CardTitle>Contact Information</CardTitle>
+              <CardTitle>{t("leadDetail.contactInformation")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-3">
                 <Phone className="h-5 w-5 text-muted-foreground" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Phone</p>
+                  <p className="text-sm text-muted-foreground">{t("leadDetail.phone")}</p>
                   <p className="font-medium">+55 (86) 99876-5432</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-muted-foreground" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Email</p>
+                  <p className="text-sm text-muted-foreground">{t("leadDetail.email")}</p>
                   <p className="font-medium">maria.silva@email.com</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <MapPin className="h-5 w-5 text-muted-foreground" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Location</p>
+                  <p className="text-sm text-muted-foreground">{t("leadDetail.location")}</p>
                   <p className="font-medium">Teresina, PI</p>
                 </div>
               </div>
@@ -65,16 +67,16 @@ const LeadDetail = () => {
           {/* Activity Timeline */}
           <Card>
             <CardHeader>
-              <CardTitle>Activity Timeline</CardTitle>
-              <CardDescription>Recent interactions with this lead</CardDescription>
+              <CardTitle>{t("leadDetail.activityTimeline")}</CardTitle>
+              <CardDescription>{t("leadDetail.recentInteractions")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {[
-                  { time: "2 hours ago", action: "WhatsApp message sent", status: "sent" },
-                  { time: "1 day ago", action: "Called - No answer", status: "missed" },
-                  { time: "2 days ago", action: "First contact via WhatsApp", status: "success" },
-                  { time: "3 days ago", action: "Lead created from website", status: "info" }
+                  { time: `2 ${t("leadDetail.hoursAgo")}`, action: t("leadDetail.whatsappMessageSent"), status: "sent" },
+                  { time: `1 ${t("leadDetail.dayAgo")}`, action: t("leadDetail.calledNoAnswer"), status: "missed" },
+                  { time: `2 ${t("leadDetail.daysAgo")}`, action: t("leadDetail.firstContactWhatsApp"), status: "success" },
+                  { time: `3 ${t("leadDetail.daysAgo")}`, action: t("leadDetail.leadCreatedFromWebsite"), status: "info" }
                 ].map((activity, idx) => (
                   <div key={idx} className="flex gap-4">
                     <div className="flex flex-col items-center">
@@ -94,7 +96,7 @@ const LeadDetail = () => {
           {/* Conversation History */}
           <Card>
             <CardHeader>
-              <CardTitle>Recent Messages</CardTitle>
+              <CardTitle>{t("leadDetail.recentMessages")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -104,9 +106,9 @@ const LeadDetail = () => {
                   </Avatar>
                   <div className="flex-1">
                     <div className="bg-muted rounded-lg p-3">
-                      <p className="text-sm">Olá! Gostaria de saber mais sobre os planos.</p>
+                      <p className="text-sm">{t("leadDetail.sampleMessage1")}</p>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">Yesterday at 10:30 AM</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t("leadDetail.yesterday")} {t("leadDetail.at")} 10:30 AM</p>
                   </div>
                 </div>
                 <div className="flex gap-3 flex-row-reverse">
@@ -115,13 +117,13 @@ const LeadDetail = () => {
                   </Avatar>
                   <div className="flex-1 text-right">
                     <div className="bg-primary/10 rounded-lg p-3 inline-block">
-                      <p className="text-sm">Olá Maria! Temos planos mensais e anuais...</p>
+                      <p className="text-sm">{t("leadDetail.sampleMessage2")}</p>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">Yesterday at 10:32 AM</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t("leadDetail.yesterday")} {t("leadDetail.at")} 10:32 AM</p>
                   </div>
                 </div>
               </div>
-              <Button variant="outline" className="w-full mt-4">View Full Conversation</Button>
+              <Button variant="outline" className="w-full mt-4">{t("leadDetail.viewFullConversation")}</Button>
             </CardContent>
           </Card>
         </div>
@@ -131,19 +133,19 @@ const LeadDetail = () => {
           {/* Status Card */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Lead Status</CardTitle>
+              <CardTitle className="text-base">{t("leadDetail.leadStatus")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <p className="text-sm text-muted-foreground mb-2">Current Stage</p>
-                <Badge className="bg-yellow-500">Negotiating</Badge>
+                <p className="text-sm text-muted-foreground mb-2">{t("leadDetail.currentStage")}</p>
+                <Badge className="bg-yellow-500">{t("leadDetail.negotiating")}</Badge>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground mb-2">Source</p>
-                <Badge variant="outline">WhatsApp</Badge>
+                <p className="text-sm text-muted-foreground mb-2">{t("leadDetail.source")}</p>
+                <Badge variant="outline">{t("leadDetail.whatsapp")}</Badge>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground mb-2">Assigned To</p>
+                <p className="text-sm text-muted-foreground mb-2">{t("leadDetail.assignedTo")}</p>
                 <div className="flex items-center gap-2">
                   <Avatar className="h-6 w-6">
                     <AvatarFallback className="text-xs">JD</AvatarFallback>
@@ -153,7 +155,7 @@ const LeadDetail = () => {
               </div>
               <Separator />
               <div>
-                <p className="text-sm text-muted-foreground mb-2">Lead Score</p>
+                <p className="text-sm text-muted-foreground mb-2">{t("leadDetail.leadScore")}</p>
                 <div className="flex items-center gap-2">
                   <div className="flex-1 bg-muted rounded-full h-2">
                     <div className="bg-gradient-primary h-2 rounded-full" style={{ width: "75%" }} />
@@ -167,20 +169,20 @@ const LeadDetail = () => {
           {/* Quick Actions */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Quick Actions</CardTitle>
+              <CardTitle className="text-base">{t("leadDetail.quickActions")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <Button variant="outline" className="w-full justify-start">
                 <Calendar className="h-4 w-4 mr-2" />
-                Schedule Follow-up
+{t("leadDetail.scheduleFollowUp")}
               </Button>
               <Button variant="outline" className="w-full justify-start">
                 <Tag className="h-4 w-4 mr-2" />
-                Add Tag
+{t("leadDetail.addTag")}
               </Button>
               <Button variant="outline" className="w-full justify-start">
                 <Activity className="h-4 w-4 mr-2" />
-                Change Stage
+{t("leadDetail.changeStage")}
               </Button>
             </CardContent>
           </Card>
@@ -188,23 +190,23 @@ const LeadDetail = () => {
           {/* Stats Card */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Engagement Stats</CardTitle>
+              <CardTitle className="text-base">{t("leadDetail.engagementStats")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Messages Sent</span>
+                <span className="text-sm text-muted-foreground">{t("leadDetail.messagesSent")}</span>
                 <span className="font-medium">12</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Response Rate</span>
+                <span className="text-sm text-muted-foreground">{t("leadDetail.responseRate")}</span>
                 <span className="font-medium">85%</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Avg Response Time</span>
+                <span className="text-sm text-muted-foreground">{t("leadDetail.avgResponseTime")}</span>
                 <span className="font-medium">15 min</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Days in Pipeline</span>
+                <span className="text-sm text-muted-foreground">{t("leadDetail.daysInPipeline")}</span>
                 <span className="font-medium">3</span>
               </div>
             </CardContent>

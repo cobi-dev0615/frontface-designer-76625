@@ -7,10 +7,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ArrowLeft, Mail, CheckCircle, AlertCircle, Loader2, Dumbbell } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "@/hooks/useTranslation";
 import axios from "axios";
 import gymHero from "@/assets/gym-hero.jpg";
 
 const ForgotPassword = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -27,10 +29,10 @@ const ForgotPassword = () => {
       await axios.post(`${API_URL}/auth/forgot-password`, { email });
       
       setSuccess(true);
-      toast.success("Password reset email sent!");
+      toast.success(t("forgotPassword.passwordResetEmailSent"));
     } catch (err: any) {
       console.error('Forgot password error:', err);
-      const errorMessage = err.response?.data?.message || "Failed to send reset email";
+      const errorMessage = err.response?.data?.message || t("forgotPassword.failedToSendResetEmail");
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -63,10 +65,10 @@ const ForgotPassword = () => {
           {/* Hero Text */}
           <div className="text-center max-w-2xl">
             <h2 className="text-4xl font-bold mb-6 leading-tight">
-              Reset Your Password
+{t("forgotPassword.heroTitle")}
             </h2>
             <p className="text-xl text-gray-300 leading-relaxed">
-              Don't worry! It happens to the best of us. Enter your email address and we'll send you instructions to reset your password.
+{t("forgotPassword.heroDescription")}
             </p>
           </div>
 
@@ -78,8 +80,8 @@ const ForgotPassword = () => {
                   <CheckCircle className="h-5 w-5 text-purple-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-1">Secure Process</h3>
-                  <p className="text-sm text-gray-400">Your password reset link is secure and expires in 1 hour</p>
+                  <h3 className="font-semibold mb-1">{t("forgotPassword.secureProcess")}</h3>
+                  <p className="text-sm text-gray-400">{t("forgotPassword.secureProcessDescription")}</p>
                 </div>
               </div>
             </div>
@@ -89,8 +91,8 @@ const ForgotPassword = () => {
                   <Mail className="h-5 w-5 text-purple-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-1">Email Verification</h3>
-                  <p className="text-sm text-gray-400">Check your inbox for the password reset link</p>
+                  <h3 className="font-semibold mb-1">{t("forgotPassword.emailVerification")}</h3>
+                  <p className="text-sm text-gray-400">{t("forgotPassword.emailVerificationDescription")}</p>
                 </div>
               </div>
             </div>
@@ -109,7 +111,7 @@ const ForgotPassword = () => {
             className="mb-6"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Login
+{t("forgotPassword.backToLogin")}
           </Button>
 
           {!success ? (
@@ -118,9 +120,9 @@ const ForgotPassword = () => {
                 <div className="h-12 w-12 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center mb-4 mx-auto">
                   <Mail className="h-6 w-6 text-white" />
                 </div>
-                <CardTitle className="text-2xl text-center">Forgot Password?</CardTitle>
+                <CardTitle className="text-2xl text-center">{t("forgotPassword.forgotPasswordTitle")}</CardTitle>
                 <CardDescription className="text-center">
-                  Enter your email address and we'll send you a link to reset your password
+{t("forgotPassword.enterEmailDescription")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -135,13 +137,13 @@ const ForgotPassword = () => {
 
                   {/* Email Field */}
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email Address</Label>
+                    <Label htmlFor="email">{t("forgotPassword.emailAddress")}</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         id="email"
                         type="email"
-                        placeholder="your@email.com"
+                        placeholder={t("forgotPassword.emailPlaceholder")}
                         value={email}
                         onChange={(e) => {
                           setEmail(e.target.value);
@@ -165,12 +167,12 @@ const ForgotPassword = () => {
                     {isLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Sending Reset Link...
+                        {t("forgotPassword.sendingResetLink")}
                       </>
                     ) : (
                       <>
                         <Mail className="mr-2 h-4 w-4" />
-                        Send Reset Link
+                        {t("forgotPassword.sendResetLink")}
                       </>
                     )}
                   </Button>
@@ -184,31 +186,31 @@ const ForgotPassword = () => {
                 <div className="h-16 w-16 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center mb-4 mx-auto">
                   <CheckCircle className="h-8 w-8 text-white" />
                 </div>
-                <CardTitle className="text-2xl text-center text-green-600">Check Your Email</CardTitle>
+                <CardTitle className="text-2xl text-center text-green-600">{t("forgotPassword.checkYourEmail")}</CardTitle>
                 <CardDescription className="text-center">
-                  We've sent a password reset link to <strong>{email}</strong>
+{t("forgotPassword.emailSentDescription")} <strong>{email}</strong>
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <Alert className="border-green-500/20 bg-green-500/10">
                   <CheckCircle className="h-4 w-4 text-green-600" />
                   <AlertDescription className="text-green-600">
-                    If an account exists with this email, you will receive a password reset link shortly.
+                    {t("forgotPassword.accountExistsMessage")}
                   </AlertDescription>
                 </Alert>
 
                 <div className="space-y-4 text-sm text-muted-foreground">
                   <p>
-                    <strong>Next steps:</strong>
+                    <strong>{t("forgotPassword.nextSteps")}</strong>
                   </p>
                   <ul className="list-disc list-inside space-y-2 ml-2">
-                    <li>Check your email inbox (and spam folder)</li>
-                    <li>Click the password reset link in the email</li>
-                    <li>Create a new strong password</li>
-                    <li>Log in with your new password</li>
+                    <li>{t("forgotPassword.checkInbox")}</li>
+                    <li>{t("forgotPassword.clickResetLink")}</li>
+                    <li>{t("forgotPassword.createNewPassword")}</li>
+                    <li>{t("forgotPassword.loginWithNewPassword")}</li>
                   </ul>
                   <p className="text-xs mt-4">
-                    The reset link will expire in 1 hour for security reasons.
+                    {t("forgotPassword.resetLinkExpires")}
                   </p>
                 </div>
 
@@ -218,7 +220,7 @@ const ForgotPassword = () => {
                     variant="outline"
                     className="flex-1"
                   >
-                    Back to Login
+                    {t("forgotPassword.backToLogin")}
                   </Button>
                   <Button
                     onClick={() => {
@@ -229,7 +231,7 @@ const ForgotPassword = () => {
                     variant="ghost"
                     className="flex-1"
                   >
-                    Send Again
+                    {t("forgotPassword.sendAgain")}
                   </Button>
                 </div>
               </CardContent>
@@ -238,12 +240,12 @@ const ForgotPassword = () => {
 
           {/* Help Text */}
           <p className="text-center text-sm text-muted-foreground mt-6">
-            Remember your password?{" "}
+            {t("forgotPassword.rememberPassword")}{" "}
             <button
               onClick={() => navigate('/login')}
               className="text-primary hover:underline font-medium"
             >
-              Sign in
+              {t("forgotPassword.signIn")}
             </button>
           </p>
         </div>

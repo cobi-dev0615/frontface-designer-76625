@@ -39,16 +39,16 @@ const Login = () => {
 
     try {
       await login(email, password, rememberMe);
-      toast.success("Login successful! Welcome back!");
+      toast.success(t("login.loginSuccess"));
       
       // Navigate to intended destination or dashboard
       const from = (location.state as any)?.from?.pathname || '/dashboard';
       navigate(from, { replace: true });
     } catch (err: any) {
       console.error('Login error:', err);
-      setError(err.message || "Invalid email or password");
+      setError(err.message || t("login.invalidCredentials"));
       setPassword(""); // Clear password on error
-      toast.error(err.message || "Login failed");
+      toast.error(err.message || t("login.loginFailed"));
     } finally {
       setIsLoading(false);
     }

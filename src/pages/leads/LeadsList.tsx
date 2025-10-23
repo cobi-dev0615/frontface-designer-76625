@@ -69,7 +69,7 @@ const LeadsList = () => {
       setGyms(response.gyms || []);
     } catch (error: any) {
       console.error("Error loading gyms:", error);
-      toast.error("Failed to load gyms");
+      toast.error(t("leads.failedToLoadGyms"));
     }
   };
 

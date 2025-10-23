@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { User, Mail, Phone, Lock, Activity, TrendingUp, Calendar, Loader2, Check, X, Upload, Trash2, Image, Camera } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +16,7 @@ import type { UserProfile as UserProfileType, UserStats, Activity as ActivityTyp
 import { useAuthStore } from "@/store/authStore";
 
 const UserProfile = () => {
+  const { t } = useTranslation();
   const { setUser } = useAuthStore();
   const [profile, setProfile] = useState<UserProfileType | null>(null);
   const [stats, setStats] = useState<UserStats | null>(null);
@@ -62,7 +64,7 @@ const UserProfile = () => {
       setPhone(profileData.phone || "");
     } catch (err: any) {
       console.error('Error loading profile:', err);
-      toast.error(err.response?.data?.message || "Failed to load profile");
+      toast.error(err.response?.data?.message || t("userProfile.profileUpdateFailed"));
     } finally {
       setIsLoading(false);
     }
@@ -80,10 +82,10 @@ const UserProfile = () => {
 
       setProfile(updatedProfile);
       setIsEditing(false);
-      toast.success("Profile updated successfully!");
+      toast.success(t("userProfile.profileUpdatedSuccess"));
     } catch (err: any) {
       console.error('Error updating profile:', err);
-      const errorMessage = err.response?.data?.message || "Failed to update profile";
+      const errorMessage = err.response?.data?.message || t("userProfile.profileUpdateFailed");
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -107,17 +109,17 @@ const UserProfile = () => {
 
       // Validation
       if (!currentPassword || !newPassword || !confirmPassword) {
-        setPasswordError("All password fields are required");
+        setPasswordError(t("userProfile.allPasswordFieldsRequired"));
         return;
       }
 
       if (newPassword !== confirmPassword) {
-        setPasswordError("New passwords do not match");
+        setPasswordError(t("userProfile.passwordsDoNotMatch"));
         return;
       }
 
       if (newPassword.length < 8) {
-        setPasswordError("Password must be at least 8 characters");
+        setPasswordError(t("userProfile.passwordMinLength"));
         return;
       }
 
@@ -133,10 +135,10 @@ const UserProfile = () => {
       setNewPassword("");
       setConfirmPassword("");
       
-      toast.success("Password changed successfully!");
+      toast.success(t("userProfile.passwordChangedSuccess"));
     } catch (err: any) {
       console.error('Error changing password:', err);
-      const errorMessage = err.response?.data?.message || "Failed to change password";
+      const errorMessage = err.response?.data?.message || t("userProfile.passwordChangeFailed");
       setPasswordError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -151,7 +153,7 @@ const UserProfile = () => {
     // Validate file type
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     if (!validTypes.includes(file.type)) {
-      toast.error("Invalid file type. Please upload an image (JPEG, PNG, GIF, or WebP)");
+      toast.error(t("userProfile.invalidFileType"));
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -161,7 +163,7 @@ const UserProfile = () => {
     // Validate file size (5MB max)
     const maxSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
-      toast.error("File too large. Maximum size is 5MB");
+      toast.error(t("userProfile.fileTooLarge"));
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -195,10 +197,10 @@ const UserProfile = () => {
         lastLogin: updatedProfile.lastLogin
       });
       
-      toast.success("Avatar uploaded successfully!");
+      toast.success(t("userProfile.avatarUploadedSuccess"));
     } catch (err: any) {
       console.error('Error uploading avatar file:', err);
-      toast.error(err.response?.data?.message || "Failed to upload avatar");
+      toast.error(err.response?.data?.message || t("userProfile.avatarUploadFailed"));
       setPreviewUrl(""); // Clear preview on error
     } finally {
       setIsSaving(false);
@@ -230,10 +232,10 @@ const UserProfile = () => {
         lastLogin: updatedProfile.lastLogin
       });
       
-      toast.success("Avatar deleted successfully!");
+      toast.success(t("userProfile.avatarDeletedSuccess"));
     } catch (err: any) {
       console.error('Error deleting avatar:', err);
-      toast.error(err.response?.data?.message || "Failed to delete avatar");
+      toast.error(err.response?.data?.message || t("userProfile.avatarDeleteFailed"));
     } finally {
       setIsSaving(false);
     }
@@ -275,7 +277,7 @@ const UserProfile = () => {
       <div className="flex h-[50vh] items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading profile...</p>
+          <p className="text-muted-foreground">{t("userProfile.loadingProfile")}</p>
         </div>
       </div>
     );
@@ -285,7 +287,7 @@ const UserProfile = () => {
     return (
       <div className="flex h-[50vh] items-center justify-center">
         <Alert variant="destructive">
-          <AlertDescription>Failed to load profile data</AlertDescription>
+          <AlertDescription>{t("userProfile.failedToLoadProfile")}</AlertDescription>
         </Alert>
       </div>
     );
@@ -295,15 +297,15 @@ const UserProfile = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Account Settings</h1>
-        <p className="text-muted-foreground">Manage your profile and preferences</p>
+        <h1 className="text-3xl font-bold">{t("userProfile.title")}</h1>
+        <p className="text-muted-foreground">{t("userProfile.description")}</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Profile Card */}
         <Card className="lg:col-span-1 glass-card">
           <CardHeader>
-            <CardTitle>Profile Picture</CardTitle>
+            <CardTitle>{t("userProfile.profilePicture")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-col items-center gap-4">
@@ -366,7 +368,7 @@ const UserProfile = () => {
               </div>
 
               <p className="text-xs text-center text-muted-foreground">
-                Hover over avatar to upload or delete • Max 5MB
+{t("userProfile.hoverToUpload")}
               </p>
 
               {/* Stats */}
@@ -375,19 +377,19 @@ const UserProfile = () => {
                   <div className="grid grid-cols-2 gap-4 text-center">
                     <div>
                       <p className="text-2xl font-bold text-primary">{stats.leads.total}</p>
-                      <p className="text-xs text-muted-foreground">Total Leads</p>
+                      <p className="text-xs text-muted-foreground">{t("userProfile.totalLeads")}</p>
                     </div>
                     <div>
                       <p className="text-2xl font-bold text-green-500">{stats.leads.conversionRate}</p>
-                      <p className="text-xs text-muted-foreground">Conversion</p>
+                      <p className="text-xs text-muted-foreground">{t("userProfile.conversion")}</p>
                     </div>
                     <div>
                       <p className="text-2xl font-bold text-orange-500">{stats.followUps.pending}</p>
-                      <p className="text-xs text-muted-foreground">Pending</p>
+                      <p className="text-xs text-muted-foreground">{t("userProfile.pending")}</p>
                     </div>
                     <div>
                       <p className="text-2xl font-bold text-blue-500">{stats.conversations.active}</p>
-                      <p className="text-xs text-muted-foreground">Active Chats</p>
+                      <p className="text-xs text-muted-foreground">{t("userProfile.activeChats")}</p>
                     </div>
                   </div>
                 </div>
@@ -401,9 +403,9 @@ const UserProfile = () => {
           <Tabs defaultValue="personal">
             <CardHeader>
               <TabsList className="w-full grid grid-cols-3">
-                <TabsTrigger value="personal">Personal</TabsTrigger>
-                <TabsTrigger value="security">Security</TabsTrigger>
-                <TabsTrigger value="activity">Activity</TabsTrigger>
+                <TabsTrigger value="personal">{t("userProfile.personal")}</TabsTrigger>
+                <TabsTrigger value="security">{t("userProfile.security")}</TabsTrigger>
+                <TabsTrigger value="activity">{t("userProfile.activity")}</TabsTrigger>
               </TabsList>
             </CardHeader>
 
@@ -417,7 +419,7 @@ const UserProfile = () => {
                 )}
 
                 <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
+                  <Label htmlFor="name">{t("userProfile.fullName")}</Label>
                   <Input
                     id="name"
                     value={name}
@@ -427,7 +429,7 @@ const UserProfile = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
+                  <Label htmlFor="email">{t("userProfile.emailAddress")}</Label>
                   <Input
                     id="email"
                     type="email"
@@ -436,12 +438,12 @@ const UserProfile = () => {
                     className="bg-muted"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Email cannot be changed. Contact administrator if needed.
+{t("userProfile.emailCannotBeChanged")}
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
+                  <Label htmlFor="phone">{t("userProfile.phoneNumber")}</Label>
                   <Input
                     id="phone"
                     value={phone}
@@ -452,7 +454,7 @@ const UserProfile = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="role">Role</Label>
+                  <Label htmlFor="role">{t("userProfile.role")}</Label>
                   <Input
                     id="role"
                     value={profile.role}
@@ -464,21 +466,21 @@ const UserProfile = () => {
                 <Separator />
 
                 <div className="space-y-2">
-                  <Label>Account Created</Label>
+                  <Label>{t("userProfile.accountCreated")}</Label>
                   <p className="text-sm text-muted-foreground">{formatDate(profile.createdAt)}</p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Last Login</Label>
+                  <Label>{t("userProfile.lastLogin")}</Label>
                   <p className="text-sm text-muted-foreground">
-                    {profile.lastLogin ? formatDate(profile.lastLogin) : 'Never'}
+                    {profile.lastLogin ? formatDate(profile.lastLogin) : t("userProfile.never")}
                   </p>
                 </div>
 
                 <div className="flex gap-2">
                   {!isEditing ? (
                     <Button onClick={() => setIsEditing(true)}>
-                      Edit Profile
+{t("userProfile.editProfile")}
                     </Button>
                   ) : (
                     <>
@@ -486,18 +488,18 @@ const UserProfile = () => {
                         {isSaving ? (
                           <>
                             <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                            Saving...
+{t("userProfile.saving")}
                           </>
                         ) : (
                           <>
                             <Check className="h-4 w-4 mr-2" />
-                            Save Changes
+{t("userProfile.saveChanges")}
                           </>
                         )}
                       </Button>
                       <Button variant="outline" onClick={handleCancelEdit} disabled={isSaving}>
                         <X className="h-4 w-4 mr-2" />
-                        Cancel
+{t("userProfile.cancel")}
                       </Button>
                     </>
                   )}
@@ -507,7 +509,7 @@ const UserProfile = () => {
               {/* Security Tab */}
               <TabsContent value="security" className="space-y-4">
                 <CardDescription>
-                  Update your password to keep your account secure
+{t("userProfile.updatePasswordDescription")}
                 </CardDescription>
 
                 {passwordError && (
@@ -517,7 +519,7 @@ const UserProfile = () => {
                 )}
 
                 <div className="space-y-2">
-                  <Label htmlFor="current-password">Current Password</Label>
+                  <Label htmlFor="current-password">{t("userProfile.currentPassword")}</Label>
                   <Input
                     id="current-password"
                     type="password"
@@ -531,7 +533,7 @@ const UserProfile = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="new-password">New Password</Label>
+                  <Label htmlFor="new-password">{t("userProfile.newPassword")}</Label>
                   <Input
                     id="new-password"
                     type="password"
@@ -543,12 +545,12 @@ const UserProfile = () => {
                     disabled={isChangingPassword}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Password must be at least 8 characters with uppercase, lowercase, number, and special character
+{t("userProfile.passwordRequirements")}
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="confirm-password">Confirm New Password</Label>
+                  <Label htmlFor="confirm-password">{t("userProfile.confirmNewPassword")}</Label>
                   <Input
                     id="confirm-password"
                     type="password"
@@ -565,12 +567,12 @@ const UserProfile = () => {
                   {isChangingPassword ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      Changing Password...
+{t("userProfile.changingPassword")}
                     </>
                   ) : (
                     <>
                       <Lock className="h-4 w-4 mr-2" />
-                      Change Password
+{t("userProfile.changePassword")}
                     </>
                   )}
                 </Button>
@@ -579,13 +581,13 @@ const UserProfile = () => {
               {/* Activity Tab */}
               <TabsContent value="activity" className="space-y-4">
                 <CardDescription>
-                  View your recent activity and actions
+{t("userProfile.viewActivityDescription")}
                 </CardDescription>
 
                 {activities.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <Activity className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                    <p>No activity recorded yet</p>
+                    <p>{t("userProfile.noActivityRecorded")}</p>
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -601,7 +603,7 @@ const UserProfile = () => {
                           <p className="text-sm font-medium">{activity.description}</p>
                           {activity.lead && (
                             <p className="text-xs text-muted-foreground">
-                              Lead: {activity.lead.name}
+{t("userProfile.lead")}: {activity.lead.name}
                             </p>
                           )}
                           <div className="flex items-center gap-2 mt-1">
@@ -625,8 +627,8 @@ const UserProfile = () => {
       {profile.gyms && profile.gyms.length > 0 && (
         <Card className="glass-card">
           <CardHeader>
-            <CardTitle>Gym Assignments</CardTitle>
-            <CardDescription>Gyms you have access to</CardDescription>
+            <CardTitle>{t("userProfile.gymAssignments")}</CardTitle>
+            <CardDescription>{t("userProfile.gymsYouHaveAccess")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -642,7 +644,7 @@ const UserProfile = () => {
                   <div className="flex-1 min-w-0">
                     <p className="font-medium truncate">{gym.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      Role: {gym.role}
+{t("userProfile.roleLabel")} {gym.role}
                     </p>
                   </div>
                   <Badge variant={gym.status === 'ACTIVE' ? 'default' : 'secondary'}>

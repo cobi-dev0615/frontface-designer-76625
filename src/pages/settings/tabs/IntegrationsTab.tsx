@@ -15,8 +15,10 @@ import { useGymStore } from "@/store/gymStore";
 import * as integrationService from "@/services/integrationService";
 import * as gymService from "@/services/gymService";
 import { Integration, EVOConfig, SyncHistory, Webhook, IntegrationStatistics, WebhookStatistics } from "@/services/integrationService";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const IntegrationsTab = () => {
+  const { t } = useTranslation();
   const { selectedGym, setSelectedGym, gyms, setGyms } = useGymStore();
   
   // State
@@ -76,7 +78,7 @@ const IntegrationsTab = () => {
       }
     } catch (error: any) {
       console.error("Error loading gyms:", error);
-      toast.error("Failed to load gyms");
+      toast.error(t("integrations.failedToLoadGyms"));
     }
   };
 
@@ -97,7 +99,7 @@ const IntegrationsTab = () => {
       }
     } catch (error: any) {
       console.error("Error loading integrations:", error);
-      toast.error("Failed to load integrations");
+      toast.error(t("integrations.failedToLoadIntegrations"));
     } finally {
       setIsLoading(false);
     }
@@ -111,7 +113,7 @@ const IntegrationsTab = () => {
       setWebhooks(response.data);
     } catch (error: any) {
       console.error("Error loading webhooks:", error);
-      toast.error("Failed to load webhooks");
+      toast.error(t("integrations.failedToLoadWebhooks"));
     }
   };
 
@@ -139,18 +141,18 @@ const IntegrationsTab = () => {
         await integrationService.updateIntegration(evoIntegration.id, {
           config: evoConfig
         });
-        toast.success("EVO configuration updated successfully");
+        toast.success(t("integrations.evoConfigurationUpdated"));
       } else {
         // Create new integration
         await integrationService.createOrUpdateEVOIntegration(selectedGym.id, evoConfig);
-        toast.success("EVO integration configured successfully");
+        toast.success(t("integrations.evoIntegrationConfigured"));
       }
       
       loadIntegrations();
       setIsEVOConfigOpen(false);
     } catch (error: any) {
       console.error("Error saving EVO config:", error);
-      toast.error("Failed to save EVO configuration");
+      toast.error(t("integrations.failedToSaveEvoConfiguration"));
     }
   };
 
@@ -160,13 +162,13 @@ const IntegrationsTab = () => {
     try {
       const response = await integrationService.testIntegrationConnection(evoIntegration.id);
       if (response.data.connected) {
-        toast.success("Connection test successful!");
+        toast.success(t("integrations.connectionTestSuccessful"));
       } else {
-        toast.error("Connection test failed. Please check your credentials.");
+        toast.error(t("integrations.connectionTestFailed"));
       }
     } catch (error: any) {
       console.error("Error testing connection:", error);
-      toast.error("Failed to test connection");
+      toast.error(t("integrations.failedToTestConnection"));
     }
   };
 
@@ -178,14 +180,14 @@ const IntegrationsTab = () => {
       const response = await integrationService.syncFromEVO(selectedGym.id, evoIntegration.id);
       
       if (response.success) {
-        toast.success(`Sync completed: ${response.data.recordsSynced} records synced`);
+        toast.success(t("integrations.syncCompleted", { count: response.data.recordsSynced }));
         loadIntegrations();
       } else {
-        toast.error("Sync failed. Please try again.");
+        toast.error(t("integrations.syncFailed"));
       }
     } catch (error: any) {
       console.error("Error syncing:", error);
-      toast.error("Failed to sync data");
+      toast.error(t("integrations.failedToSyncData"));
     } finally {
       setIsSyncing(false);
     }
@@ -200,7 +202,7 @@ const IntegrationsTab = () => {
       setIsSyncHistoryOpen(true);
     } catch (error: any) {
       console.error("Error loading sync history:", error);
-      toast.error("Failed to load sync history");
+      toast.error(t("integrations.failedToLoadSyncHistory"));
     }
   };
 
@@ -212,13 +214,13 @@ const IntegrationsTab = () => {
         gymId: selectedGym.id,
         ...webhookForm
       });
-      toast.success("Webhook created successfully");
+      toast.success(t("integrations.webhookCreatedSuccessfully"));
       loadWebhooks();
       setIsWebhookModalOpen(false);
       setWebhookForm({ name: "", url: "", events: [], secret: "" });
     } catch (error: any) {
       console.error("Error creating webhook:", error);
-      toast.error("Failed to create webhook");
+      toast.error(t("integrations.failedToCreateWebhook"));
     }
   };
 
@@ -226,13 +228,13 @@ const IntegrationsTab = () => {
     try {
       const response = await integrationService.testWebhookUrl(webhookForm.url, webhookForm.secret);
       if (response.data.valid) {
-        toast.success("Webhook URL is valid!");
+        toast.success(t("integrations.webhookUrlIsValid"));
       } else {
-        toast.error("Webhook URL is invalid");
+        toast.error(t("integrations.webhookUrlIsInvalid"));
       }
     } catch (error: any) {
       console.error("Error testing webhook URL:", error);
-      toast.error("Failed to test webhook URL");
+      toast.error(t("integrations.failedToTestWebhookUrl"));
     }
   };
 
@@ -241,9 +243,9 @@ const IntegrationsTab = () => {
     const now = new Date();
     const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
     
-    if (diffInMinutes < 1) return "Just now";
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+    if (diffInMinutes < 1) return t("integrations.justNow");
+    if (diffInMinutes < 60) return t("integrations.minutesAgo", { minutes: diffInMinutes });
+    if (diffInMinutes < 1440) return t("integrations.hoursAgo", { hours: Math.floor(diffInMinutes / 60) });
     return date.toLocaleDateString();
   };
 
@@ -267,7 +269,7 @@ const IntegrationsTab = () => {
       <div className="flex h-[50vh] items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading integrations...</p>
+          <p className="text-muted-foreground">{t("integrations.loadingIntegrations")}</p>
         </div>
       </div>
     );
@@ -279,13 +281,13 @@ const IntegrationsTab = () => {
       <Card>
         <CardContent className="p-4">
           <div className="flex items-center gap-4">
-            <Label className="text-sm font-medium">Gym:</Label>
+            <Label className="text-sm font-medium">{t("integrations.gym")}</Label>
             <Select value={selectedGym?.id || ""} onValueChange={(gymId) => {
               const gym = gyms.find(g => g.id === gymId);
               if (gym) setSelectedGym(gym);
             }}>
               <SelectTrigger className="w-64">
-                <SelectValue placeholder="Select gym" />
+                <SelectValue placeholder={t("integrations.selectGym")} />
               </SelectTrigger>
               <SelectContent>
                 {gyms.map((gym) => (
@@ -304,52 +306,52 @@ const IntegrationsTab = () => {
         <div className="grid gap-4 md:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Integrations</CardTitle>
+              <CardTitle className="text-sm font-medium">{t("integrations.totalIntegrations")}</CardTitle>
               <Plug className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{statistics.totalIntegrations}</div>
               <p className="text-xs text-muted-foreground">
-                {statistics.activeIntegrations} active
+{statistics.activeIntegrations} {t("integrations.active")}
               </p>
             </CardContent>
           </Card>
           
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Webhooks</CardTitle>
+              <CardTitle className="text-sm font-medium">{t("integrations.webhooks")}</CardTitle>
               <Settings className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{webhookStats?.totalWebhooks || 0}</div>
               <p className="text-xs text-muted-foreground">
-                {webhookStats?.activeWebhooks || 0} active
+{webhookStats?.activeWebhooks || 0} {t("integrations.active")}
               </p>
             </CardContent>
           </Card>
           
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
+              <CardTitle className="text-sm font-medium">{t("integrations.successRate")}</CardTitle>
               <CheckCircle className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{webhookStats?.successRate || 0}%</div>
               <p className="text-xs text-muted-foreground">
-                webhook success rate
+{t("integrations.webhookSuccessRate")}
               </p>
             </CardContent>
           </Card>
           
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
+              <CardTitle className="text-sm font-medium">{t("integrations.recentActivity")}</CardTitle>
               <RefreshCw className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{webhookStats?.recentLogs || 0}</div>
               <p className="text-xs text-muted-foreground">
-                last 24 hours
+{t("integrations.last24Hours")}
               </p>
             </CardContent>
           </Card>
@@ -363,20 +365,20 @@ const IntegrationsTab = () => {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Plug className="h-5 w-5" />
-                EVO Gym Management System
+{t("integrations.evoGymManagementSystem")}
               </CardTitle>
-              <CardDescription>Sync leads and members with your EVO system</CardDescription>
+              <CardDescription>{t("integrations.syncLeadsAndMembers")}</CardDescription>
             </div>
             <div className="flex items-center gap-2">
               {evoIntegration ? (
                 <Badge className="bg-green-500 flex items-center gap-1">
                   <CheckCircle className="h-3 w-3" />
-                  Connected
+{t("integrations.connected")}
                 </Badge>
               ) : (
                 <Badge variant="secondary" className="flex items-center gap-1">
                   <XCircle className="h-3 w-3" />
-                  Not Connected
+{t("integrations.notConnected")}
                 </Badge>
               )}
               <Button
@@ -385,7 +387,7 @@ const IntegrationsTab = () => {
                 onClick={() => setIsEVOConfigOpen(true)}
               >
                 <Settings className="h-4 w-4 mr-2" />
-                {evoIntegration ? 'Configure' : 'Connect'}
+{evoIntegration ? t("integrations.configure") : t("integrations.connect")}
               </Button>
             </div>
           </div>
@@ -397,7 +399,7 @@ const IntegrationsTab = () => {
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="evo-url">EVO API URL</Label>
+                    <Label htmlFor="evo-url">{t("integrations.evoApiUrl")}</Label>
                     <Input
                       id="evo-url"
                       value={evoConfig.apiUrl}
@@ -405,7 +407,7 @@ const IntegrationsTab = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="evo-branch">Branch ID</Label>
+                    <Label htmlFor="evo-branch">{t("integrations.branchId")}</Label>
                     <Input
                       id="evo-branch"
                       value={evoConfig.branchId}
@@ -417,12 +419,12 @@ const IntegrationsTab = () => {
 
               {/* Auto-Sync Settings */}
               <div className="space-y-4">
-                <h4 className="font-medium">Auto-Sync Settings</h4>
+                <h4 className="font-medium">{t("integrations.autoSyncSettings")}</h4>
                 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="auto-sync">Enable Auto-Sync</Label>
-                    <p className="text-sm text-muted-foreground">Automatically sync leads every {evoConfig.syncInterval} minutes</p>
+                    <Label htmlFor="auto-sync">{t("integrations.enableAutoSync")}</Label>
+                    <p className="text-sm text-muted-foreground">{t("integrations.automaticallySyncLeads", { minutes: evoConfig.syncInterval })}</p>
                   </div>
                   <Switch 
                     id="auto-sync" 
@@ -433,8 +435,8 @@ const IntegrationsTab = () => {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="bidirectional">Bidirectional Sync</Label>
-                    <p className="text-sm text-muted-foreground">Sync changes both ways between systems</p>
+                    <Label htmlFor="bidirectional">{t("integrations.bidirectionalSync")}</Label>
+                    <p className="text-sm text-muted-foreground">{t("integrations.syncChangesBothWays")}</p>
                   </div>
                   <Switch 
                     id="bidirectional" 
@@ -445,8 +447,8 @@ const IntegrationsTab = () => {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="notify-sync">Sync Notifications</Label>
-                    <p className="text-sm text-muted-foreground">Get notified when sync completes</p>
+                    <Label htmlFor="notify-sync">{t("integrations.syncNotifications")}</Label>
+                    <p className="text-sm text-muted-foreground">{t("integrations.getNotifiedWhenSync")}</p>
                   </div>
                   <Switch 
                     id="notify-sync" 
@@ -460,17 +462,17 @@ const IntegrationsTab = () => {
               {evoIntegration.lastSyncAt && (
                 <div className="border border-border rounded-lg p-4 space-y-3">
                   <div className="flex items-center justify-between">
-                    <h4 className="font-medium">Last Sync Status</h4>
-                    <Badge className="bg-green-500">Success</Badge>
+                    <h4 className="font-medium">{t("integrations.lastSyncStatus")}</h4>
+                    <Badge className="bg-green-500">{t("integrations.success")}</Badge>
                   </div>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="text-muted-foreground">Last Sync</p>
+                      <p className="text-muted-foreground">{t("integrations.lastSync")}</p>
                       <p className="font-medium">{formatTime(evoIntegration.lastSyncAt)}</p>
                     </div>
                     <div>
-                      <p className="text-muted-foreground">Status</p>
-                      <p className="font-medium">Connected</p>
+                      <p className="text-muted-foreground">{t("integrations.status")}</p>
+                      <p className="font-medium">{t("integrations.connected")}</p>
                     </div>
                   </div>
                 </div>
@@ -489,21 +491,21 @@ const IntegrationsTab = () => {
                   ) : (
                     <RefreshCw className="h-4 w-4" />
                   )}
-                  {isSyncing ? 'Syncing...' : 'Sync Now'}
+{isSyncing ? t("integrations.syncing") : t("integrations.syncNow")}
                 </Button>
                 <Button 
                   variant="outline" 
                   className="flex-1"
                   onClick={handleTestConnection}
                 >
-                  Test Connection
+{t("integrations.testConnection")}
                 </Button>
                 <Button 
                   variant="outline" 
                   onClick={handleViewSyncHistory}
                 >
                   <Eye className="h-4 w-4 mr-2" />
-                  History
+{t("integrations.history")}
                 </Button>
               </div>
             </>
@@ -516,12 +518,12 @@ const IntegrationsTab = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Webhooks</CardTitle>
-              <CardDescription>Send data to custom endpoints</CardDescription>
+              <CardTitle>{t("integrations.webhooks")}</CardTitle>
+              <CardDescription>{t("integrations.sendDataToCustomEndpoints")}</CardDescription>
             </div>
             <Button onClick={() => setIsWebhookModalOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
-              Add Webhook
+{t("integrations.addWebhook")}
             </Button>
           </div>
         </CardHeader>
@@ -529,13 +531,13 @@ const IntegrationsTab = () => {
           {webhooks.length === 0 ? (
             <div className="text-center py-8">
               <Settings className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No webhooks configured</h3>
+              <h3 className="text-lg font-semibold mb-2">{t("integrations.noWebhooksConfigured")}</h3>
               <p className="text-muted-foreground mb-4">
-                Create webhooks to send data to external systems.
+                {t("integrations.createWebhooksToSendData")}
               </p>
               <Button onClick={() => setIsWebhookModalOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
-                Create Webhook
+{t("integrations.createWebhook")}
               </Button>
             </div>
           ) : (
@@ -546,12 +548,12 @@ const IntegrationsTab = () => {
                     <h4 className="font-medium">{webhook.name}</h4>
                     <p className="text-sm text-muted-foreground">{webhook.url}</p>
                     <p className="text-xs text-muted-foreground">
-                      {webhook.events.length} events • {webhook.isActive ? 'Active' : 'Inactive'}
+{webhook.events.length} {t("integrations.events")} • {webhook.isActive ? t("integrations.active") : t("integrations.inactive")}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant={webhook.isActive ? "default" : "secondary"}>
-                      {webhook.isActive ? "Active" : "Inactive"}
+{webhook.isActive ? t("integrations.active") : t("integrations.inactive")}
                     </Badge>
                     <Button variant="ghost" size="icon">
                       <Edit className="h-4 w-4" />
@@ -572,11 +574,11 @@ const IntegrationsTab = () => {
       <Dialog open={isEVOConfigOpen} onOpenChange={setIsEVOConfigOpen}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>EVO Integration Configuration</DialogTitle>
+            <DialogTitle>{t("integrations.evoIntegrationConfiguration")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="evo-api-url">EVO API URL</Label>
+              <Label htmlFor="evo-api-url">{t("integrations.evoApiUrl")}</Label>
               <Input
                 id="evo-api-url"
                 value={evoConfig.apiUrl}
@@ -586,27 +588,27 @@ const IntegrationsTab = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="evo-api-key">API Key</Label>
+              <Label htmlFor="evo-api-key">{t("integrations.apiKey")}</Label>
               <div className="flex gap-2">
                 <Input
                   id="evo-api-key"
                   type={showApiKey ? "text" : "password"}
                   value={evoConfig.apiKey}
                   onChange={(e) => setEvoConfig(prev => ({ ...prev, apiKey: e.target.value }))}
-                  placeholder="Enter your EVO API key"
+                  placeholder={t("integrations.enterYourEvoApiKey")}
                 />
                 <Button 
                   variant="outline" 
                   size="sm"
                   onClick={() => setShowApiKey(!showApiKey)}
                 >
-                  {showApiKey ? "Hide" : "Show"}
+{showApiKey ? t("integrations.hide") : t("integrations.show")}
                 </Button>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="evo-branch-id">Branch ID</Label>
+              <Label htmlFor="evo-branch-id">{t("integrations.branchId")}</Label>
               <Input
                 id="evo-branch-id"
                 value={evoConfig.branchId}
@@ -616,12 +618,12 @@ const IntegrationsTab = () => {
             </div>
 
             <div className="space-y-4">
-              <h4 className="font-medium">Sync Settings</h4>
+              <h4 className="font-medium">{t("integrations.syncSettings")}</h4>
               
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="auto-sync-config">Enable Auto-Sync</Label>
-                  <p className="text-sm text-muted-foreground">Automatically sync leads</p>
+                  <Label htmlFor="auto-sync-config">{t("integrations.enableAutoSync")}</Label>
+                  <p className="text-sm text-muted-foreground">{t("integrations.automaticallySyncLeads")}</p>
                 </div>
                 <Switch 
                   id="auto-sync-config"
@@ -632,8 +634,8 @@ const IntegrationsTab = () => {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="bidirectional-config">Bidirectional Sync</Label>
-                  <p className="text-sm text-muted-foreground">Sync changes both ways</p>
+                  <Label htmlFor="bidirectional-config">{t("integrations.bidirectionalSync")}</Label>
+                  <p className="text-sm text-muted-foreground">{t("integrations.syncChangesBothWays")}</p>
                 </div>
                 <Switch 
                   id="bidirectional-config"
@@ -644,8 +646,8 @@ const IntegrationsTab = () => {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="notify-sync-config">Sync Notifications</Label>
-                  <p className="text-sm text-muted-foreground">Get notified when sync completes</p>
+                  <Label htmlFor="notify-sync-config">{t("integrations.syncNotifications")}</Label>
+                  <p className="text-sm text-muted-foreground">{t("integrations.getNotifiedWhenSync")}</p>
                 </div>
                 <Switch 
                   id="notify-sync-config"
@@ -655,7 +657,7 @@ const IntegrationsTab = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="sync-interval">Sync Interval (minutes)</Label>
+                <Label htmlFor="sync-interval">{t("integrations.syncIntervalMinutes")}</Label>
                 <Input
                   id="sync-interval"
                   type="number"
@@ -669,10 +671,10 @@ const IntegrationsTab = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEVOConfigOpen(false)}>
-              Cancel
+              {t("integrations.cancel")}
             </Button>
             <Button onClick={handleEVOConfigSave}>
-              Save Configuration
+              {t("integrations.saveConfiguration")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -682,21 +684,21 @@ const IntegrationsTab = () => {
       <Dialog open={isWebhookModalOpen} onOpenChange={setIsWebhookModalOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Create Webhook</DialogTitle>
+            <DialogTitle>{t("integrations.createWebhook")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="webhook-name">Name</Label>
+              <Label htmlFor="webhook-name">{t("integrations.name")}</Label>
               <Input
                 id="webhook-name"
                 value={webhookForm.name}
                 onChange={(e) => setWebhookForm(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="My Webhook"
+                placeholder={t("integrations.myWebhook")}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="webhook-url">URL</Label>
+              <Label htmlFor="webhook-url">{t("integrations.url")}</Label>
               <div className="flex gap-2">
                 <Input
                   id="webhook-url"
@@ -709,47 +711,47 @@ const IntegrationsTab = () => {
                   size="sm"
                   onClick={handleTestWebhookUrl}
                 >
-                  Test
+{t("integrations.test")}
                 </Button>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="webhook-events">Events</Label>
+              <Label htmlFor="webhook-events">{t("integrations.events")}</Label>
               <Select
                 value={webhookForm.events[0] || ""}
                 onValueChange={(value) => setWebhookForm(prev => ({ ...prev, events: [value] }))}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select events" />
+                  <SelectValue placeholder={t("integrations.selectEvents")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="lead.created">Lead Created</SelectItem>
-                  <SelectItem value="lead.updated">Lead Updated</SelectItem>
-                  <SelectItem value="lead.status_changed">Lead Status Changed</SelectItem>
-                  <SelectItem value="message.sent">Message Sent</SelectItem>
-                  <SelectItem value="followup.created">Follow-up Created</SelectItem>
+                  <SelectItem value="lead.created">{t("integrations.leadCreated")}</SelectItem>
+                  <SelectItem value="lead.updated">{t("integrations.leadUpdated")}</SelectItem>
+                  <SelectItem value="lead.status_changed">{t("integrations.leadStatusChanged")}</SelectItem>
+                  <SelectItem value="message.sent">{t("integrations.messageSent")}</SelectItem>
+                  <SelectItem value="followup.created">{t("integrations.followupCreated")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="webhook-secret">Secret (optional)</Label>
+              <Label htmlFor="webhook-secret">{t("integrations.secretOptional")}</Label>
               <Input
                 id="webhook-secret"
                 type="password"
                 value={webhookForm.secret}
                 onChange={(e) => setWebhookForm(prev => ({ ...prev, secret: e.target.value }))}
-                placeholder="Webhook secret for signature verification"
+                placeholder={t("integrations.webhookSecretForSignature")}
               />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsWebhookModalOpen(false)}>
-              Cancel
+              {t("integrations.cancel")}
             </Button>
             <Button onClick={handleCreateWebhook}>
-              Create Webhook
+              {t("integrations.createWebhook")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -759,23 +761,23 @@ const IntegrationsTab = () => {
       <Dialog open={isSyncHistoryOpen} onOpenChange={setIsSyncHistoryOpen}>
         <DialogContent className="sm:max-w-[700px]">
           <DialogHeader>
-            <DialogTitle>Sync History</DialogTitle>
+            <DialogTitle>{t("integrations.syncHistory")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             {syncHistory.length === 0 ? (
               <div className="text-center py-8">
                 <RefreshCw className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">No sync history available</p>
+                <p className="text-muted-foreground">{t("integrations.noSyncHistoryAvailable")}</p>
               </div>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Time</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Records</TableHead>
-                    <TableHead>Duration</TableHead>
+                    <TableHead>{t("integrations.time")}</TableHead>
+                    <TableHead>{t("integrations.type")}</TableHead>
+                    <TableHead>{t("integrations.status")}</TableHead>
+                    <TableHead>{t("integrations.records")}</TableHead>
+                    <TableHead>{t("integrations.duration")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

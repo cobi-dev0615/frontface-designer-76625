@@ -176,9 +176,9 @@ const EvoIntegrationTab = () => {
       const response = await integrationService.testIntegrationConnection(evoIntegration.id);
       
       if (response.data.connected) {
-        toast.success("Connection test successful!");
+        toast.success(t("integrations.connectionTestSuccessful"));
       } else {
-        toast.error("Connection test failed. Please check your credentials.");
+        toast.error(t("integrations.connectionTestFailed"));
       }
     } catch (error: any) {
       console.error("Error testing connection:", error);
@@ -196,10 +196,10 @@ const EvoIntegrationTab = () => {
       const response = await integrationService.syncFromEVO(selectedGym.id, evoIntegration.id);
       
       if (response.success) {
-        toast.success(`Sync completed: ${response.data.recordsSynced} records synced`);
+        toast.success(t("integrations.syncedRecords", { count: response.data.recordsSynced }));
         loadEVOIntegration();
       } else {
-        toast.error("Sync failed. Please try again.");
+        toast.error(t("integrations.syncFailed"));
       }
     } catch (error: any) {
       console.error("Error syncing:", error);
@@ -242,8 +242,8 @@ const EvoIntegrationTab = () => {
     const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
     
     if (diffInMinutes < 1) return t("common.justNow");
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+    if (diffInMinutes < 60) return t("integrations.minutesAgo", { minutes: diffInMinutes });
+    if (diffInMinutes < 1440) return t("integrations.hoursAgo", { hours: Math.floor(diffInMinutes / 60) });
     return date.toLocaleDateString();
   };
 
@@ -267,7 +267,7 @@ const EvoIntegrationTab = () => {
       <div className="flex h-[50vh] items-center justify-center">
         <div className="text-center">
           <RefreshCw className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading EVO integration...</p>
+          <p className="text-muted-foreground">{t("integrations.loadingEvoIntegration")}</p>
         </div>
       </div>
     );
@@ -279,7 +279,7 @@ const EvoIntegrationTab = () => {
       <Card>
         <CardContent className="p-4">
           <div className="flex items-center gap-4">
-            <Label className="text-sm font-medium">Gym:</Label>
+            <Label className="text-sm font-medium">{t("integrations.gym")}</Label>
             <Select value={selectedGym?.id || ""} onValueChange={(gymId) => {
               const gym = gyms.find(g => g.id === gymId);
               if (gym) setSelectedGym(gym);
@@ -308,7 +308,7 @@ const EvoIntegrationTab = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Link2 className="h-5 w-5" />
-                Connection Status
+{t("integrations.connectionStatus")}
               </CardTitle>
               <CardDescription>{t("integrations.evoIntegrationStatus")}</CardDescription>
             </CardHeader>
@@ -325,7 +325,7 @@ const EvoIntegrationTab = () => {
                   </div>
                   {evoIntegration.lastSyncAt && (
                     <p className="text-xs text-muted-foreground">
-                      Last sync: {formatTime(evoIntegration.lastSyncAt)}
+{t("integrations.lastSync")} {formatTime(evoIntegration.lastSyncAt)}
                     </p>
                   )}
                   <div className="flex gap-2">
@@ -340,7 +340,7 @@ const EvoIntegrationTab = () => {
                       ) : (
                         <RefreshCw className="h-4 w-4" />
                       )}
-                      {isSyncing ? 'Syncing...' : 'Sync Now'}
+{isSyncing ? t("integrations.saving") : t("integrations.syncNow")}
                     </Button>
                     <Button 
                       variant="outline" 
@@ -374,7 +374,7 @@ const EvoIntegrationTab = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Settings className="h-5 w-5" />
-                API Configuration
+{t("integrations.apiConfiguration")}
               </CardTitle>
               <CardDescription>{t("integrations.evoApiCredentials")}</CardDescription>
             </CardHeader>
@@ -429,7 +429,7 @@ const EvoIntegrationTab = () => {
                   {isTestingConnection ? (
                     <RefreshCw className="h-4 w-4 animate-spin mr-2" />
                   ) : null}
-                  Test Connection
+{t("integrations.testConnection")}
                 </Button>
                 <Button 
                   variant="outline"
@@ -449,7 +449,7 @@ const EvoIntegrationTab = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Zap className="h-5 w-5" />
-                Synchronization Settings
+{t("integrations.synchronizationSettings")}
               </CardTitle>
               <CardDescription>{t("integrations.configureSyncData")}</CardDescription>
             </CardHeader>
@@ -488,8 +488,8 @@ const EvoIntegrationTab = () => {
                     <div className="flex items-center gap-3">
                       <Activity className="h-5 w-5 text-purple-500" />
                       <div>
-                        <Label className="font-medium">Sync Check-ins</Label>
-                        <p className="text-xs text-muted-foreground">Track member check-ins</p>
+                        <Label className="font-medium">{t("integrations.syncCheckins")}</Label>
+                        <p className="text-xs text-muted-foreground">{t("integrations.trackMemberCheckins")}</p>
                       </div>
                     </div>
                     <Switch 
@@ -529,7 +529,7 @@ const EvoIntegrationTab = () => {
                   </div>
 
                   <div className="p-3 border rounded-lg">
-                    <Label className="text-sm font-medium mb-2 block">Sync Interval (minutes)</Label>
+                    <Label className="text-sm font-medium mb-2 block">{t("integrations.syncIntervalMinutes")}</Label>
                     <Select 
                       value={syncSettings.syncInterval.toString()} 
                       onValueChange={(value) => setSyncSettings(prev => ({ ...prev, syncInterval: parseInt(value) }))}
@@ -538,12 +538,12 @@ const EvoIntegrationTab = () => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="5">5 minutes</SelectItem>
-                        <SelectItem value="15">15 minutes</SelectItem>
-                        <SelectItem value="30">30 minutes</SelectItem>
-                        <SelectItem value="60">1 hour</SelectItem>
-                        <SelectItem value="240">4 hours</SelectItem>
-                        <SelectItem value="1440">24 hours</SelectItem>
+                        <SelectItem value="5">{t("integrations.fiveMinutes")}</SelectItem>
+                        <SelectItem value="15">{t("integrations.fifteenMinutes")}</SelectItem>
+                        <SelectItem value="30">{t("integrations.thirtyMinutes")}</SelectItem>
+                        <SelectItem value="60">{t("integrations.oneHour")}</SelectItem>
+                        <SelectItem value="240">{t("integrations.fourHours")}</SelectItem>
+                        <SelectItem value="1440">{t("integrations.twentyFourHours")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -557,7 +557,7 @@ const EvoIntegrationTab = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Database className="h-5 w-5" />
-                Field Mapping
+{t("integrations.fieldMapping")}
               </CardTitle>
               <CardDescription>{t("integrations.mapFields")}</CardDescription>
             </CardHeader>
@@ -581,7 +581,7 @@ const EvoIntegrationTab = () => {
                   onClick={() => setIsFieldMappingOpen(true)}
                 >
                   <Settings className="h-4 w-4 mr-2" />
-                  Configure Field Mapping
+{t("integrations.configureFieldMapping")}
                 </Button>
               </div>
             </CardContent>
@@ -596,12 +596,12 @@ const EvoIntegrationTab = () => {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Clock className="h-5 w-5" />
-                Recent Sync Activity
+{t("integrations.recentSyncActivity")}
               </CardTitle>
-              <CardDescription>Last 5 synchronization events</CardDescription>
+              <CardDescription>{t("integrations.lastSyncEvents")}</CardDescription>
             </div>
             <Button variant="outline" onClick={handleViewSyncHistory}>
-              View All
+{t("integrations.viewAll")}
             </Button>
           </div>
         </CardHeader>
@@ -624,8 +624,8 @@ const EvoIntegrationTab = () => {
                   )}
                   <div className="flex-1">
                     <p className="font-medium text-sm">
-                      {sync.status === "SUCCESS" ? `Synced ${sync.recordsSynced} records` : 
-                       sync.status === "FAILED" ? "Sync failed" : "Sync in progress"}
+{sync.status === "SUCCESS" ? t("integrations.syncedRecords", { count: sync.recordsSynced }) : 
+                       sync.status === "FAILED" ? t("integrations.syncFailedStatus") : t("integrations.syncInProgress")}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {formatTime(sync.startedAt)} • {sync.duration}ms
@@ -666,7 +666,7 @@ const EvoIntegrationTab = () => {
                   type={showApiKey ? "text" : "password"}
                   value={evoConfig.apiKey}
                   onChange={(e) => setEvoConfig(prev => ({ ...prev, apiKey: e.target.value }))}
-                  placeholder="Enter your EVO API key"
+                  placeholder={t("integrations.enterEvoApiKey")}
                 />
                 <Button 
                   variant="outline" 
@@ -690,7 +690,7 @@ const EvoIntegrationTab = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsConfigModalOpen(false)}>
-              Cancel
+              {t("integrations.cancel")}
             </Button>
             <Button onClick={handleSaveConfiguration} disabled={isSaving}>
               {isSaving ? (
@@ -698,7 +698,7 @@ const EvoIntegrationTab = () => {
               ) : (
                 <Save className="h-4 w-4 mr-2" />
               )}
-              {isSaving ? 'Saving...' : 'Save Configuration'}
+{isSaving ? t("integrations.saving") : t("integrations.saveConfiguration")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -803,10 +803,10 @@ const EvoIntegrationTab = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsFieldMappingOpen(false)}>
-              Cancel
+              {t("integrations.cancel")}
             </Button>
             <Button onClick={() => setIsFieldMappingOpen(false)}>
-              Save Mapping
+{t("integrations.saveMapping")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -816,7 +816,7 @@ const EvoIntegrationTab = () => {
       <div className="sticky bottom-0 bg-background border-t border-border p-4 flex items-center justify-between shadow-lg rounded-t-lg">
         <div className="flex items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            Last saved: {evoIntegration ? "Auto-saved" : "Not configured"}
+{t("integrations.lastSaved")} {evoIntegration ? t("integrations.autoSaved") : t("integrations.notConfigured")}
           </p>
           {evoIntegration && (
             <Button 
@@ -825,7 +825,7 @@ const EvoIntegrationTab = () => {
               onClick={handleDisconnect}
               className="text-destructive hover:text-destructive"
             >
-              Disconnect EVO
+{t("integrations.disconnectEvo")}
             </Button>
           )}
         </div>
@@ -838,7 +838,7 @@ const EvoIntegrationTab = () => {
           ) : (
             <Save className="h-4 w-4 mr-2" />
           )}
-          {isSaving ? 'Saving...' : 'Save Configuration'}
+{isSaving ? t("integrations.saving") : t("integrations.saveConfiguration")}
         </Button>
       </div>
     </div>

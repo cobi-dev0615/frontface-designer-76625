@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useSocket } from "@/hooks/useSocket";
+import { useTranslation } from "@/hooks/useTranslation";
 import * as conversationService from "@/services/conversationService";
 import * as leadService from "@/services/leadService";
 import * as followUpService from "@/services/followUpService";
@@ -18,6 +19,7 @@ import { Conversation, Message } from "@/services/conversationService";
 import { Lead } from "@/services/leadService";
 
 const ConversationView = () => {
+  const { t } = useTranslation();
   const { id: conversationId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { socket, isConnected } = useSocket();
@@ -35,19 +37,19 @@ const ConversationView = () => {
 
   // Quick responses
   const quickResponses = [
-    "Share pricing details",
-    "Send registration link", 
-    "Schedule tour",
-    "Answer about kids room",
+    t("conversations.sharePricingDetails"),
+    t("conversations.sendRegistrationLink"), 
+    t("conversations.scheduleTour"),
+    t("conversations.answerAboutKidsRoom"),
   ];
 
   // Message templates
   const messageTemplates = {
-    "welcome": "💪 Hello! Welcome to DuxFit — the biggest gym in Piauí! How can I help you today?",
-    "pricing": "Our annual plan starts at just R$99.99 per month and includes 24/7 gym access, all equipment, group classes, kids room, lounge area, and more!",
-    "registration": "Great! To register, I'll need your full name, CPF, birth date, address + ZIP, preferred workout time, your goal, and email.",
-    "tour": "Would you like to schedule a tour of our facilities? I can arrange that for you right now!",
-    "kids": "Yes! We have a dedicated kids room for children aged 2.5-10 years, so you can work out while your kids are safely supervised."
+    "welcome": t("conversations.welcomeTemplate"),
+    "pricing": t("conversations.pricingTemplate"),
+    "registration": t("conversations.registrationTemplate"),
+    "tour": t("conversations.tourTemplate"),
+    "kids": t("conversations.kidsTemplate")
   };
 
   useEffect(() => {
@@ -89,7 +91,7 @@ const ConversationView = () => {
       setNotes(leadResponse.data.notes || "");
     } catch (error: any) {
       console.error("Error loading conversation:", error);
-      toast.error("Failed to load conversation");
+      toast.error(t("conversations.failedToLoadConversation"));
       navigate("/conversations");
     } finally {
       setIsLoading(false);
@@ -131,7 +133,7 @@ const ConversationView = () => {
       setMessage("");
     } catch (error: any) {
       console.error("Error sending message:", error);
-      toast.error("Failed to send message");
+      toast.error(t("conversations.failedToSendMessage"));
     } finally {
       setIsSending(false);
     }
@@ -157,10 +159,10 @@ const ConversationView = () => {
         scheduledFor: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // Tomorrow
         notes: "Follow-up call scheduled from conversation"
       });
-      toast.success("Follow-up scheduled successfully");
+      toast.success(t("conversations.followUpScheduledSuccessfully"));
     } catch (error: any) {
       console.error("Error scheduling follow-up:", error);
-      toast.error("Failed to schedule follow-up");
+      toast.error(t("conversations.failedToScheduleFollowUp"));
     }
   };
 
@@ -170,10 +172,10 @@ const ConversationView = () => {
     try {
       await leadService.updateLead(lead.id, { status: "QUALIFIED" });
       setLead(prev => prev ? { ...prev, status: "QUALIFIED" } : null);
-      toast.success("Lead marked as qualified");
+      toast.success(t("conversations.leadMarkedAsQualified"));
     } catch (error: any) {
       console.error("Error updating lead status:", error);
-      toast.error("Failed to update lead status");
+      toast.error(t("conversations.failedToUpdateLeadStatus"));
     }
   };
 
@@ -183,10 +185,10 @@ const ConversationView = () => {
     try {
       await leadService.updateLead(lead.id, { status: "BLOCKED" });
       setLead(prev => prev ? { ...prev, status: "BLOCKED" } : null);
-      toast.success("Lead blocked");
+      toast.success(t("conversations.leadBlocked"));
     } catch (error: any) {
       console.error("Error blocking lead:", error);
-      toast.error("Failed to block lead");
+      toast.error(t("conversations.failedToBlockLead"));
     }
   };
 
@@ -195,10 +197,10 @@ const ConversationView = () => {
 
     try {
       await leadService.updateLead(lead.id, { notes });
-      toast.success("Notes saved");
+      toast.success(t("conversations.notesSaved"));
     } catch (error: any) {
       console.error("Error saving notes:", error);
-      toast.error("Failed to save notes");
+      toast.error(t("conversations.failedToSaveNotes"));
     }
   };
 
@@ -230,7 +232,7 @@ const ConversationView = () => {
       <div className="flex h-[calc(100vh-5rem)] items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p>Loading conversation...</p>
+          <p>{t("conversations.loadingConversation")}</p>
         </div>
       </div>
     );
@@ -241,9 +243,9 @@ const ConversationView = () => {
       <div className="flex h-[calc(100vh-5rem)] items-center justify-center">
         <div className="text-center">
           <AlertCircle className="h-8 w-8 text-muted-foreground mx-auto mb-4" />
-          <p>Conversation not found</p>
+          <p>{t("conversations.conversationNotFound")}</p>
           <Button onClick={() => navigate("/conversations")} className="mt-4">
-            Back to Conversations
+            {t("conversations.backToConversations")}
           </Button>
         </div>
       </div>
@@ -260,7 +262,7 @@ const ConversationView = () => {
           onClick={() => navigate("/conversations")}
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to conversations
+{t("conversations.backToConversationsButton")}
         </Button>
 
         {/* Lead Profile */}
@@ -299,15 +301,15 @@ const ConversationView = () => {
 
             <div className="space-y-2 text-sm">
               <div>
-                <p className="text-muted-foreground">Source</p>
+                <p className="text-muted-foreground">{t("conversations.source")}</p>
                 <p className="font-medium">{lead.source}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Score</p>
+                <p className="text-muted-foreground">{t("conversations.score")}</p>
                 <p className="font-medium">{lead.score}/100</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Created</p>
+                <p className="text-muted-foreground">{t("conversations.created")}</p>
                 <p className="font-medium">{new Date(lead.createdAt).toLocaleDateString()}</p>
               </div>
             </div>
@@ -317,7 +319,7 @@ const ConversationView = () => {
             <div className="space-y-2">
               <Button className="w-full gap-2" variant="outline" onClick={handleScheduleFollowUp}>
                 <Calendar className="h-4 w-4" />
-                Schedule Follow-up
+{t("conversations.scheduleFollowUp")}
               </Button>
               <Button 
                 className="w-full gap-2" 
@@ -326,7 +328,7 @@ const ConversationView = () => {
                 disabled={lead.status === "QUALIFIED"}
               >
                 <CheckCircle className="h-4 w-4" />
-                Mark as Qualified
+{t("conversations.markAsQualified")}
               </Button>
               <Button 
                 className="w-full gap-2" 
@@ -335,7 +337,7 @@ const ConversationView = () => {
                 disabled={lead.status === "BLOCKED"}
               >
                 <Ban className="h-4 w-4 text-destructive" />
-                Block Lead
+{t("conversations.blockLead")}
               </Button>
             </div>
           </CardContent>
@@ -344,17 +346,17 @@ const ConversationView = () => {
         {/* Notes */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">Notes</CardTitle>
+            <CardTitle className="text-sm">{t("conversations.notes")}</CardTitle>
           </CardHeader>
           <CardContent>
             <Textarea
-              placeholder="Add notes about this lead..."
+              placeholder={t("conversations.addNotesPlaceholder")}
               className="min-h-[100px]"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             />
             <Button size="sm" className="w-full mt-2" onClick={handleSaveNotes}>
-              Save
+{t("conversations.save")}
             </Button>
           </CardContent>
         </Card>
@@ -368,7 +370,7 @@ const ConversationView = () => {
             <h3 className="font-semibold">{lead.name}</h3>
             <p className="text-sm text-green-500 flex items-center gap-1">
               <span className="h-2 w-2 rounded-full bg-green-500" />
-              {isConnected ? "Connected" : "Disconnected"}
+{isConnected ? t("conversations.connected") : t("conversations.disconnected")}
             </p>
           </div>
           <div className="flex gap-2">
@@ -389,7 +391,7 @@ const ConversationView = () => {
           {conversation.messages.length === 0 ? (
             <div className="text-center py-8">
               <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">No messages yet. Start the conversation!</p>
+              <p className="text-muted-foreground">{t("conversations.noMessagesYet")}</p>
             </div>
           ) : (
             <>
@@ -450,7 +452,7 @@ const ConversationView = () => {
               <Paperclip className="h-5 w-5" />
             </Button>
             <Input
-              placeholder="Type a message..."
+              placeholder={t("conversations.typeMessagePlaceholder")}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => {
@@ -485,7 +487,7 @@ const ConversationView = () => {
       <div className="w-80 flex-shrink-0 space-y-4 overflow-y-auto">
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">Quick Responses</CardTitle>
+            <CardTitle className="text-sm">{t("conversations.quickResponses")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             {quickResponses.map((response) => (
@@ -503,19 +505,19 @@ const ConversationView = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">Message Templates</CardTitle>
+            <CardTitle className="text-sm">{t("conversations.messageTemplates")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             <Select value={selectedTemplate} onValueChange={handleTemplateSelect}>
               <SelectTrigger>
-                <SelectValue placeholder="Select template" />
+                <SelectValue placeholder={t("conversations.selectTemplate")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="welcome">Welcome message</SelectItem>
-                <SelectItem value="pricing">Pricing details</SelectItem>
-                <SelectItem value="registration">Registration info</SelectItem>
-                <SelectItem value="tour">Schedule tour</SelectItem>
-                <SelectItem value="kids">Kids room info</SelectItem>
+                <SelectItem value="welcome">{t("conversations.welcomeMessage")}</SelectItem>
+                <SelectItem value="pricing">{t("conversations.pricingDetails")}</SelectItem>
+                <SelectItem value="registration">{t("conversations.registrationInfo")}</SelectItem>
+                <SelectItem value="tour">{t("conversations.scheduleTourTemplate")}</SelectItem>
+                <SelectItem value="kids">{t("conversations.kidsRoomInfo")}</SelectItem>
               </SelectContent>
             </Select>
           </CardContent>
@@ -523,25 +525,25 @@ const ConversationView = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">Conversation Info</CardTitle>
+            <CardTitle className="text-sm">{t("conversations.conversationInfo")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Channel:</span>
+              <span className="text-muted-foreground">{t("conversations.channel")}:</span>
               <span className="capitalize">{conversation.channel}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Status:</span>
+              <span className="text-muted-foreground">{t("conversations.status")}:</span>
               <Badge className={getStatusColor(conversation.status)}>
                 {conversation.status}
               </Badge>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Messages:</span>
+              <span className="text-muted-foreground">{t("conversations.messages")}:</span>
               <span>{conversation.messages.length}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Created:</span>
+              <span className="text-muted-foreground">{t("conversations.created")}:</span>
               <span>{new Date(conversation.createdAt).toLocaleDateString()}</span>
             </div>
           </CardContent>

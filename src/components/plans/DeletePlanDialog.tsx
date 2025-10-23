@@ -1,4 +1,5 @@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Plan } from "@/services/planService";
 
 interface DeletePlanDialogProps {
@@ -9,6 +10,7 @@ interface DeletePlanDialogProps {
 }
 
 const DeletePlanDialog = ({ isOpen, onClose, onConfirm, plan }: DeletePlanDialogProps) => {
+  const { t } = useTranslation();
   const handleConfirm = () => {
     if (plan) {
       onConfirm(plan.id);
@@ -21,20 +23,20 @@ const DeletePlanDialog = ({ isOpen, onClose, onConfirm, plan }: DeletePlanDialog
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Plan</AlertDialogTitle>
+          <AlertDialogTitle>{t("modals.plans.delete.title")}</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete the plan <strong>"{plan.name}"</strong>?
+            {t("modals.plans.delete.description")} <strong>"{plan.name}"</strong>?
             <br /><br />
-            This action cannot be undone. All data associated with this plan will be permanently removed.
+            {t("modals.plans.delete.warning")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{t("modals.plans.delete.cancel")}</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            Delete Plan
+            {t("modals.plans.delete.delete")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

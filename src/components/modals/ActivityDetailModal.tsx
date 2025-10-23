@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { User, Calendar, Clock, FileText, Tag, Database } from "lucide-react";
 import { format } from "date-fns";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface Activity {
   id: string;
@@ -30,6 +31,7 @@ interface ActivityDetailModalProps {
 }
 
 export default function ActivityDetailModal({ isOpen, onClose, activity }: ActivityDetailModalProps) {
+  const { t } = useTranslation();
   if (!activity) return null;
 
   const formatActivityType = (type: string) => {
@@ -87,10 +89,10 @@ export default function ActivityDetailModal({ isOpen, onClose, activity }: Activ
             <div className={`p-2 rounded-lg ${getActivityColor(activity.type)} text-white`}>
               <FileText className="h-5 w-5" />
             </div>
-            Activity Details
+            {t("modals.activityDetail.title")}
           </DialogTitle>
           <DialogDescription>
-            Complete information about this activity
+            {t("modals.activityDetail.description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -108,7 +110,7 @@ export default function ActivityDetailModal({ isOpen, onClose, activity }: Activ
               <div className="flex items-start gap-3">
                 <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-sm text-muted-foreground">Description</p>
+                  <p className="text-sm text-muted-foreground">{t("modals.activityDetail.descriptionLabel")}</p>
                   <p className="text-lg font-medium mt-1">{activity.description}</p>
                 </div>
               </div>
@@ -121,7 +123,7 @@ export default function ActivityDetailModal({ isOpen, onClose, activity }: Activ
               <div className="flex items-start gap-3">
                 <User className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-sm text-muted-foreground">Performed By</p>
+                  <p className="text-sm text-muted-foreground">{t("modals.activityDetail.performedBy")}</p>
                   <div className="flex items-center gap-3 mt-2">
                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium">
                       {getUserInitials(activity.user.name)}
@@ -143,9 +145,9 @@ export default function ActivityDetailModal({ isOpen, onClose, activity }: Activ
                 <div className="flex items-start gap-3">
                   <User className="h-5 w-5 text-muted-foreground mt-0.5" />
                   <div className="flex-1">
-                    <p className="text-sm text-muted-foreground">Related Lead</p>
+                    <p className="text-sm text-muted-foreground">{t("modals.activityDetail.relatedLead")}</p>
                     <p className="font-medium mt-1">{activity.lead.name}</p>
-                    <p className="text-xs text-muted-foreground mt-1">Lead ID: {activity.leadId}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t("modals.activityDetail.leadId")}: {activity.leadId}</p>
                   </div>
                 </div>
               </CardContent>
@@ -158,7 +160,7 @@ export default function ActivityDetailModal({ isOpen, onClose, activity }: Activ
               <div className="flex items-start gap-3">
                 <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-sm text-muted-foreground">Date</p>
+                  <p className="text-sm text-muted-foreground">{t("modals.activityDetail.date")}</p>
                   <p className="font-medium">{dateTime.date}</p>
                 </div>
               </div>
@@ -168,7 +170,7 @@ export default function ActivityDetailModal({ isOpen, onClose, activity }: Activ
               <div className="flex items-start gap-3">
                 <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-sm text-muted-foreground">Time</p>
+                  <p className="text-sm text-muted-foreground">{t("modals.activityDetail.time")}</p>
                   <p className="font-medium">{dateTime.time}</p>
                 </div>
               </div>
@@ -182,7 +184,7 @@ export default function ActivityDetailModal({ isOpen, onClose, activity }: Activ
                 <div className="flex items-start gap-3">
                   <Database className="h-5 w-5 text-muted-foreground mt-0.5" />
                   <div className="flex-1">
-                    <p className="text-sm text-muted-foreground mb-3">Additional Data</p>
+                    <p className="text-sm text-muted-foreground mb-3">{t("modals.activityDetail.additionalData")}</p>
                     <div className="space-y-2">
                       {Object.entries(activity.metadata).map(([key, value]) => (
                         <div key={key} className="flex items-start gap-2">
@@ -210,7 +212,7 @@ export default function ActivityDetailModal({ isOpen, onClose, activity }: Activ
               <div className="flex items-start gap-3">
                 <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-sm text-muted-foreground">Activity ID</p>
+                  <p className="text-sm text-muted-foreground">{t("modals.activityDetail.activityId")}</p>
                   <p className="text-xs font-mono mt-1 text-muted-foreground">{activity.id}</p>
                 </div>
               </div>

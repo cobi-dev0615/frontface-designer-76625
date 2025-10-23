@@ -11,6 +11,7 @@ import { CalendarIcon, Clock, Phone, MessageSquare, Mail, MapPin, Loader2 } from
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useTranslation } from "@/hooks/useTranslation";
 import * as leadService from "@/services/leadService";
 import * as followUpService from "@/services/followUpService";
 import type { Lead } from "@/services/leadService";
@@ -22,6 +23,7 @@ interface CreateFollowUpModalProps {
 }
 
 export default function CreateFollowUpModal({ isOpen, onClose, onSuccess }: CreateFollowUpModalProps) {
+  const { t } = useTranslation();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,7 +55,7 @@ export default function CreateFollowUpModal({ isOpen, onClose, onSuccess }: Crea
       setLeads(response.data);
     } catch (error: any) {
       console.error("Error loading leads:", error);
-      toast.error("Failed to load leads");
+      toast.error(t("modals.followUp.create.failedToLoadLeads"));
     } finally {
       setIsLoading(false);
     }
@@ -63,7 +65,7 @@ export default function CreateFollowUpModal({ isOpen, onClose, onSuccess }: Crea
     e.preventDefault();
     
     if (!formData.leadId || !formData.type || !formData.scheduledDate || !formData.scheduledTime) {
-      toast.error("Please fill in all required fields");
+      toast.error(t("modals.followUp.create.fillRequiredFields"));
       return;
     }
 
@@ -82,12 +84,12 @@ export default function CreateFollowUpModal({ isOpen, onClose, onSuccess }: Crea
         notes: formData.notes || undefined
       });
 
-      toast.success("Follow-up scheduled successfully!");
+      toast.success(t("modals.followUp.create.followUpScheduledSuccess"));
       onSuccess();
       handleClose();
     } catch (error: any) {
       console.error("Error creating follow-up:", error);
-      toast.error(error.response?.data?.message || "Failed to create follow-up");
+      toast.error(error.response?.data?.message || t("modals.followUp.create.createFollowUpFailed"));
     } finally {
       setIsSubmitting(false);
     }
@@ -135,23 +137,23 @@ export default function CreateFollowUpModal({ isOpen, onClose, onSuccess }: Crea
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px] max-h-[66vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Schedule Follow-Up</DialogTitle>
+          <DialogTitle>{t("modals.followUp.create.title")}</DialogTitle>
           <DialogDescription>
-            Create a new follow-up for a lead. Select the lead, type, and schedule the follow-up.
+            {t("modals.followUp.create.description")}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto flex-1 px-1">
           {/* Lead Selection */}
           <div className="space-y-2">
-            <Label htmlFor="lead">Lead *</Label>
+            <Label htmlFor="lead">{t("modals.followUp.create.lead")}</Label>
             <Select
               value={formData.leadId}
               onValueChange={(value) => setFormData(prev => ({ ...prev, leadId: value }))}
               disabled={isLoading}
             >
               <SelectTrigger>
-                <SelectValue placeholder={isLoading ? "Loading leads..." : "Select a lead"} />
+                <SelectValue placeholder={isLoading ? t("modals.followUp.create.loadingLeads") : t("modals.followUp.create.selectLead")} />
               </SelectTrigger>
               <SelectContent>
                 {leads.map((lead) => (
@@ -170,7 +172,7 @@ export default function CreateFollowUpModal({ isOpen, onClose, onSuccess }: Crea
 
           {/* Follow-up Type */}
           <div className="space-y-2">
-            <Label htmlFor="type">Follow-up Type *</Label>
+            <Label htmlFor="type">{t("modals.followUp.create.followUpType")}</Label>
             <Select
               value={formData.type}
               onValueChange={(value: "CALL" | "WHATSAPP" | "EMAIL" | "VISIT") => 
@@ -178,31 +180,31 @@ export default function CreateFollowUpModal({ isOpen, onClose, onSuccess }: Crea
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select follow-up type" />
+                <SelectValue placeholder={t("modals.followUp.create.selectFollowUpType")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="CALL">
                   <div className="flex items-center gap-2">
                     <Phone className="h-4 w-4" />
-                    Call
+                    {t("modals.followUp.create.call")}
                   </div>
                 </SelectItem>
                 <SelectItem value="WHATSAPP">
                   <div className="flex items-center gap-2">
                     <MessageSquare className="h-4 w-4" />
-                    WhatsApp
+                    {t("modals.followUp.create.whatsapp")}
                   </div>
                 </SelectItem>
                 <SelectItem value="EMAIL">
                   <div className="flex items-center gap-2">
                     <Mail className="h-4 w-4" />
-                    Email
+                    {t("modals.followUp.create.email")}
                   </div>
                 </SelectItem>
                 <SelectItem value="VISIT">
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4" />
-                    Visit
+                    {t("modals.followUp.create.visit")}
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -212,7 +214,7 @@ export default function CreateFollowUpModal({ isOpen, onClose, onSuccess }: Crea
           {/* Date and Time */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Date *</Label>
+              <Label>{t("modals.followUp.create.date")}</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -226,7 +228,7 @@ export default function CreateFollowUpModal({ isOpen, onClose, onSuccess }: Crea
                     {formData.scheduledDate ? (
                       format(formData.scheduledDate, "PPP")
                     ) : (
-                      <span>Pick a date</span>
+                      <span>{t("modals.followUp.create.pickDate")}</span>
                     )}
                   </Button>
                 </PopoverTrigger>
@@ -243,13 +245,13 @@ export default function CreateFollowUpModal({ isOpen, onClose, onSuccess }: Crea
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="time">Time *</Label>
+              <Label htmlFor="time">{t("modals.followUp.create.time")}</Label>
               <Select
                 value={formData.scheduledTime}
                 onValueChange={(value) => setFormData(prev => ({ ...prev, scheduledTime: value }))}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select time" />
+                  <SelectValue placeholder={t("modals.followUp.create.selectTime")} />
                 </SelectTrigger>
                 <SelectContent className="max-h-[200px]">
                   {generateTimeOptions().map((time) => (
@@ -267,7 +269,7 @@ export default function CreateFollowUpModal({ isOpen, onClose, onSuccess }: Crea
 
           {/* Priority */}
           <div className="space-y-2">
-            <Label htmlFor="priority">Priority</Label>
+            <Label htmlFor="priority">{t("modals.followUp.create.priority")}</Label>
             <Select
               value={formData.priority}
               onValueChange={(value: "HIGH" | "MEDIUM" | "LOW") => 
@@ -275,25 +277,25 @@ export default function CreateFollowUpModal({ isOpen, onClose, onSuccess }: Crea
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select priority" />
+                <SelectValue placeholder={t("modals.followUp.create.selectPriority")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="LOW">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-green-500" />
-                    Low Priority
+                    {t("modals.followUp.create.lowPriority")}
                   </div>
                 </SelectItem>
                 <SelectItem value="MEDIUM">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-yellow-500" />
-                    Medium Priority
+                    {t("modals.followUp.create.mediumPriority")}
                   </div>
                 </SelectItem>
                 <SelectItem value="HIGH">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-red-500" />
-                    High Priority
+                    {t("modals.followUp.create.highPriority")}
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -302,10 +304,10 @@ export default function CreateFollowUpModal({ isOpen, onClose, onSuccess }: Crea
 
           {/* Notes */}
           <div className="space-y-2">
-            <Label htmlFor="notes">Notes (Optional)</Label>
+            <Label htmlFor="notes">{t("modals.followUp.create.notes")}</Label>
             <Textarea
               id="notes"
-              placeholder="Add any additional notes about this follow-up..."
+              placeholder={t("modals.followUp.create.notesPlaceholder")}
               value={formData.notes}
               onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
               rows={3}
@@ -316,16 +318,16 @@ export default function CreateFollowUpModal({ isOpen, onClose, onSuccess }: Crea
         <DialogFooter className="flex-shrink-0">
           <form onSubmit={handleSubmit} className="w-full flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={handleClose}>
-              Cancel
+              {t("modals.followUp.create.cancel")}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating...
+                  {t("modals.followUp.create.creating")}
                 </>
               ) : (
-                "Schedule Follow-Up"
+                t("modals.followUp.create.scheduleFollowUp")
               )}
             </Button>
           </form>

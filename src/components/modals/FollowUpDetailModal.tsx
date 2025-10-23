@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Phone, MessageSquare, Mail, MapPin, Calendar, Clock, User, Building, FileText, CheckCircle, XCircle, Edit } from "lucide-react";
 import { format } from "date-fns";
+import { useTranslation } from "@/hooks/useTranslation";
 import type { FollowUp } from "@/services/followUpService";
 
 interface FollowUpDetailModalProps {
@@ -24,6 +25,7 @@ export default function FollowUpDetailModal({
   onCancel,
   onReschedule
 }: FollowUpDetailModalProps) {
+  const { t } = useTranslation();
   if (!followUp) return null;
 
   const getTypeIcon = (type: string) => {
@@ -44,13 +46,13 @@ export default function FollowUpDetailModal({
   const getTypeLabel = (type: string) => {
     switch (type) {
       case 'CALL':
-        return 'Phone Call';
+        return t("modals.followUp.detail.phoneCall");
       case 'WHATSAPP':
-        return 'WhatsApp Message';
+        return t("modals.followUp.detail.whatsappMessage");
       case 'EMAIL':
-        return 'Email';
+        return t("modals.followUp.detail.email");
       case 'VISIT':
-        return 'In-Person Visit';
+        return t("modals.followUp.detail.inPersonVisit");
       default:
         return type;
     }
@@ -89,10 +91,10 @@ export default function FollowUpDetailModal({
             <div className={`p-2 rounded-lg ${getStatusColor(followUp.status)} text-white`}>
               {getTypeIcon(followUp.type)}
             </div>
-            Follow-Up Details
+            {t("modals.followUp.detail.title")}
           </DialogTitle>
           <DialogDescription>
-            View and manage this follow-up
+            {t("modals.followUp.detail.description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -110,7 +112,7 @@ export default function FollowUpDetailModal({
               <div className="flex items-start gap-3">
                 <User className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-sm text-muted-foreground">Lead</p>
+                  <p className="text-sm text-muted-foreground">{t("modals.followUp.detail.lead")}</p>
                   <p className="text-lg font-semibold">{followUp.lead.name}</p>
                   <div className="flex flex-col gap-1 mt-2">
                     <p className="text-sm text-muted-foreground">
@@ -132,7 +134,7 @@ export default function FollowUpDetailModal({
               <div className="flex items-start gap-3">
                 <Building className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-sm text-muted-foreground">Gym</p>
+                  <p className="text-sm text-muted-foreground">{t("modals.followUp.detail.gym")}</p>
                   <p className="font-medium">{followUp.lead.gym.name}</p>
                 </div>
               </div>
@@ -147,7 +149,7 @@ export default function FollowUpDetailModal({
                   {getTypeIcon(followUp.type)}
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm text-muted-foreground">Type</p>
+                  <p className="text-sm text-muted-foreground">{t("modals.followUp.detail.type")}</p>
                   <p className="font-medium">{getTypeLabel(followUp.type)}</p>
                 </div>
               </div>
@@ -157,7 +159,7 @@ export default function FollowUpDetailModal({
               <div className="flex items-start gap-3">
                 <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-sm text-muted-foreground">Scheduled Date</p>
+                  <p className="text-sm text-muted-foreground">{t("modals.followUp.detail.scheduledDate")}</p>
                   <p className="font-medium">{formatDate(followUp.scheduledAt)}</p>
                 </div>
               </div>
@@ -167,7 +169,7 @@ export default function FollowUpDetailModal({
               <div className="flex items-start gap-3">
                 <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-sm text-muted-foreground">Scheduled Time</p>
+                  <p className="text-sm text-muted-foreground">{t("modals.followUp.detail.scheduledTime")}</p>
                   <p className="font-medium">{formatTime(followUp.scheduledAt)}</p>
                 </div>
               </div>
@@ -178,7 +180,7 @@ export default function FollowUpDetailModal({
                   <div className="flex items-start gap-3">
                     <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />
                     <div className="flex-1">
-                      <p className="text-sm text-muted-foreground">Notes</p>
+                      <p className="text-sm text-muted-foreground">{t("modals.followUp.detail.notes")}</p>
                       <p className="text-sm mt-1">{followUp.notes}</p>
                     </div>
                   </div>
@@ -191,7 +193,7 @@ export default function FollowUpDetailModal({
                   <div className="flex items-start gap-3">
                     <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
                     <div className="flex-1">
-                      <p className="text-sm text-muted-foreground">Completed At</p>
+                      <p className="text-sm text-muted-foreground">{t("modals.followUp.detail.completedAt")}</p>
                       <p className="font-medium">
                         {formatDate(followUp.completedAt)} at {formatTime(followUp.completedAt)}
                       </p>
@@ -208,7 +210,7 @@ export default function FollowUpDetailModal({
               <div className="flex items-center gap-3">
                 <Clock className="h-4 w-4 text-muted-foreground" />
                 <div className="flex-1">
-                  <p className="text-xs text-muted-foreground">Created</p>
+                  <p className="text-xs text-muted-foreground">{t("modals.followUp.detail.created")}</p>
                   <p className="text-sm">
                     {formatDate(followUp.createdAt)} at {formatTime(followUp.createdAt)}
                   </p>
@@ -218,7 +220,7 @@ export default function FollowUpDetailModal({
                 <div className="flex items-center gap-3">
                   <Clock className="h-4 w-4 text-muted-foreground" />
                   <div className="flex-1">
-                    <p className="text-xs text-muted-foreground">Last Updated</p>
+                    <p className="text-xs text-muted-foreground">{t("modals.followUp.detail.lastUpdated")}</p>
                     <p className="text-sm">
                       {formatDate(followUp.updatedAt)} at {formatTime(followUp.updatedAt)}
                     </p>
@@ -241,7 +243,7 @@ export default function FollowUpDetailModal({
                   }}
                 >
                   <Edit className="h-4 w-4 mr-2" />
-                  Reschedule
+                  {t("modals.followUp.detail.reschedule")}
                 </Button>
               )}
               {onCancel && (
@@ -253,7 +255,7 @@ export default function FollowUpDetailModal({
                   }}
                 >
                   <XCircle className="h-4 w-4 mr-2" />
-                  Cancel Follow-up
+                  {t("modals.followUp.detail.cancelFollowUp")}
                 </Button>
               )}
               {onComplete && (
@@ -265,13 +267,13 @@ export default function FollowUpDetailModal({
                   }}
                 >
                   <CheckCircle className="h-4 w-4 mr-2" />
-                  Mark Complete
+                  {t("modals.followUp.detail.markComplete")}
                 </Button>
               )}
             </>
           )}
           <Button variant="outline" onClick={onClose}>
-            Close
+            {t("modals.followUp.detail.close")}
           </Button>
         </DialogFooter>
       </DialogContent>

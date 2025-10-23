@@ -23,6 +23,7 @@ import {
   ArrowLeft
 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "@/hooks/useTranslation";
 import { useAuthStore } from "@/store/authStore";
 import gymHero from "@/assets/gym-hero.jpg";
 
@@ -43,6 +44,7 @@ interface RegistrationForm {
 }
 
 const Register = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { isAuthenticated, isLoading: authLoading } = useAuthStore();
@@ -101,11 +103,11 @@ const Register = () => {
           ...prev,
           email: data.data.email || prev.email
         }));
-        toast.success("Invitation validated successfully!");
+        toast.success(t("register.invitationValidated"));
       } else {
         setInvitationData(null);
         if (response.status !== 404) {
-          setError(data.message || "Invalid invitation code");
+          setError(data.message || t("register.invalidInvitationCode"));
         }
       }
     } catch (error) {
@@ -125,35 +127,35 @@ const Register = () => {
 
   const validateForm = (): boolean => {
     if (!formData.name.trim()) {
-      setError("Name is required");
+      setError(t("register.nameRequired"));
       return false;
     }
     if (!formData.email.trim()) {
-      setError("Email is required");
+      setError(t("register.emailRequired"));
       return false;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setError("Please enter a valid email address");
+      setError(t("register.validEmail"));
       return false;
     }
     if (!formData.password) {
-      setError("Password is required");
+      setError(t("register.passwordRequired"));
       return false;
     }
     if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters long");
+      setError(t("register.passwordMinLength"));
       return false;
     }
     if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d])/.test(formData.password)) {
-      setError("Password must contain uppercase, lowercase, number, and special character");
+      setError(t("register.passwordComplexity"));
       return false;
     }
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      setError(t("register.passwordsDoNotMatch"));
       return false;
     }
     if (registrationType === 'invitation' && !invitationData) {
-      setError("Please enter a valid invitation code");
+      setError(t("register.validInvitationCode"));
       return false;
     }
     return true;
@@ -201,16 +203,16 @@ const Register = () => {
       const data = await response.json();
 
       if (data.success) {
-        toast.success("Registration successful! Please sign in with your credentials.");
+        toast.success(t("register.registrationSuccess"));
         navigate('/login');
       } else {
-        setError(data.message || "Registration failed");
-        toast.error(data.message || "Registration failed");
+        setError(data.message || t("register.registrationFailed"));
+        toast.error(data.message || t("register.registrationFailed"));
       }
     } catch (error: any) {
       console.error('Registration error:', error);
-      setError("Network error. Please try again.");
-      toast.error("Registration failed");
+      setError(t("register.networkError"));
+      toast.error(t("register.registrationFailed"));
     } finally {
       setIsLoading(false);
     }
@@ -234,33 +236,33 @@ const Register = () => {
             </div>
             
             <h2 className="text-2xl font-semibold mb-4">
-              Join Your Gym Team
+              {t("register.heroTitle")}
             </h2>
             
             <p className="text-lg mb-8 text-white/90">
-              Access the most powerful gym management system with AI-powered automation
+              {t("register.heroDescription")}
             </p>
 
             <div className="space-y-4 text-left">
               <div className="flex items-center space-x-3">
                 <CheckCircle className="h-5 w-5 text-green-400" />
-                <span>🤖 AI-Powered WhatsApp Automation</span>
+                <span>{t("register.features.aiWhatsApp")}</span>
               </div>
               <div className="flex items-center space-x-3">
                 <CheckCircle className="h-5 w-5 text-green-400" />
-                <span>📊 Advanced Analytics & Reporting</span>
+                <span>{t("register.features.analytics")}</span>
               </div>
               <div className="flex items-center space-x-3">
                 <CheckCircle className="h-5 w-5 text-green-400" />
-                <span>👥 Lead Management & Follow-ups</span>
+                <span>{t("register.features.leadManagement")}</span>
               </div>
               <div className="flex items-center space-x-3">
                 <CheckCircle className="h-5 w-5 text-green-400" />
-                <span>🏋️ Multi-Gym Support</span>
+                <span>{t("register.features.multiGym")}</span>
               </div>
               <div className="flex items-center space-x-3">
                 <CheckCircle className="h-5 w-5 text-green-400" />
-                <span>📱 Mobile-Responsive Dashboard</span>
+                <span>{t("register.features.mobileResponsive")}</span>
               </div>
             </div>
           </div>
@@ -276,9 +278,9 @@ const Register = () => {
               <Dumbbell className="h-8 w-8 mr-2 text-primary" />
               <h1 className="text-2xl font-bold">DuxFit CRM</h1>
             </div>
-            <h2 className="text-2xl font-bold tracking-tight">Create Account</h2>
+            <h2 className="text-2xl font-bold tracking-tight">{t("register.createAccount")}</h2>
             <p className="text-muted-foreground mt-2">
-              Join your gym team and start managing leads
+              {t("register.joinGymTeam")}
             </p>
           </div>
 
@@ -290,7 +292,7 @@ const Register = () => {
               className="flex-1"
               onClick={() => setRegistrationType('invitation')}
             >
-              Invitation Code
+{t("register.invitationCode")}
             </Button>
             <Button
               variant={registrationType === 'gym-owner' ? 'default' : 'ghost'}
@@ -298,7 +300,7 @@ const Register = () => {
               className="flex-1"
               onClick={() => setRegistrationType('gym-owner')}
             >
-              Gym Owner
+{t("register.gymOwner")}
             </Button>
           </div>
 
@@ -315,13 +317,13 @@ const Register = () => {
             {/* Invitation Code (for invitation flow) */}
             {registrationType === 'invitation' && (
               <div className="space-y-2">
-                <Label htmlFor="invitationCode">Invitation Code</Label>
+                <Label htmlFor="invitationCode">{t("register.invitationCode")}</Label>
                 <div className="relative">
                   <Shield className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="invitationCode"
                     type="text"
-                    placeholder="Enter your invitation code"
+                    placeholder={t("register.enterInvitationCode")}
                     value={formData.invitationCode}
                     onChange={(e) => handleInputChange('invitationCode', e.target.value)}
                     className="pl-10"
@@ -339,12 +341,12 @@ const Register = () => {
                     <CardContent className="pt-4">
                       <div className="flex items-center space-x-2 mb-2">
                         <CheckCircle className="h-4 w-4 text-green-600" />
-                        <span className="text-sm font-medium text-green-800">Invitation Valid</span>
+                        <span className="text-sm font-medium text-green-800">{t("register.invitationValid")}</span>
                       </div>
                       <div className="space-y-1 text-sm text-green-700">
-                        <p><strong>Gym:</strong> {invitationData.gymName}</p>
-                        <p><strong>Role:</strong> <Badge variant="secondary">{invitationData.role}</Badge></p>
-                        <p><strong>Invited by:</strong> {invitationData.inviterName}</p>
+                        <p><strong>{t("register.gym")}:</strong> {invitationData.gymName}</p>
+                        <p><strong>{t("register.role")}:</strong> <Badge variant="secondary">{invitationData.role}</Badge></p>
+                        <p><strong>{t("register.invitedBy")}:</strong> {invitationData.inviterName}</p>
                       </div>
                     </CardContent>
                   </Card>
@@ -356,18 +358,18 @@ const Register = () => {
             <div className="space-y-4">
               <h3 className="text-lg font-medium flex items-center">
                 <User className="h-5 w-5 mr-2" />
-                Personal Information
+{t("register.personalInformation")}
               </h3>
               
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
+                  <Label htmlFor="name">{t("register.fullName")}</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       id="name"
                       type="text"
-                      placeholder="Enter your full name"
+                      placeholder={t("register.enterFullName")}
                       value={formData.name}
                       onChange={(e) => handleInputChange('name', e.target.value)}
                       className="pl-10"
@@ -378,7 +380,7 @@ const Register = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
+                  <Label htmlFor="email">{t("register.emailAddress")}</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
@@ -395,13 +397,13 @@ const Register = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number (Optional)</Label>
+                  <Label htmlFor="phone">{t("register.phoneNumber")}</Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       id="phone"
                       type="tel"
-                      placeholder="+1 (555) 123-4567"
+                      placeholder={t("register.phonePlaceholder")}
                       value={formData.phone}
                       onChange={(e) => handleInputChange('phone', e.target.value)}
                       className="pl-10"
@@ -418,18 +420,18 @@ const Register = () => {
             <div className="space-y-4">
               <h3 className="text-lg font-medium flex items-center">
                 <Lock className="h-5 w-5 mr-2" />
-                Security
+{t("register.security")}
               </h3>
               
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">{t("register.password")}</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="Create a strong password"
+                      placeholder={t("register.createStrongPassword")}
                       value={formData.password}
                       onChange={(e) => handleInputChange('password', e.target.value)}
                       className="pl-10 pr-10"
@@ -446,18 +448,18 @@ const Register = () => {
                     </button>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Must contain uppercase, lowercase, number, and special character
+                    {t("register.passwordRequirements")}
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  <Label htmlFor="confirmPassword">{t("register.confirmPassword")}</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       id="confirmPassword"
                       type={showConfirmPassword ? "text" : "password"}
-                      placeholder="Confirm your password"
+                      placeholder={t("register.confirmYourPassword")}
                       value={formData.confirmPassword}
                       onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
                       className="pl-10 pr-10"
@@ -484,21 +486,21 @@ const Register = () => {
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium flex items-center">
                     <Building2 className="h-5 w-5 mr-2" />
-                    Gym Assignment
+{t("register.gymAssignment")}
                   </h3>
                   <Card className="bg-muted/50">
                     <CardContent className="pt-4">
                       <div className="space-y-2">
                         <div className="flex justify-between">
-                          <span className="text-sm font-medium">Gym:</span>
+                          <span className="text-sm font-medium">{t("register.gym")}:</span>
                           <span className="text-sm">{invitationData.gymName}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-sm font-medium">Role:</span>
+                          <span className="text-sm font-medium">{t("register.role")}:</span>
                           <Badge variant="secondary">{invitationData.role}</Badge>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-sm font-medium">Invited by:</span>
+                          <span className="text-sm font-medium">{t("register.invitedBy")}:</span>
                           <span className="text-sm">{invitationData.inviterName}</span>
                         </div>
                       </div>
@@ -519,24 +521,24 @@ const Register = () => {
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating Account...
+                  {t("register.creatingAccount")}
                 </>
               ) : (
-                "Create Account"
+                t("register.createAccount")
               )}
             </Button>
 
             {/* Login Link */}
             <div className="text-center">
               <p className="text-sm text-muted-foreground">
-                Already have an account?{" "}
+                {t("register.alreadyHaveAccount")}{" "}
                 <Button
                   variant="link"
                   className="p-0 h-auto font-medium"
                   onClick={() => navigate('/login')}
                   disabled={isLoading}
                 >
-                  Sign in
+                  {t("register.signIn")}
                 </Button>
               </p>
             </div>

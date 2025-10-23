@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
+import { useTranslation } from "@/hooks/useTranslation";
 import { createUser } from "@/services/userManagementService";
 
 interface CreateUserModalProps {
@@ -37,6 +38,7 @@ interface FormData {
 }
 
 const CreateUserModal = ({ open, onOpenChange, onUserCreated }: CreateUserModalProps) => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
@@ -52,27 +54,27 @@ const CreateUserModal = ({ open, onOpenChange, onUserCreated }: CreateUserModalP
     const newErrors: Partial<FormData> = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
+      newErrors.name = t("modals.createUser.nameRequired");
     } else if (formData.name.trim().length < 2) {
-      newErrors.name = 'Name must be at least 2 characters';
+      newErrors.name = t("modals.createUser.nameMinLength");
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = t("modals.createUser.emailRequired");
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Invalid email format';
+      newErrors.email = t("modals.createUser.invalidEmailFormat");
     }
 
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = t("modals.createUser.passwordRequired");
     } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
+      newErrors.password = t("modals.createUser.passwordMinLength");
     }
 
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password';
+      newErrors.confirmPassword = t("modals.createUser.confirmPasswordRequired");
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = t("modals.createUser.passwordsDoNotMatch");
     }
 
     setErrors(newErrors);
@@ -94,12 +96,12 @@ const CreateUserModal = ({ open, onOpenChange, onUserCreated }: CreateUserModalP
         phone: formData.phone.trim() || undefined
       });
 
-      toast.success('User created successfully!');
+      toast.success(t("modals.createUser.userCreatedSuccess"));
       handleClose();
       onUserCreated();
     } catch (error: any) {
       console.error('Error creating user:', error);
-      toast.error(error.response?.data?.message || 'Failed to create user');
+      toast.error(error.response?.data?.message || t("modals.createUser.createUserFailed"));
     } finally {
       setIsLoading(false);
     }
@@ -131,23 +133,23 @@ const CreateUserModal = ({ open, onOpenChange, onUserCreated }: CreateUserModalP
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />
-            Create New User
+            {t("modals.createUser.title")}
           </DialogTitle>
           <DialogDescription>
-            Add a new user to the system. All fields marked with * are required.
+            {t("modals.createUser.description")}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Name */}
           <div className="space-y-2">
-            <Label htmlFor="name">Full Name *</Label>
+            <Label htmlFor="name">{t("modals.createUser.fullName")}</Label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="name"
                 type="text"
-                placeholder="Enter full name"
+                placeholder={t("modals.createUser.enterFullName")}
                 value={formData.name}
                 onChange={(e) => handleInputChange('name', e.target.value)}
                 className={`pl-10 ${errors.name ? 'border-destructive' : ''}`}
@@ -160,13 +162,13 @@ const CreateUserModal = ({ open, onOpenChange, onUserCreated }: CreateUserModalP
 
           {/* Email */}
           <div className="space-y-2">
-            <Label htmlFor="email">Email Address *</Label>
+            <Label htmlFor="email">{t("modals.createUser.emailAddress")}</Label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="email"
                 type="email"
-                placeholder="Enter email address"
+                placeholder={t("modals.createUser.enterEmailAddress")}
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
                 className={`pl-10 ${errors.email ? 'border-destructive' : ''}`}
@@ -179,22 +181,22 @@ const CreateUserModal = ({ open, onOpenChange, onUserCreated }: CreateUserModalP
 
           {/* Role */}
           <div className="space-y-2">
-            <Label htmlFor="role">Role *</Label>
+            <Label htmlFor="role">{t("modals.createUser.role")}</Label>
             <Select value={formData.role} onValueChange={(value: 'ADMIN' | 'MANAGER' | 'AGENT') => handleInputChange('role', value)}>
               <SelectTrigger>
-                <SelectValue placeholder="Select role" />
+                <SelectValue placeholder={t("modals.createUser.selectRole")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="AGENT">Agent - Basic access</SelectItem>
-                <SelectItem value="MANAGER">Manager - Gym management</SelectItem>
-                <SelectItem value="ADMIN">Admin - Full system access</SelectItem>
+                <SelectItem value="AGENT">{t("modals.createUser.roleDescriptions.agent")}</SelectItem>
+                <SelectItem value="MANAGER">{t("modals.createUser.roleDescriptions.manager")}</SelectItem>
+                <SelectItem value="ADMIN">{t("modals.createUser.roleDescriptions.admin")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* Phone */}
           <div className="space-y-2">
-            <Label htmlFor="phone">Phone Number</Label>
+            <Label htmlFor="phone">{t("modals.createUser.phoneNumber")}</Label>
             <div className="relative">
               <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -210,13 +212,13 @@ const CreateUserModal = ({ open, onOpenChange, onUserCreated }: CreateUserModalP
 
           {/* Password */}
           <div className="space-y-2">
-            <Label htmlFor="password">Password *</Label>
+            <Label htmlFor="password">{t("modals.createUser.password")}</Label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="password"
                 type="password"
-                placeholder="Enter password"
+                placeholder={t("modals.createUser.enterPassword")}
                 value={formData.password}
                 onChange={(e) => handleInputChange('password', e.target.value)}
                 className={`pl-10 ${errors.password ? 'border-destructive' : ''}`}
@@ -229,13 +231,13 @@ const CreateUserModal = ({ open, onOpenChange, onUserCreated }: CreateUserModalP
 
           {/* Confirm Password */}
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password *</Label>
+            <Label htmlFor="confirmPassword">{t("modals.createUser.confirmPassword")}</Label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="confirmPassword"
                 type="password"
-                placeholder="Confirm password"
+                placeholder={t("modals.createUser.confirmPasswordPlaceholder")}
                 value={formData.confirmPassword}
                 onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
                 className={`pl-10 ${errors.confirmPassword ? 'border-destructive' : ''}`}
@@ -250,18 +252,18 @@ const CreateUserModal = ({ open, onOpenChange, onUserCreated }: CreateUserModalP
           <div className="flex justify-end gap-3 pt-4">
             <Button type="button" variant="outline" onClick={handleClose} disabled={isLoading}>
               <X className="h-4 w-4 mr-2" />
-              Cancel
+              {t("modals.createUser.cancel")}
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent mr-2" />
-                  Creating...
+                  {t("modals.createUser.creating")}
                 </>
               ) : (
                 <>
                   <User className="h-4 w-4 mr-2" />
-                  Create User
+                  {t("modals.createUser.createUser")}
                 </>
               )}
             </Button>

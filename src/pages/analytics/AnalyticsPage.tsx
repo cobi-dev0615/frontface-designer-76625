@@ -58,44 +58,44 @@ const AnalyticsPage = () => {
 
     try {
       // Create CSV content
-      let csvContent = "DuxFit Analytics Report\n";
-      csvContent += `Generated: ${new Date().toLocaleString()}\n\n`;
+      let csvContent = `${t("analytics.analyticsReport")}\n`;
+      csvContent += `${t("analytics.generated")}: ${new Date().toLocaleString()}\n\n`;
       
       // Summary Metrics
-      csvContent += "SUMMARY METRICS\n";
-      csvContent += "Metric,Value,Trend\n";
-      csvContent += `Total Conversations,${analyticsData.summary.totalConversations.value},${analyticsData.summary.totalConversations.trend}\n`;
-      csvContent += `Avg Response Time,${analyticsData.summary.avgResponseTime.value},${analyticsData.summary.avgResponseTime.trend}\n`;
-      csvContent += `Messages Sent,${analyticsData.summary.messagesSent.value},${analyticsData.summary.messagesSent.trend}\n`;
-      csvContent += `Peak Hours,${analyticsData.summary.peakHours.value},${analyticsData.summary.peakHours.trend}\n\n`;
+      csvContent += `${t("analytics.summaryMetrics")}\n`;
+      csvContent += `${t("analytics.metric")},${t("analytics.value")},${t("analytics.trend")}\n`;
+      csvContent += `${t("analytics.totalConversations")},${analyticsData.summary.totalConversations.value},${analyticsData.summary.totalConversations.trend}\n`;
+      csvContent += `${t("analytics.avgResponseTime")},${analyticsData.summary.avgResponseTime.value},${analyticsData.summary.avgResponseTime.trend}\n`;
+      csvContent += `${t("analytics.messagesSent")},${analyticsData.summary.messagesSent.value},${analyticsData.summary.messagesSent.trend}\n`;
+      csvContent += `${t("analytics.peakHours")},${analyticsData.summary.peakHours.value},${analyticsData.summary.peakHours.trend}\n\n`;
 
       // Conversion Funnel
-      csvContent += "CONVERSION FUNNEL\n";
-      csvContent += "Stage,Count,Percentage\n";
+      csvContent += `${t("analytics.conversionFunnel")}\n`;
+      csvContent += `${t("analytics.stage")},${t("analytics.count")},${t("analytics.percentage")}\n`;
       analyticsData.conversionFunnel.forEach(item => {
         csvContent += `${item.stage},${item.count},${item.percentage}%\n`;
       });
       csvContent += "\n";
 
       // Lead Sources
-      csvContent += "LEAD SOURCES\n";
-      csvContent += "Source,Count,Percentage\n";
+      csvContent += `${t("analytics.leadSources")}\n`;
+      csvContent += `${t("analytics.source")},${t("analytics.count")},${t("analytics.percentage")}\n`;
       analyticsData.leadSources.sources.forEach(source => {
         csvContent += `${source.source},${source.count},${source.percentage}%\n`;
       });
       csvContent += "\n";
 
       // Peak Performance Hours
-      csvContent += "PEAK PERFORMANCE HOURS\n";
-      csvContent += "Time Slot,Messages,Conversion Rate\n";
+      csvContent += `${t("analytics.peakPerformanceHours")}\n`;
+      csvContent += `${t("analytics.timeSlot")},${t("analytics.messages")},${t("analytics.conversionRate")}\n`;
       analyticsData.peakHours.forEach(hour => {
         csvContent += `${hour.time},${hour.messages},${hour.conversion}\n`;
       });
       csvContent += "\n";
 
       // Agent Performance
-      csvContent += "AGENT PERFORMANCE\n";
-      csvContent += "Agent,Conversations,Avg Response,Conversions,Rate\n";
+      csvContent += `${t("analytics.agentPerformance")}\n`;
+      csvContent += `${t("analytics.agent")},${t("analytics.conversations")},${t("analytics.avgResponse")},${t("analytics.conversions")},${t("analytics.rate")}\n`;
       analyticsData.agentPerformance.forEach(agent => {
         csvContent += `${agent.name},${agent.conversations},${agent.avgResponse},${agent.conversions},${agent.rate}\n`;
       });

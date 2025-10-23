@@ -10,6 +10,7 @@ import { CalendarIcon, Loader2, Download, FileText, Users, TrendingUp, MessageCi
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useTranslation } from "@/hooks/useTranslation";
 import * as reportsService from "@/services/reportsService";
 
 interface CustomReportModalProps {
@@ -19,6 +20,7 @@ interface CustomReportModalProps {
 }
 
 export default function CustomReportModal({ isOpen, onClose, onSuccess }: CustomReportModalProps) {
+  const { t } = useTranslation();
   const [isGenerating, setIsGenerating] = useState(false);
   
   // Form state
@@ -82,7 +84,7 @@ export default function CustomReportModal({ isOpen, onClose, onSuccess }: Custom
       handleClose();
     } catch (error: any) {
       console.error("Error generating custom report:", error);
-      toast.error(error.response?.data?.message || "Failed to generate report");
+      toast.error(error.response?.data?.message || t("modals.customReport.generateReportFailed"));
     } finally {
       setIsGenerating(false);
     }
@@ -126,47 +128,47 @@ export default function CustomReportModal({ isOpen, onClose, onSuccess }: Custom
             <div className="p-2 rounded-lg bg-primary/10 text-primary">
               {getReportIcon()}
             </div>
-            Create Custom Report
+            {t("modals.customReport.title")}
           </DialogTitle>
           <DialogDescription>
-            Configure your custom report with advanced options
+            {t("modals.customReport.description")}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto flex-1 px-1">
           {/* Report Type */}
           <div className="space-y-2">
-            <Label htmlFor="reportType">Report Type *</Label>
+            <Label htmlFor="reportType">{t("modals.customReport.reportType")}</Label>
             <Select
               value={formData.reportType}
               onValueChange={(value) => setFormData(prev => ({ ...prev, reportType: value }))}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select report type" />
+                <SelectValue placeholder={t("modals.customReport.selectReportType")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="leads">
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4" />
-                    Leads Report
+                    {t("modals.customReport.leadsReport")}
                   </div>
                 </SelectItem>
                 <SelectItem value="performance">
                   <div className="flex items-center gap-2">
                     <TrendingUp className="h-4 w-4" />
-                    Performance Report
+                    {t("modals.customReport.performanceReport")}
                   </div>
                 </SelectItem>
                 <SelectItem value="conversion">
                   <div className="flex items-center gap-2">
                     <TrendingUp className="h-4 w-4" />
-                    Conversion Report
+                    {t("modals.customReport.conversionReport")}
                   </div>
                 </SelectItem>
                 <SelectItem value="activity">
                   <div className="flex items-center gap-2">
                     <MessageCircle className="h-4 w-4" />
-                    Activity Report
+                    {t("modals.customReport.activityReport")}
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -175,21 +177,21 @@ export default function CustomReportModal({ isOpen, onClose, onSuccess }: Custom
 
           {/* Date Range */}
           <div className="space-y-2">
-            <Label>Date Range *</Label>
+            <Label>{t("modals.customReport.dateRange")}</Label>
             <Select
               value={formData.dateRange}
               onValueChange={(value) => setFormData(prev => ({ ...prev, dateRange: value }))}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select date range" />
+                <SelectValue placeholder={t("modals.customReport.selectDateRange")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="today">Today</SelectItem>
-                <SelectItem value="week">This Week</SelectItem>
-                <SelectItem value="month">This Month</SelectItem>
-                <SelectItem value="quarter">This Quarter</SelectItem>
-                <SelectItem value="year">This Year</SelectItem>
-                <SelectItem value="custom">Custom Range</SelectItem>
+                <SelectItem value="today">{t("modals.customReport.today")}</SelectItem>
+                <SelectItem value="week">{t("modals.customReport.thisWeek")}</SelectItem>
+                <SelectItem value="month">{t("modals.customReport.thisMonth")}</SelectItem>
+                <SelectItem value="quarter">{t("modals.customReport.thisQuarter")}</SelectItem>
+                <SelectItem value="year">{t("modals.customReport.thisYear")}</SelectItem>
+                <SelectItem value="custom">{t("modals.customReport.customRange")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -198,7 +200,7 @@ export default function CustomReportModal({ isOpen, onClose, onSuccess }: Custom
           {formData.dateRange === 'custom' && (
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Start Date *</Label>
+                <Label>{t("modals.customReport.startDate")}</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -212,7 +214,7 @@ export default function CustomReportModal({ isOpen, onClose, onSuccess }: Custom
                       {formData.customStartDate ? (
                         format(formData.customStartDate, "PPP")
                       ) : (
-                        <span>Pick a date</span>
+                        <span>{t("modals.customReport.pickDate")}</span>
                       )}
                     </Button>
                   </PopoverTrigger>
@@ -228,7 +230,7 @@ export default function CustomReportModal({ isOpen, onClose, onSuccess }: Custom
               </div>
 
               <div className="space-y-2">
-                <Label>End Date *</Label>
+                <Label>{t("modals.customReport.endDate")}</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -242,7 +244,7 @@ export default function CustomReportModal({ isOpen, onClose, onSuccess }: Custom
                       {formData.customEndDate ? (
                         format(formData.customEndDate, "PPP")
                       ) : (
-                        <span>Pick a date</span>
+                        <span>{t("modals.customReport.pickDate")}</span>
                       )}
                     </Button>
                   </PopoverTrigger>
@@ -262,42 +264,42 @@ export default function CustomReportModal({ isOpen, onClose, onSuccess }: Custom
 
           {/* Format */}
           <div className="space-y-2">
-            <Label>Export Format *</Label>
+            <Label>{t("modals.customReport.exportFormat")}</Label>
             <Select
               value={formData.format}
               onValueChange={(value) => setFormData(prev => ({ ...prev, format: value }))}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select format" />
+                <SelectValue placeholder={t("modals.customReport.selectFormat")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="csv">CSV File (.csv)</SelectItem>
-                <SelectItem value="json">JSON Data (.json)</SelectItem>
+                <SelectItem value="csv">{t("modals.customReport.csvFile")}</SelectItem>
+                <SelectItem value="json">{t("modals.customReport.jsonData")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* Include Level */}
           <div className="space-y-2">
-            <Label>Detail Level *</Label>
+            <Label>{t("modals.customReport.detailLevel")}</Label>
             <Select
               value={formData.includeLevel}
               onValueChange={(value) => setFormData(prev => ({ ...prev, includeLevel: value }))}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select detail level" />
+                <SelectValue placeholder={t("modals.customReport.selectDetailLevel")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Data</SelectItem>
-                <SelectItem value="summary">Summary Only</SelectItem>
-                <SelectItem value="detailed">Detailed View</SelectItem>
+                <SelectItem value="all">{t("modals.customReport.allData")}</SelectItem>
+                <SelectItem value="summary">{t("modals.customReport.summaryOnly")}</SelectItem>
+                <SelectItem value="detailed">{t("modals.customReport.detailedView")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* Additional Options */}
           <div className="space-y-3">
-            <Label>Additional Options</Label>
+            <Label>{t("modals.customReport.additionalOptions")}</Label>
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
                 <Checkbox 
@@ -309,7 +311,7 @@ export default function CustomReportModal({ isOpen, onClose, onSuccess }: Custom
                   htmlFor="includeSummary"
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
-                  Include summary statistics
+                  {t("modals.customReport.includeSummaryStats")}
                 </label>
               </div>
               <div className="flex items-center space-x-2">
@@ -322,7 +324,7 @@ export default function CustomReportModal({ isOpen, onClose, onSuccess }: Custom
                   htmlFor="includeDetails"
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
-                  Include detailed records
+                  {t("modals.customReport.includeDetailedRecords")}
                 </label>
               </div>
               <div className="flex items-center space-x-2">
@@ -336,7 +338,7 @@ export default function CustomReportModal({ isOpen, onClose, onSuccess }: Custom
                   htmlFor="includeCharts"
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
-                  Include chart data (Coming soon)
+                  {t("modals.customReport.includeChartData")}
                 </label>
               </div>
             </div>
@@ -346,18 +348,18 @@ export default function CustomReportModal({ isOpen, onClose, onSuccess }: Custom
         <DialogFooter className="flex-shrink-0">
           <form onSubmit={handleSubmit} className="w-full flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={handleClose}>
-              Cancel
+              {t("modals.customReport.cancel")}
             </Button>
             <Button type="submit" disabled={isGenerating}>
               {isGenerating ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating...
+                  {t("modals.customReport.generating")}
                 </>
               ) : (
                 <>
                   <Download className="mr-2 h-4 w-4" />
-                  Generate Report
+                  {t("modals.customReport.generateReport")}
                 </>
               )}
             </Button>
