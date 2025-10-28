@@ -15,4 +15,10 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  define: {
+    // Define environment variables for production
+    'import.meta.env.VITE_API_URL': mode === 'production' 
+      ? JSON.stringify('https://duxfit-production.up.railway.app/api')
+      : JSON.stringify('http://localhost:5000/api'),
+  },
 }));
