@@ -403,12 +403,12 @@ const UserManagement = () => {
                     </TableCell>
                     <TableCell>
                       <Badge className={getRoleBadgeColor(user.role)}>
-                        {user.role}
+                        {t(`users.${user.role.toLowerCase()}`)}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge className={getStatusBadgeColor(user.status)}>
-                        {user.status}
+                        {t(`users.${user.status.toLowerCase()}`)}
                       </Badge>
                     </TableCell>
                     <TableCell>
