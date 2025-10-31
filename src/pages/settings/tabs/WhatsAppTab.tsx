@@ -43,7 +43,18 @@ const WhatsAppTab = () => {
     try {
       if (selectedGym?.id) {
         const config = await whatsappConfigService.getWhatsAppConfig(selectedGym.id);
-        setWhatsappConfig(config);
+        // Initialize with empty values if config doesn't exist, preserving structure
+        setWhatsappConfig(config || {
+          id: '',
+          phoneNumber: '',
+          phoneNumberId: '',
+          businessAccountId: '',
+          status: 'PENDING',
+          createdAt: '',
+          updatedAt: ''
+        });
+        // Note: accessToken and webhookVerifyToken are not returned from the API for security
+        // They need to be entered fresh each time or stored separately in state
         if (config) {
           setWebhookUrl(`https://api.duxfit.com/webhooks/whatsapp/${selectedGym.id}`);
         }
@@ -66,20 +77,45 @@ const WhatsAppTab = () => {
       return;
     }
 
+    // Get current values from state (these should have the latest input values)
+    const currentAccessToken = whatsappConfig?.accessToken || "";
+    const currentWebhookVerifyToken = whatsappConfig?.webhookVerifyToken || "";
+    const currentPhoneNumberId = whatsappConfig?.phoneNumberId || "";
+    const currentBusinessAccountId = whatsappConfig?.businessAccountId || "";
+
+    // Validate required fields
+    if (!currentAccessToken || !currentPhoneNumberId || !currentBusinessAccountId) {
+      toast.error(t("whatsapp.configurationSaveFailed") || "Please fill in all required fields");
+      return;
+    }
+
     setIsSaving(true);
     try {
       const configData = {
         gymId: selectedGym.id,
         phoneNumber: gymData?.phone || selectedGym?.phone || "",
-        phoneNumberId: whatsappConfig?.phoneNumberId || "",
-        businessAccountId: whatsappConfig?.businessAccountId || "",
-        accessToken: whatsappConfig?.accessToken || "",
-        webhookVerifyToken: whatsappConfig?.webhookVerifyToken || "",
+        phoneNumberId: currentPhoneNumberId,
+        businessAccountId: currentBusinessAccountId,
+        accessToken: currentAccessToken,
+        webhookVerifyToken: currentWebhookVerifyToken || undefined,
       };
 
       await whatsappConfigService.saveWhatsAppConfig(configData);
       toast.success(t("whatsapp.configurationSaved"));
+      
+      // Preserve the tokens in state since API doesn't return them for security
+      const savedTokens = {
+        accessToken: currentAccessToken,
+        webhookVerifyToken: currentWebhookVerifyToken
+      };
+      
       await loadWhatsAppConfig(); // Reload to get updated status
+      
+      // Restore the tokens after reload
+      setWhatsappConfig(prev => ({
+        ...prev || {},
+        ...savedTokens
+      }));
     } catch (error) {
       console.error('Error saving WhatsApp config:', error);
       toast.error(t("whatsapp.configurationSaveFailed"));
@@ -211,10 +247,13 @@ const WhatsAppTab = () => {
               <Label htmlFor="access-token">{t("whatsapp.accessToken")}</Label>
               <Input
                 id="access-token"
-                type="text"
+                type="password"
                 placeholder={t("whatsapp.accessTokenPlaceholder")}
                 value={whatsappConfig?.accessToken || ''}
-                onChange={(e) => setWhatsappConfig(prev => ({ ...prev, accessToken: e.target.value }))}
+                onChange={(e) => setWhatsappConfig(prev => ({ 
+                  ...prev || {}, 
+                  accessToken: e.target.value 
+                }))}
               />
             </div>
             <div className="space-y-2">
@@ -239,10 +278,13 @@ const WhatsAppTab = () => {
               <Label htmlFor="webhook-verify-token">{t("whatsapp.webhookVerifyToken")}</Label>
               <Input
                 id="webhook-verify-token"
-                type="text"
+                type="password"
                 placeholder={t("whatsapp.webhookVerifyTokenPlaceholder")}
                 value={whatsappConfig?.webhookVerifyToken || ''}
-                onChange={(e) => setWhatsappConfig(prev => ({ ...prev, webhookVerifyToken: e.target.value }))}
+                onChange={(e) => setWhatsappConfig(prev => ({ 
+                  ...prev || {}, 
+                  webhookVerifyToken: e.target.value 
+                }))}
               />
             </div>
           </div>
