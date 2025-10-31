@@ -10,6 +10,7 @@ import {
   Save,
   Globe
 } from "lucide-react";
+import { useLanguageStore } from "@/store/languageStore";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -25,7 +26,6 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { useTranslation } from "@/hooks/useTranslation";
-import { LanguageSelector } from "@/components/LanguageSelector";
 
 const UsersTab = () => {
   const { t } = useTranslation();
@@ -59,6 +59,10 @@ const UsersTab = () => {
   const [notifyNewUser, setNotifyNewUser] = useState(true);
   const [notifyUserDeleted, setNotifyUserDeleted] = useState(true);
   const [notifyRoleChanged, setNotifyRoleChanged] = useState(true);
+
+  // Language Settings
+  const { language } = useLanguageStore();
+  const [defaultLanguage, setDefaultLanguage] = useState<'pt-BR' | 'en'>(language);
 
   const handleSave = () => {
     toast.success(t("users.userSettingsSavedSuccessfully"));
@@ -400,12 +404,48 @@ const UsersTab = () => {
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Globe className="h-5 w-5 text-primary" />
-                <CardTitle>{t("settings.language")}</CardTitle>
+                <CardTitle>{t("users.languageSettings")}</CardTitle>
               </div>
-              <CardDescription>{t("settings.languageSettings.selectLanguage")}</CardDescription>
+              <CardDescription>{t("users.defaultLanguageDescription")}</CardDescription>
             </CardHeader>
-            <CardContent>
-              <LanguageSelector variant="card" />
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="defaultLanguage" className="text-sm">{t("users.selectDefaultLanguage")}</Label>
+                <Select value={defaultLanguage} onValueChange={(value: 'pt-BR' | 'en') => setDefaultLanguage(value)}>
+                  <SelectTrigger id="defaultLanguage" className="h-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pt-BR">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">🇧🇷</span>
+                        <span>{t("users.portuguese")}</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="en">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">🇺🇸</span>
+                        <span>{t("users.english")}</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="rounded-lg bg-muted/50 p-3 border">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{defaultLanguage === 'pt-BR' ? '🇧🇷' : '🇺🇸'}</span>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-muted-foreground">{t("users.currentDefaultLanguage")}</p>
+                    <p className="text-sm font-semibold">
+                      {defaultLanguage === 'pt-BR' ? t("users.portuguese") : t("users.english")}
+                    </p>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  {t("users.languageForNewUsers")}
+                </p>
+              </div>
             </CardContent>
           </Card>
         </div>

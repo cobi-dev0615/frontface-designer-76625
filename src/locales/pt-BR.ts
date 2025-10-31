@@ -1512,6 +1512,15 @@ export const ptBR = {
     deactivateFailed: 'Falha ao desativar usuários',
     deleteSuccess: '{{count}} usuários excluídos',
     deleteFailed: 'Falha ao excluir usuários',
+    // Language Settings (UsersTab)
+    defaultLanguage: 'Idioma Padrão',
+    defaultLanguageDescription: 'Defina o idioma padrão para novos usuários',
+    languageSettings: 'Configurações de Idioma',
+    selectDefaultLanguage: 'Selecionar Idioma Padrão',
+    currentDefaultLanguage: 'Idioma Padrão Atual',
+    languageForNewUsers: 'Idioma para Novos Usuários',
+    portuguese: 'Português (Brasil)',
+    english: 'Inglês',
   },
 
   // Settings
@@ -1799,6 +1808,15 @@ export const ptBR = {
     resetToDefaults: 'Restaurar Padrões',
     saveSettings: 'Salvar Configurações',
     userSettingsSavedSuccessfully: 'Configurações de usuário salvas com sucesso!',
+    // Language Settings
+    defaultLanguage: 'Idioma Padrão',
+    defaultLanguageDescription: 'Defina o idioma padrão para novos usuários',
+    languageSettings: 'Configurações de Idioma',
+    selectDefaultLanguage: 'Selecionar Idioma Padrão',
+    currentDefaultLanguage: 'Idioma Padrão Atual',
+    languageForNewUsers: 'Idioma para Novos Usuários',
+    portuguese: 'Português (Brasil)',
+    english: 'Inglês',
   },
 
   // EVO Integration

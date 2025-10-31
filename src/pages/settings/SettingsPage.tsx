@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Building2, Bot, MessageSquare, Users, Plug, Dumbbell } from "lucide-react";
+import { Building2, Bot, MessageSquare, Users, Plug, Dumbbell, Settings } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
@@ -15,6 +15,7 @@ import WhatsAppTab from "./tabs/WhatsAppTab";
 import UsersTab from "./tabs/UsersTab";
 import IntegrationsTab from "./tabs/IntegrationsTab";
 import EvoIntegrationTab from "./tabs/EvoIntegrationTab";
+import GeneralTab from "./tabs/GeneralTab";
 import { useGymStore } from "@/store/gymStore";
 import { getAllGyms } from "@/services/gymService";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -78,7 +79,11 @@ const SettingsPage = () => {
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6 lg:w-auto">
+        <TabsList className="grid w-full grid-cols-7 lg:w-auto">
+          <TabsTrigger value="general" className="gap-2">
+            <Settings className="h-4 w-4" />
+            <span className="hidden sm:inline">{t("settings.general")}</span>
+          </TabsTrigger>
           <TabsTrigger value="gym" className="gap-2">
             <Building2 className="h-4 w-4" />
             <span className="hidden sm:inline">{t("settings.gymConfig")}</span>

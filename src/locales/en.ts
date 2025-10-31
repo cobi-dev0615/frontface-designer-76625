@@ -1534,6 +1534,15 @@ export const en = {
     deactivateFailed: 'Failed to deactivate users',
     deleteSuccess: '{{count}} users deleted',
     deleteFailed: 'Failed to delete users',
+    // Language Settings (UsersTab)
+    defaultLanguage: 'Default Language',
+    defaultLanguageDescription: 'Set the default language for new users',
+    languageSettings: 'Language Settings',
+    selectDefaultLanguage: 'Select Default Language',
+    currentDefaultLanguage: 'Current Default Language',
+    languageForNewUsers: 'Language for New Users',
+    portuguese: 'Portuguese (Brazil)',
+    english: 'English',
   },
 
   // Settings
@@ -1823,6 +1832,15 @@ export const en = {
     resetToDefaults: 'Reset to Defaults',
     saveSettings: 'Save Settings',
     userSettingsSavedSuccessfully: 'User settings saved successfully!',
+    // Language Settings
+    defaultLanguage: 'Default Language',
+    defaultLanguageDescription: 'Set the default language for new users',
+    languageSettings: 'Language Settings',
+    selectDefaultLanguage: 'Select Default Language',
+    currentDefaultLanguage: 'Current Default Language',
+    languageForNewUsers: 'Language for New Users',
+    portuguese: 'Portuguese (Brazil)',
+    english: 'English',
   },
 
   // EVO Integration
