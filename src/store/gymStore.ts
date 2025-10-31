@@ -5,6 +5,7 @@ interface Gym {
   id: string;
   name: string;
   slug: string;
+  phone?: string | null;
   logo?: string | null;
   settings?: any;
 }

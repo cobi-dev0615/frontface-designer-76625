@@ -1,7 +1,7 @@
 import api from './api';
 
 export interface WhatsAppConfigData {
-  id?: string;
+  gymId: string;
   phoneNumber: string;
   phoneNumberId: string;
   businessAccountId: string;
@@ -55,54 +55,4 @@ export async function testWhatsAppConnection(gymId: string): Promise<ConnectionT
 export async function deleteWhatsAppConfig(gymId: string): Promise<{ deletedCount: number }> {
   const response = await api.delete(`/whatsapp/config/${gymId}`);
   return response.data.data;
-}
-
-/**
- * Send WhatsApp text message
- */
-export async function sendWhatsAppTextMessage(to: string, message: string, gymId: string): Promise<any> {
-  const response = await api.post('/whatsapp/send-text', { to, message, gymId });
-  return response.data;
-}
-
-/**
- * Send WhatsApp template message
- */
-export async function sendWhatsAppTemplateMessage(
-  to: string, 
-  templateName: string, 
-  languageCode: string = 'en_US',
-  parameters?: string[],
-  gymId: string
-): Promise<any> {
-  const response = await api.post('/whatsapp/send-template', { 
-    to, 
-    templateName, 
-    languageCode, 
-    parameters, 
-    gymId 
-  });
-  return response.data;
-}
-
-/**
- * Send WhatsApp media message
- */
-export async function sendWhatsAppMediaMessage(
-  to: string,
-  type: 'image' | 'document' | 'audio' | 'video',
-  mediaId: string,
-  caption?: string,
-  filename?: string,
-  gymId: string
-): Promise<any> {
-  const response = await api.post('/whatsapp/send-media', { 
-    to, 
-    type, 
-    mediaId, 
-    caption, 
-    filename, 
-    gymId 
-  });
-  return response.data;
 }

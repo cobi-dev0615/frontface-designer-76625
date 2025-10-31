@@ -333,60 +333,6 @@ const GymConfigTab = () => {
             </CardContent>
           </Card>
 
-          {/* Logo & Branding */}
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("gyms.brandingSettings")}</CardTitle>
-              <CardDescription>{t("gyms.logoAndBrandColors")}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>{t("gyms.logo")}</Label>
-                <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer">
-                  <Upload className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
-                  <p className="text-sm text-muted-foreground">{t("gyms.uploadLogo")}</p>
-                  <p className="text-xs text-muted-foreground">{t("gyms.svgPngJpgMax2mb")}</p>
-                </div>
-              </div>
-
-              <div className="grid gap-4 grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="primary-color">{t("gyms.primaryColor")}</Label>
-                  <div className="flex gap-2">
-                    <Input 
-                      id="primary-color" 
-                      type="color" 
-                      value={branding.primaryColor}
-                      onChange={(e) => setBranding({ ...branding, primaryColor: e.target.value })}
-                      className="w-16 h-10" 
-                    />
-                    <Input 
-                      value={branding.primaryColor} 
-                      onChange={(e) => setBranding({ ...branding, primaryColor: e.target.value })}
-                      className="flex-1 font-mono text-sm" 
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="secondary-color">{t("gyms.secondary")}</Label>
-                  <div className="flex gap-2">
-                    <Input 
-                      id="secondary-color" 
-                      type="color" 
-                      value={branding.secondaryColor}
-                      onChange={(e) => setBranding({ ...branding, secondaryColor: e.target.value })}
-                      className="w-16 h-10" 
-                    />
-                    <Input 
-                      value={branding.secondaryColor}
-                      onChange={(e) => setBranding({ ...branding, secondaryColor: e.target.value })}
-                      className="flex-1 font-mono text-sm" 
-                    />
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
         </div>
 

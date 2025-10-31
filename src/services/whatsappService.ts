@@ -6,14 +6,6 @@ export interface WhatsAppMessage {
   gymId?: string;
 }
 
-export interface WhatsAppTemplateMessage {
-  to: string;
-  templateName: string;
-  languageCode?: string;
-  parameters?: string[];
-  gymId?: string;
-}
-
 export interface WhatsAppMediaMessage {
   to: string;
   type: 'image' | 'document' | 'audio' | 'video';
@@ -43,14 +35,6 @@ export interface WhatsAppConnectionStatus {
  */
 export async function sendTextMessage(data: WhatsAppMessage) {
   const response = await api.post('/whatsapp/send/text', data);
-  return response.data;
-}
-
-/**
- * Send a template message via WhatsApp
- */
-export async function sendTemplateMessage(data: WhatsAppTemplateMessage) {
-  const response = await api.post('/whatsapp/send/template', data);
   return response.data;
 }
 
