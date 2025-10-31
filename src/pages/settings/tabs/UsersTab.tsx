@@ -7,7 +7,8 @@ import {
   AlertTriangle,
   Database,
   Bell,
-  Save
+  Save,
+  Globe
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,6 +25,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { useTranslation } from "@/hooks/useTranslation";
+import { LanguageSelector } from "@/components/LanguageSelector";
 
 const UsersTab = () => {
   const { t } = useTranslation();
@@ -390,6 +392,20 @@ const UsersTab = () => {
                   onCheckedChange={setNotifyRoleChanged}
                 />
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Language Settings */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Globe className="h-5 w-5 text-primary" />
+                <CardTitle>{t("settings.language")}</CardTitle>
+              </div>
+              <CardDescription>{t("settings.languageSettings.selectLanguage")}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <LanguageSelector variant="card" />
             </CardContent>
           </Card>
         </div>
