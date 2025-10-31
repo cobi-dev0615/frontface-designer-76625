@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { User, Mail, Phone, Save, X } from "lucide-react";
+import { User, Mail, Phone, Save, X, Building2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -17,9 +17,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { useTranslation } from "@/hooks/useTranslation";
-import { updateUser, type User as UserType } from "@/services/userManagementService";
+import { updateUser, getUserById, type User as UserType } from "@/services/userManagementService";
+import { getAllGyms, type Gym } from "@/services/gymService";
 
 interface EditUserModalProps {
   open: boolean;
@@ -34,6 +36,7 @@ interface FormData {
   role: 'ADMIN' | 'MANAGER' | 'AGENT';
   status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
   phone: string;
+  gymIds: string[];
 }
 
 const EditUserModal = ({ open, onOpenChange, user, onUserUpdated }: EditUserModalProps) => {
@@ -43,22 +46,56 @@ const EditUserModal = ({ open, onOpenChange, user, onUserUpdated }: EditUserModa
     email: '',
     role: 'AGENT',
     status: 'ACTIVE',
-    phone: ''
+    phone: '',
+    gymIds: []
   });
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Partial<FormData>>({});
+  const [gyms, setGyms] = useState<Gym[]>([]);
+  const [loadingGyms, setLoadingGyms] = useState(false);
+  const [loadingUser, setLoadingUser] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      setFormData({
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        status: user.status,
-        phone: user.phone || ''
-      });
+    if (open && user?.id) {
+      loadUserWithGyms();
+      loadGyms();
     }
-  }, [user]);
+  }, [open, user?.id]);
+
+  const loadUserWithGyms = async () => {
+    setLoadingUser(true);
+    try {
+      const fullUser = await getUserById(user.id);
+      setFormData({
+        name: fullUser.name,
+        email: fullUser.email,
+        role: fullUser.role,
+        status: fullUser.status,
+        phone: fullUser.phone || '',
+        gymIds: fullUser.gyms?.map(g => g.gymId) || []
+      });
+    } catch (error) {
+      console.error('Error loading user:', error);
+      toast.error('Failed to load user data');
+    } finally {
+      setLoadingUser(false);
+    }
+  };
+
+  const loadGyms = async () => {
+    setLoadingGyms(true);
+    try {
+      const response = await getAllGyms();
+      // getAllGyms returns { gyms: [], total: number, hasMore: boolean }
+      const allGyms = Array.isArray(response) ? response : response.gyms || [];
+      setGyms(allGyms.filter(gym => !gym.isDeleted && gym.status === 'ACTIVE'));
+    } catch (error) {
+      console.error('Error loading gyms:', error);
+      toast.error('Failed to load gyms');
+    } finally {
+      setLoadingGyms(false);
+    }
+  };
 
   const validateForm = (): boolean => {
     const newErrors: Partial<FormData> = {};
@@ -91,7 +128,8 @@ const EditUserModal = ({ open, onOpenChange, user, onUserUpdated }: EditUserModa
         email: formData.email.trim(),
         role: formData.role,
         status: formData.status,
-        phone: formData.phone.trim() || undefined
+        phone: formData.phone.trim() || undefined,
+        gymIds: formData.gymIds.length > 0 ? formData.gymIds : []
       });
 
       toast.success(t("modals.userManagement.edit.userUpdatedSuccess"));
@@ -117,9 +155,18 @@ const EditUserModal = ({ open, onOpenChange, user, onUserUpdated }: EditUserModa
     }
   };
 
+  const handleGymToggle = (gymId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      gymIds: prev.gymIds.includes(gymId)
+        ? prev.gymIds.filter(id => id !== gymId)
+        : [...prev.gymIds, gymId]
+    }));
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />
@@ -213,6 +260,40 @@ const EditUserModal = ({ open, onOpenChange, user, onUserUpdated }: EditUserModa
                 <SelectItem value="SUSPENDED">{t("modals.userManagement.edit.statusOptions.suspended")}</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Gym Selection */}
+          <div className="space-y-2">
+            <Label>{t("modals.createUser.gymAccess")}</Label>
+            <div className="border rounded-md p-3 max-h-48 overflow-y-auto space-y-2">
+              {loadingGyms || loadingUser ? (
+                <p className="text-sm text-muted-foreground">{t("common.loading")}...</p>
+              ) : gyms.length === 0 ? (
+                <p className="text-sm text-muted-foreground">{t("modals.createUser.noGymsAvailable")}</p>
+              ) : (
+                gyms.map((gym) => (
+                  <div key={gym.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`gym-${gym.id}`}
+                      checked={formData.gymIds.includes(gym.id)}
+                      onCheckedChange={() => handleGymToggle(gym.id)}
+                    />
+                    <Label
+                      htmlFor={`gym-${gym.id}`}
+                      className="text-sm font-normal cursor-pointer flex items-center gap-2"
+                    >
+                      <Building2 className="h-4 w-4" />
+                      {gym.name}
+                    </Label>
+                  </div>
+                ))
+              )}
+            </div>
+            {formData.gymIds.length > 0 && (
+              <p className="text-xs text-muted-foreground">
+                {t("modals.createUser.selectedGyms", { count: formData.gymIds.length })}
+              </p>
+            )}
           </div>
 
           {/* Actions */}

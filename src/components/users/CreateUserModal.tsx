@@ -65,7 +65,9 @@ const CreateUserModal = ({ open, onOpenChange, onUserCreated }: CreateUserModalP
   const loadGyms = async () => {
     setLoadingGyms(true);
     try {
-      const allGyms = await getAllGyms();
+      const response = await getAllGyms();
+      // getAllGyms returns { gyms: [], total: number, hasMore: boolean }
+      const allGyms = Array.isArray(response) ? response : response.gyms || [];
       setGyms(allGyms.filter(gym => !gym.isDeleted && gym.status === 'ACTIVE'));
     } catch (error) {
       console.error('Error loading gyms:', error);
@@ -165,7 +167,7 @@ const CreateUserModal = ({ open, onOpenChange, onUserCreated }: CreateUserModalP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />

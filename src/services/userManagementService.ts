@@ -12,6 +12,13 @@ export interface User {
   updatedAt: string;
   lastLogin?: string | null;
   isDeleted: boolean;
+  gyms?: Array<{
+    gymId: string;
+    gym: {
+      id: string;
+      name: string;
+    };
+  }>;
 }
 
 export interface CreateUserData {
@@ -29,6 +36,7 @@ export interface UpdateUserData {
   role?: 'ADMIN' | 'MANAGER' | 'AGENT';
   status?: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
   phone?: string;
+  gymIds?: string[]; // Array of gym IDs to assign user to (replaces existing assignments)
 }
 
 export interface UserFilters {
