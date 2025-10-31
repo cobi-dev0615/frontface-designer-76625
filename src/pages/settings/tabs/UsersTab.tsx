@@ -115,7 +115,7 @@ const UsersTab = () => {
                     max="365"
                     value={passwordExpiry}
                     onChange={(e) => setPasswordExpiry(e.target.value)}
-                    placeholder={t("users.never")}
+                    placeholder={t("users.neverPlaceholder")}
                     className="h-9"
                   />
                 </div>
