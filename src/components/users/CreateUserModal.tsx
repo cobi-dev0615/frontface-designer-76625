@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { User, Mail, Lock, Phone, UserCheck, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { User, Mail, Lock, Phone, UserCheck, X, Building2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -17,10 +17,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { useTranslation } from "@/hooks/useTranslation";
 import { createUser } from "@/services/userManagementService";
+import { getAllGyms, type Gym } from "@/services/gymService";
 
 interface CreateUserModalProps {
   open: boolean;
@@ -35,6 +37,7 @@ interface FormData {
   confirmPassword: string;
   role: 'ADMIN' | 'MANAGER' | 'AGENT';
   phone: string;
+  gymIds: string[];
 }
 
 const CreateUserModal = ({ open, onOpenChange, onUserCreated }: CreateUserModalProps) => {
@@ -45,10 +48,32 @@ const CreateUserModal = ({ open, onOpenChange, onUserCreated }: CreateUserModalP
     password: '',
     confirmPassword: '',
     role: 'AGENT',
-    phone: ''
+    phone: '',
+    gymIds: []
   });
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Partial<FormData>>({});
+  const [gyms, setGyms] = useState<Gym[]>([]);
+  const [loadingGyms, setLoadingGyms] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      loadGyms();
+    }
+  }, [open]);
+
+  const loadGyms = async () => {
+    setLoadingGyms(true);
+    try {
+      const allGyms = await getAllGyms();
+      setGyms(allGyms.filter(gym => !gym.isDeleted && gym.status === 'ACTIVE'));
+    } catch (error) {
+      console.error('Error loading gyms:', error);
+      toast.error('Failed to load gyms');
+    } finally {
+      setLoadingGyms(false);
+    }
+  };
 
   const validateForm = (): boolean => {
     const newErrors: Partial<FormData> = {};
@@ -93,7 +118,8 @@ const CreateUserModal = ({ open, onOpenChange, onUserCreated }: CreateUserModalP
         email: formData.email.trim(),
         password: formData.password,
         role: formData.role,
-        phone: formData.phone.trim() || undefined
+        phone: formData.phone.trim() || undefined,
+        gymIds: formData.gymIds.length > 0 ? formData.gymIds : undefined
       });
 
       toast.success(t("modals.createUser.userCreatedSuccess"));
@@ -114,10 +140,20 @@ const CreateUserModal = ({ open, onOpenChange, onUserCreated }: CreateUserModalP
       password: '',
       confirmPassword: '',
       role: 'AGENT',
-      phone: ''
+      phone: '',
+      gymIds: []
     });
     setErrors({});
     onOpenChange(false);
+  };
+
+  const handleGymToggle = (gymId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      gymIds: prev.gymIds.includes(gymId)
+        ? prev.gymIds.filter(id => id !== gymId)
+        : [...prev.gymIds, gymId]
+    }));
   };
 
   const handleInputChange = (field: keyof FormData, value: string) => {
@@ -208,6 +244,40 @@ const CreateUserModal = ({ open, onOpenChange, onUserCreated }: CreateUserModalP
                 className="pl-10"
               />
             </div>
+          </div>
+
+          {/* Gym Selection */}
+          <div className="space-y-2">
+            <Label>{t("modals.createUser.gymAccess")}</Label>
+            <div className="border rounded-md p-3 max-h-48 overflow-y-auto space-y-2">
+              {loadingGyms ? (
+                <p className="text-sm text-muted-foreground">{t("common.loading")}...</p>
+              ) : gyms.length === 0 ? (
+                <p className="text-sm text-muted-foreground">{t("modals.createUser.noGymsAvailable")}</p>
+              ) : (
+                gyms.map((gym) => (
+                  <div key={gym.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`gym-${gym.id}`}
+                      checked={formData.gymIds.includes(gym.id)}
+                      onCheckedChange={() => handleGymToggle(gym.id)}
+                    />
+                    <Label
+                      htmlFor={`gym-${gym.id}`}
+                      className="text-sm font-normal cursor-pointer flex items-center gap-2"
+                    >
+                      <Building2 className="h-4 w-4" />
+                      {gym.name}
+                    </Label>
+                  </div>
+                ))
+              )}
+            </div>
+            {formData.gymIds.length > 0 && (
+              <p className="text-xs text-muted-foreground">
+                {t("modals.createUser.selectedGyms", { count: formData.gymIds.length })}
+              </p>
+            )}
           </div>
 
           {/* Password */}

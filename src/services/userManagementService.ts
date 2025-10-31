@@ -20,6 +20,7 @@ export interface CreateUserData {
   password: string;
   role: 'ADMIN' | 'MANAGER' | 'AGENT';
   phone?: string;
+  gymIds?: string[]; // Array of gym IDs to assign user to
 }
 
 export interface UpdateUserData {

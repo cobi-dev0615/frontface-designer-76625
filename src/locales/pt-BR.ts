@@ -969,6 +969,9 @@ export const ptBR = {
         manager: 'Gerente - Gerenciamento de academia',
         admin: 'Admin - Acesso completo ao sistema',
       },
+      gymAccess: 'Acesso à Academia *',
+      noGymsAvailable: 'Nenhuma academia disponível',
+      selectedGyms: '{count} academia(s) selecionada(s)',
     },
     globalSearch: {
       title: 'Pesquisa Global',

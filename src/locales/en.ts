@@ -969,6 +969,9 @@ export const en = {
         manager: 'Manager - Gym management',
         admin: 'Admin - Full system access',
       },
+      gymAccess: 'Gym Access *',
+      noGymsAvailable: 'No gyms available',
+      selectedGyms: '{count} gym(s) selected',
     },
     globalSearch: {
       title: 'Global Search',
