@@ -145,6 +145,32 @@ const WhatsAppTab = () => {
       setIsTesting(false);
     }
   };
+
+  const handleActivate = async () => {
+    if (!selectedGym?.id) {
+      toast.error("No gym selected");
+      return;
+    }
+
+    // Validate that config exists
+    if (!whatsappConfig?.accessToken || !whatsappConfig?.phoneNumberId) {
+      toast.error("Please save the configuration first before activating");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      await whatsappConfigService.activateWhatsAppConfig(selectedGym.id);
+      toast.success(t("whatsapp.configurationActivated") || "WhatsApp configuration activated successfully!");
+      await loadWhatsAppConfig(); // Reload to get updated status
+    } catch (error: any) {
+      console.error('Error activating WhatsApp config:', error);
+      const errorMessage = error.response?.data?.message || error.message || "Failed to activate WhatsApp configuration";
+      toast.error(errorMessage);
+    } finally {
+      setIsSaving(false);
+    }
+  };
   
   return (
     <div className="space-y-6">
@@ -308,7 +334,7 @@ const WhatsAppTab = () => {
             <Info className="h-4 w-4 text-yellow-500" />
             {t("whatsapp.configurationWarning")}
           </p>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button onClick={handleSaveConfig} disabled={isSaving}>
               {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               {t("common.save")}
@@ -317,7 +343,27 @@ const WhatsAppTab = () => {
               {isTesting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <RefreshCcw className="h-4 w-4 mr-2" />}
               {t("whatsapp.testConnection")}
             </Button>
+            {whatsappConfig?.status === 'PENDING' && (
+              <Button 
+                variant="default" 
+                onClick={handleActivate} 
+                disabled={isSaving}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CheckCircle className="h-4 w-4 mr-2" />}
+                {t("whatsapp.activate") || "Activate WhatsApp"}
+              </Button>
+            )}
           </div>
+          
+          {whatsappConfig?.status === 'PENDING' && (
+            <div className="rounded-lg bg-yellow-50 dark:bg-yellow-950/20 p-3 border border-yellow-200 dark:border-yellow-900">
+              <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                <strong>{t("whatsapp.configurationPending") || "Configuration is pending activation."}</strong>{" "}
+                {t("whatsapp.clickActivateToEnable") || "Click 'Activate WhatsApp' after saving your configuration and testing the connection."}
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
 

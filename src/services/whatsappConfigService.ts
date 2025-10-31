@@ -50,6 +50,14 @@ export async function testWhatsAppConnection(gymId: string): Promise<ConnectionT
 }
 
 /**
+ * Activate WhatsApp configuration for a gym
+ */
+export async function activateWhatsAppConfig(gymId: string): Promise<WhatsAppConfigResponse> {
+  const response = await api.post(`/whatsapp/config/${gymId}/activate`);
+  return response.data.data;
+}
+
+/**
  * Delete WhatsApp configuration for a gym
  */
 export async function deleteWhatsAppConfig(gymId: string): Promise<{ deletedCount: number }> {
