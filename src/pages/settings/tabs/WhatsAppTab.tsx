@@ -49,12 +49,12 @@ const WhatsAppTab = () => {
           phoneNumber: '',
           phoneNumberId: '',
           businessAccountId: '',
+          accessToken: '',
+          webhookVerifyToken: '',
           status: 'PENDING',
           createdAt: '',
           updatedAt: ''
         });
-        // Note: accessToken and webhookVerifyToken are not returned from the API for security
-        // They need to be entered fresh each time or stored separately in state
         if (config) {
           setWebhookUrl(`https://api.duxfit.com/webhooks/whatsapp/${selectedGym.id}`);
         }
@@ -102,20 +102,7 @@ const WhatsAppTab = () => {
 
       await whatsappConfigService.saveWhatsAppConfig(configData);
       toast.success(t("whatsapp.configurationSaved"));
-      
-      // Preserve the tokens in state since API doesn't return them for security
-      const savedTokens = {
-        accessToken: currentAccessToken,
-        webhookVerifyToken: currentWebhookVerifyToken
-      };
-      
-      await loadWhatsAppConfig(); // Reload to get updated status
-      
-      // Restore the tokens after reload
-      setWhatsappConfig(prev => ({
-        ...prev || {},
-        ...savedTokens
-      }));
+      await loadWhatsAppConfig(); // Reload to get updated status with tokens from database
     } catch (error) {
       console.error('Error saving WhatsApp config:', error);
       toast.error(t("whatsapp.configurationSaveFailed"));

@@ -14,6 +14,8 @@ export interface WhatsAppConfigResponse {
   phoneNumber: string;
   phoneNumberId: string;
   businessAccountId: string;
+  accessToken?: string;
+  webhookVerifyToken?: string;
   status: string;
   createdAt: string;
   updatedAt: string;
