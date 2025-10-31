@@ -40,6 +40,8 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { getAllGyms, type Gym } from "@/services/gymService";
 import { useGymStore } from "@/store/gymStore";
 import CreateGymModal from "@/components/gyms/CreateGymModal";
+import EditGymModal from "@/components/gyms/EditGymModal";
+import DeleteGymDialog from "@/components/gyms/DeleteGymDialog";
 
 const GymManagement = () => {
   const { t } = useTranslation();
@@ -51,6 +53,10 @@ const GymManagement = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [isLoading, setIsLoading] = useState(true);
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [gymToEdit, setGymToEdit] = useState<Gym | null>(null);
+  const [gymToDelete, setGymToDelete] = useState<Gym | null>(null);
 
   useEffect(() => {
     loadGyms();
@@ -97,6 +103,26 @@ const GymManagement = () => {
     setSelectedGym(gym);
     navigate('/settings'); // Navigate to settings with this gym selected
     toast.success(t("gyms.configuringGym", { gymName: gym.name }));
+  };
+
+  const handleEditGym = (gym: Gym) => {
+    setGymToEdit(gym);
+    setEditModalOpen(true);
+  };
+
+  const handleDeleteGym = (gym: Gym) => {
+    setGymToDelete(gym);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleGymUpdated = () => {
+    setGymToEdit(null);
+    loadGyms();
+  };
+
+  const handleGymDeleted = () => {
+    setGymToDelete(null);
+    loadGyms();
   };
 
   const getStatusBadgeColor = (status: string) => {
@@ -250,12 +276,15 @@ const GymManagement = () => {
                           <SettingsIcon className="h-4 w-4 mr-2" />
                           {t("gyms.configure")}
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEditGym(gym)}>
                           <Edit className="h-4 w-4 mr-2" />
                           {t("gyms.editDetails")}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive">
+                        <DropdownMenuItem 
+                          className="text-destructive"
+                          onClick={() => handleDeleteGym(gym)}
+                        >
                           <Trash2 className="h-4 w-4 mr-2" />
                           {t("gyms.deleteGym")}
                         </DropdownMenuItem>
@@ -342,6 +371,28 @@ const GymManagement = () => {
         open={createModalOpen}
         onOpenChange={setCreateModalOpen}
         onGymCreated={loadGyms}
+      />
+
+      {/* Edit Gym Modal */}
+      <EditGymModal
+        open={editModalOpen}
+        onOpenChange={(open) => {
+          setEditModalOpen(open);
+          if (!open) setGymToEdit(null);
+        }}
+        gym={gymToEdit}
+        onGymUpdated={handleGymUpdated}
+      />
+
+      {/* Delete Gym Dialog */}
+      <DeleteGymDialog
+        open={deleteDialogOpen}
+        onOpenChange={(open) => {
+          setDeleteDialogOpen(open);
+          if (!open) setGymToDelete(null);
+        }}
+        gym={gymToDelete}
+        onGymDeleted={handleGymDeleted}
       />
     </div>
   );
