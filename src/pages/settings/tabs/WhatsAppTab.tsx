@@ -273,7 +273,7 @@ const WhatsAppTab = () => {
               <Label htmlFor="access-token">{t("whatsapp.accessToken")}</Label>
               <Input
                 id="access-token"
-                type="password"
+                type="text"
                 placeholder={t("whatsapp.accessTokenPlaceholder")}
                 value={whatsappConfig?.accessToken || ''}
                 onChange={(e) => setWhatsappConfig(prev => ({ 
@@ -304,7 +304,7 @@ const WhatsAppTab = () => {
               <Label htmlFor="webhook-verify-token">{t("whatsapp.webhookVerifyToken")}</Label>
               <Input
                 id="webhook-verify-token"
-                type="password"
+                type="text"
                 placeholder={t("whatsapp.webhookVerifyTokenPlaceholder")}
                 value={whatsappConfig?.webhookVerifyToken || ''}
                 onChange={(e) => setWhatsappConfig(prev => ({ 
