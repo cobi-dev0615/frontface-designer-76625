@@ -16,7 +16,6 @@ import LeadsList from "./pages/leads/LeadsList";
 import LeadDetail from "./pages/leads/LeadDetail";
 import ConversationsList from "./pages/conversations/ConversationsList";
 import ConversationView from "./pages/conversations/ConversationView";
-import PlanManagement from "./pages/plans/PlanManagement";
 import FollowUpManagement from "./pages/followups/FollowUpManagement";
 import AnalyticsPage from "./pages/analytics/AnalyticsPage";
 import NotificationsCenter from "./pages/notifications/NotificationsCenter";
@@ -71,7 +70,6 @@ const AppContent = () => {
         <Route path="/leads/:id" element={<LeadDetail />} />
         <Route path="/conversations" element={<ConversationsList />} />
         <Route path="/conversations/:id" element={<ConversationView />} />
-        <Route path="/plans" element={<PlanManagement />} />
         <Route path="/followups" element={<FollowUpManagement />} />
         <Route path="/analytics" element={<AnalyticsPage />} />
         <Route path="/notifications" element={<NotificationsCenter />} />

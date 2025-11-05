@@ -331,10 +331,6 @@ const GymManagement = () => {
                       <div className="text-lg font-bold">{gym._count?.users || 0}</div>
                       <div className="text-xs text-muted-foreground">{t("gyms.staff")}</div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-lg font-bold">{gym._count?.plans || 0}</div>
-                      <div className="text-xs text-muted-foreground">{t("gyms.plans")}</div>
-                    </div>
                   </div>
 
                   {/* Action Button */}

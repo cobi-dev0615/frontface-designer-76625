@@ -12,8 +12,7 @@ import {
   FileText,
   User,
   UserCog,
-  Activity,
-  CreditCard
+  Activity
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -31,7 +30,6 @@ const getNavigation = (t: (key: string) => string) => [
   { name: t("navigation.reports"), href: "/reports", icon: FileText },
   { name: t("navigation.notifications"), href: "/notifications", icon: Bell },
   { name: t("navigation.gyms"), href: "/gyms", icon: Dumbbell },
-  { name: t("navigation.plans"), href: "/plans", icon: CreditCard },
   { name: t("navigation.user"), href: "/users", icon: UserCog },
   { name: t("navigation.profile"), href: "/profile", icon: User },
   { name: t("navigation.settings"), href: "/settings", icon: Settings },

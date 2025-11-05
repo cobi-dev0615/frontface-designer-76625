@@ -18,19 +18,6 @@ export interface Gym {
   isDeleted: boolean;
 }
 
-export interface Plan {
-  id: string;
-  gymId: string;
-  name: string;
-  description?: string | null;
-  price: number;
-  duration: number;
-  features?: any;
-  active: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export interface CreateGymData {
   name: string;
   slug: string;
@@ -55,23 +42,6 @@ export interface UpdateGymData {
   logo?: string;
   status?: 'ACTIVE' | 'INACTIVE' | 'TRIAL';
   settings?: any;
-}
-
-export interface CreatePlanData {
-  name: string;
-  description?: string;
-  price: number;
-  duration: number;
-  features?: any;
-}
-
-export interface UpdatePlanData {
-  name?: string;
-  description?: string;
-  price?: number;
-  duration?: number;
-  features?: any;
-  active?: boolean;
 }
 
 /**
@@ -127,35 +97,4 @@ export const deleteGym = async (gymId: string) => {
 export const updateGymSettings = async (gymId: string, settings: any) => {
   const response = await api.patch(`/gyms/${gymId}/settings`, { settings });
   return response.data.data;
-};
-
-/**
- * Get gym plans
- */
-export const getGymPlans = async (gymId: string, activeOnly: boolean = false) => {
-  const response = await api.get(`/gyms/${gymId}/plans`, { params: { activeOnly } });
-  return response.data.data;
-};
-
-/**
- * Create plan
- */
-export const createPlan = async (gymId: string, planData: CreatePlanData) => {
-  const response = await api.post(`/gyms/${gymId}/plans`, planData);
-  return response.data.data;
-};
-
-/**
- * Update plan
- */
-export const updatePlan = async (gymId: string, planId: string, planData: UpdatePlanData) => {
-  const response = await api.put(`/gyms/${gymId}/plans/${planId}`, planData);
-  return response.data.data;
-};
-
-/**
- * Delete plan
- */
-export const deletePlan = async (gymId: string, planId: string) => {
-  await api.delete(`/gyms/${gymId}/plans/${planId}`);
 };

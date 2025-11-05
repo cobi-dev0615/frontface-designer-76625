@@ -10,16 +10,21 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { getGymById } from "@/services/gymService";
 import * as whatsappConfigService from "@/services/whatsappConfigService";
+import { useAuthStore } from "@/store/authStore";
 
 const WhatsAppTab = () => {
   const { t } = useTranslation();
   const { selectedGym } = useGymStore();
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === 'ADMIN';
+  
   const [gymData, setGymData] = useState<any>(null);
   const [whatsappConfig, setWhatsappConfig] = useState<any>(null);
+  const [metaConfig, setMetaConfig] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSavingMeta, setIsSavingMeta] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
-  const [webhookUrl, setWebhookUrl] = useState("https://api.duxfit.com/webhooks/whatsapp");
 
   useEffect(() => {
     if (selectedGym?.id) {
@@ -48,16 +53,11 @@ const WhatsAppTab = () => {
           id: '',
           phoneNumber: '',
           phoneNumberId: '',
-          businessAccountId: '',
           accessToken: '',
-          webhookVerifyToken: '',
           status: 'PENDING',
           createdAt: '',
           updatedAt: ''
         });
-        if (config) {
-          setWebhookUrl(`https://api.duxfit.com/webhooks/whatsapp/${selectedGym.id}`);
-        }
       }
     } catch (error) {
       console.error('Error loading WhatsApp config:', error);
@@ -66,8 +66,38 @@ const WhatsAppTab = () => {
     }
   };
 
+  const loadMetaConfig = async () => {
+    try {
+      const config = await whatsappConfigService.getWhatsAppMetaConfig();
+      setMetaConfig(config || {
+        id: '',
+        metaBusinessManagerId: '',
+        metaAppId: '',
+        metaAppSecret: '',
+        webhookVerifyToken: '',
+        webhookUrl: 'https://api.duxfit.com/webhooks/whatsapp',
+        createdAt: '',
+        updatedAt: ''
+      });
+    } catch (error) {
+      console.error('Error loading Meta config:', error);
+      // If no config exists, initialize empty
+      setMetaConfig({
+        id: '',
+        metaBusinessManagerId: '',
+        metaAppId: '',
+        metaAppSecret: '',
+        webhookVerifyToken: '',
+        webhookUrl: 'https://api.duxfit.com/webhooks/whatsapp',
+        createdAt: '',
+        updatedAt: ''
+      });
+    }
+  };
+
   const handleCopyWebhookUrl = () => {
-    navigator.clipboard.writeText(webhookUrl);
+    const url = metaConfig?.webhookUrl || `https://api.duxfit.com/webhooks/whatsapp/${selectedGym?.id}`;
+    navigator.clipboard.writeText(url);
     toast.success(t("whatsapp.webhookUrlCopied"));
   };
 
@@ -79,12 +109,10 @@ const WhatsAppTab = () => {
 
     // Get current values from state (these should have the latest input values)
     const currentAccessToken = whatsappConfig?.accessToken || "";
-    const currentWebhookVerifyToken = whatsappConfig?.webhookVerifyToken || "";
     const currentPhoneNumberId = whatsappConfig?.phoneNumberId || "";
-    const currentBusinessAccountId = whatsappConfig?.businessAccountId || "";
 
     // Validate required fields
-    if (!currentAccessToken || !currentPhoneNumberId || !currentBusinessAccountId) {
+    if (!currentAccessToken || !currentPhoneNumberId) {
       toast.error(t("whatsapp.configurationSaveFailed") || "Please fill in all required fields");
       return;
     }
@@ -95,9 +123,7 @@ const WhatsAppTab = () => {
         gymId: selectedGym.id,
         phoneNumber: gymData?.phone || selectedGym?.phone || "",
         phoneNumberId: currentPhoneNumberId,
-        businessAccountId: currentBusinessAccountId,
         accessToken: currentAccessToken,
-        webhookVerifyToken: currentWebhookVerifyToken || undefined,
       };
 
       await whatsappConfigService.saveWhatsAppConfig(configData);
@@ -108,6 +134,33 @@ const WhatsAppTab = () => {
       toast.error(t("whatsapp.configurationSaveFailed"));
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleSaveMetaConfig = async () => {
+    if (!isAdmin) {
+      toast.error("Admin access required");
+      return;
+    }
+
+    setIsSavingMeta(true);
+    try {
+      const metaData = {
+        metaBusinessManagerId: metaConfig?.metaBusinessManagerId || undefined,
+        metaAppId: metaConfig?.metaAppId || undefined,
+        metaAppSecret: metaConfig?.metaAppSecret || undefined,
+        webhookVerifyToken: metaConfig?.webhookVerifyToken || undefined,
+        webhookUrl: metaConfig?.webhookUrl || undefined,
+      };
+
+      await whatsappConfigService.updateWhatsAppMetaConfig(metaData);
+      toast.success(t("whatsapp.metaConfigSaved") || "Meta configuration saved successfully!");
+      await loadMetaConfig();
+    } catch (error) {
+      console.error('Error saving Meta config:', error);
+      toast.error(t("whatsapp.metaConfigSaveFailed") || "Failed to save Meta configuration");
+    } finally {
+      setIsSavingMeta(false);
     }
   };
 
@@ -248,11 +301,112 @@ const WhatsAppTab = () => {
             </Card>
           </div>
 
-      {/* WhatsApp Configuration */}
+      {/* Meta Configuration (Shared Settings - Admin Only) */}
+      {isAdmin && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MessageSquare className="h-5 w-5" />
+              {t("whatsapp.metaConfiguration") || "Meta Configuration (Shared)"}
+            </CardTitle>
+            <CardDescription>
+              {t("whatsapp.metaConfigurationDescription") || "These settings are shared across all gyms. Configure once for your entire application."}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="meta-business-manager-id">{t("whatsapp.metaBusinessManagerId") || "Meta Business Manager ID"}</Label>
+                <Input
+                  id="meta-business-manager-id"
+                  type="text"
+                  placeholder={t("whatsapp.metaBusinessManagerIdPlaceholder") || "Enter your Meta Business Manager ID"}
+                  value={metaConfig?.metaBusinessManagerId || ''}
+                  onChange={(e) => setMetaConfig(prev => ({ 
+                    ...prev || {}, 
+                    metaBusinessManagerId: e.target.value 
+                  }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="meta-app-id">{t("whatsapp.metaAppId") || "Meta App ID"}</Label>
+                <Input
+                  id="meta-app-id"
+                  type="text"
+                  placeholder={t("whatsapp.metaAppIdPlaceholder") || "Enter your Meta App ID"}
+                  value={metaConfig?.metaAppId || ''}
+                  onChange={(e) => setMetaConfig(prev => ({ 
+                    ...prev || {}, 
+                    metaAppId: e.target.value 
+                  }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="meta-app-secret">{t("whatsapp.metaAppSecret") || "Meta App Secret"}</Label>
+                <Input
+                  id="meta-app-secret"
+                  type="text"
+                  placeholder={t("whatsapp.metaAppSecretPlaceholder") || "Enter your Meta App Secret"}
+                  value={metaConfig?.metaAppSecret || ''}
+                  onChange={(e) => setMetaConfig(prev => ({ 
+                    ...prev || {}, 
+                    metaAppSecret: e.target.value 
+                  }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="webhook-verify-token">{t("whatsapp.webhookVerifyToken")}</Label>
+                <Input
+                  id="webhook-verify-token"
+                  type="text"
+                  placeholder={t("whatsapp.webhookVerifyTokenPlaceholder")}
+                  value={metaConfig?.webhookVerifyToken || ''}
+                  onChange={(e) => setMetaConfig(prev => ({ 
+                    ...prev || {}, 
+                    webhookVerifyToken: e.target.value 
+                  }))}
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="webhook-url">{t("whatsapp.webhookUrl")}</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="webhook-url"
+                  value={metaConfig?.webhookUrl || 'https://api.duxfit.com/webhooks/whatsapp'}
+                  onChange={(e) => setMetaConfig(prev => ({ 
+                    ...prev || {}, 
+                    webhookUrl: e.target.value 
+                  }))}
+                  placeholder="https://api.duxfit.com/webhooks/whatsapp"
+                />
+                <Button variant="outline" size="sm" onClick={handleCopyWebhookUrl}>
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {t("whatsapp.webhookUrlDescription") || "This URL is used for all gyms. Use this in your Meta Business Manager webhook configuration."}
+              </p>
+            </div>
+
+            <div className="flex gap-2">
+              <Button onClick={handleSaveMetaConfig} disabled={isSavingMeta}>
+                {isSavingMeta ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                {t("common.save")} {t("whatsapp.metaConfig") || "Meta Config"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Gym-Specific WhatsApp Configuration */}
       <Card>
         <CardHeader>
-          <CardTitle>{t("whatsapp.configuration")}</CardTitle>
-          <CardDescription>{t("whatsapp.configurationDescription")}</CardDescription>
+          <CardTitle>{t("whatsapp.gymConfiguration") || t("whatsapp.configuration")}</CardTitle>
+          <CardDescription>
+            {t("whatsapp.gymConfigurationDescription") || t("whatsapp.configurationDescription")}
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
@@ -268,6 +422,9 @@ const WhatsAppTab = () => {
                   accessToken: e.target.value 
                 }))}
               />
+              <p className="text-xs text-muted-foreground">
+                {t("whatsapp.perGymAccessToken") || "Permanent access token for this specific gym"}
+              </p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="phone-number-id">{t("whatsapp.phoneNumberId")}</Label>
@@ -277,43 +434,9 @@ const WhatsAppTab = () => {
                 value={whatsappConfig?.phoneNumberId || ''}
                 onChange={(e) => setWhatsappConfig(prev => ({ ...prev, phoneNumberId: e.target.value }))}
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="business-account-id">{t("whatsapp.businessAccountId")}</Label>
-              <Input
-                id="business-account-id"
-                placeholder={t("whatsapp.businessAccountIdPlaceholder")}
-                value={whatsappConfig?.businessAccountId || ''}
-                onChange={(e) => setWhatsappConfig(prev => ({ ...prev, businessAccountId: e.target.value }))}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="webhook-verify-token">{t("whatsapp.webhookVerifyToken")}</Label>
-              <Input
-                id="webhook-verify-token"
-                type="text"
-                placeholder={t("whatsapp.webhookVerifyTokenPlaceholder")}
-                value={whatsappConfig?.webhookVerifyToken || ''}
-                onChange={(e) => setWhatsappConfig(prev => ({ 
-                  ...prev || {}, 
-                  webhookVerifyToken: e.target.value 
-                }))}
-              />
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="webhook-url">{t("whatsapp.webhookUrl")}</Label>
-            <div className="flex gap-2">
-              <Input
-                id="webhook-url"
-                value={webhookUrl}
-                onChange={(e) => setWebhookUrl(e.target.value)}
-                placeholder="https://api.duxfit.com/webhooks/whatsapp"
-              />
-              <Button variant="outline" size="sm" onClick={handleCopyWebhookUrl}>
-                <Copy className="h-4 w-4" />
-              </Button>
+              <p className="text-xs text-muted-foreground">
+                {t("whatsapp.perGymPhoneNumberId") || "Phone Number ID assigned by Meta for this gym"}
+              </p>
             </div>
           </div>
           
