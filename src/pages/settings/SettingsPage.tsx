@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Building2, Bot, MessageSquare, Users, Plug, Dumbbell } from "lucide-react";
+import { Bot, MessageSquare, Users, Plug, Dumbbell } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
@@ -9,7 +9,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import GymConfigTab from "./tabs/GymConfigTab";
 import AIPromptsTab from "./tabs/AIPromptsTab";
 import WhatsAppTab from "./tabs/WhatsAppTab";
 import UsersTab from "./tabs/UsersTab";
@@ -21,7 +20,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 
 const SettingsPage = () => {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState("gym");
+  const [activeTab, setActiveTab] = useState("ai");
   const { selectedGym, setSelectedGym, gyms, setGyms } = useGymStore();
 
   useEffect(() => {
@@ -78,11 +77,7 @@ const SettingsPage = () => {
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6 lg:w-auto">
-          <TabsTrigger value="gym" className="gap-2">
-            <Building2 className="h-4 w-4" />
-            <span className="hidden sm:inline">{t("settings.gymConfig")}</span>
-          </TabsTrigger>
+        <TabsList className="grid w-full grid-cols-5 lg:w-auto">
           <TabsTrigger value="ai" className="gap-2">
             <Bot className="h-4 w-4" />
             <span className="hidden sm:inline">{t("settings.aiPrompts")}</span>
@@ -104,10 +99,6 @@ const SettingsPage = () => {
             <span className="hidden sm:inline">{t("settings.evo")}</span>
           </TabsTrigger>
         </TabsList>
-
-        <TabsContent value="gym">
-          <GymConfigTab />
-        </TabsContent>
 
         <TabsContent value="ai">
           <AIPromptsTab />

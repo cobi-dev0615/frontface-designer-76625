@@ -1,4 +1,4 @@
-import { CheckCircle, MessageSquare, Loader2, Info, RefreshCcw } from "lucide-react";
+import { CheckCircle, MessageSquare, Loader2, RefreshCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +10,35 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { getGymById } from "@/services/gymService";
 import * as whatsappConfigService from "@/services/whatsappConfigService";
+
+const BRAZIL_COUNTRY_CODE = "+55";
+
+const normalizePhoneNumber = (value?: string | null) => {
+  if (!value) return "";
+  const digitsOnly = value.replace(/[^\d]/g, "");
+  if (!digitsOnly) return "";
+  const withoutCountry = digitsOnly.startsWith("55") ? digitsOnly.slice(2) : digitsOnly;
+  if (!withoutCountry) return "";
+  return `${BRAZIL_COUNTRY_CODE}${withoutCountry}`;
+};
+
+const extractLocalPhoneNumber = (value?: string | null) => {
+  if (!value) return "";
+  return value.startsWith(BRAZIL_COUNTRY_CODE)
+    ? value.slice(BRAZIL_COUNTRY_CODE.length)
+    : value;
+};
+
+const buildDefaultConfig = (overrides: Partial<Record<string, any>> = {}) => ({
+  id: "",
+  phoneNumber: "",
+  phoneNumberId: "",
+  accessToken: "",
+  status: "PENDING",
+  createdAt: "",
+  updatedAt: "",
+  ...overrides,
+});
 const WhatsAppTab = () => {
   const { t } = useTranslation();
   const { selectedGym } = useGymStore();
@@ -41,16 +70,24 @@ const WhatsAppTab = () => {
     try {
       if (selectedGym?.id) {
         const config = await whatsappConfigService.getWhatsAppConfig(selectedGym.id);
-        // Initialize with empty values if config doesn't exist, preserving structure
-        setWhatsappConfig(config || {
-          id: '',
-          phoneNumber: '',
-          phoneNumberId: '',
-          accessToken: '',
-          status: 'PENDING',
-          createdAt: '',
-          updatedAt: ''
-        });
+        const normalizedPhone = normalizePhoneNumber(
+          (config && config.phoneNumber) || selectedGym?.phone || ""
+        );
+
+        if (config) {
+          setWhatsappConfig(
+            buildDefaultConfig({
+              ...config,
+              phoneNumber: normalizedPhone,
+            })
+          );
+        } else {
+          setWhatsappConfig(
+            buildDefaultConfig({
+              phoneNumber: normalizedPhone,
+            })
+          );
+        }
       }
     } catch (error) {
       console.error('Error loading WhatsApp config:', error);
@@ -68,9 +105,18 @@ const WhatsAppTab = () => {
     // Get current values from state (these should have the latest input values)
     const currentAccessToken = whatsappConfig?.accessToken || "";
     const currentPhoneNumberId = whatsappConfig?.phoneNumberId || "";
+    const fallbackPhoneNumber = normalizePhoneNumber(
+      gymData?.phone || selectedGym?.phone || ""
+    );
+    const rawPhoneNumber =
+      whatsappConfig?.phoneNumber && whatsappConfig.phoneNumber.trim() !== ""
+        ? whatsappConfig.phoneNumber
+        : fallbackPhoneNumber;
+    const currentPhoneNumber = normalizePhoneNumber(rawPhoneNumber);
+    const localPhoneNumberPart = extractLocalPhoneNumber(currentPhoneNumber);
 
     // Validate required fields
-    if (!currentAccessToken || !currentPhoneNumberId) {
+    if (!currentAccessToken || !currentPhoneNumberId || !localPhoneNumberPart) {
       toast.error(t("whatsapp.configurationSaveFailed") || "Please fill in all required fields");
       return;
     }
@@ -79,7 +125,7 @@ const WhatsAppTab = () => {
     try {
       const configData = {
         gymId: selectedGym.id,
-        phoneNumber: gymData?.phone || selectedGym?.phone || "",
+        phoneNumber: currentPhoneNumber,
         phoneNumberId: currentPhoneNumberId,
         accessToken: currentAccessToken,
       };
@@ -125,7 +171,7 @@ const WhatsAppTab = () => {
 
     // Validate that config exists
     if (!whatsappConfig?.accessToken || !whatsappConfig?.phoneNumberId) {
-      toast.error("Please save the configuration first before activating");
+      toast.error(t("whatsapp.saveBeforeActivate") || "Please save the configuration first before activating");
       return;
     }
 
@@ -143,6 +189,13 @@ const WhatsAppTab = () => {
     }
   };
   
+  const fallbackPhoneNumber = normalizePhoneNumber(
+    gymData?.phone || selectedGym?.phone || ""
+  );
+  const displayedPhoneNumber =
+    whatsappConfig?.phoneNumber ?? fallbackPhoneNumber;
+  const localPhoneNumber = extractLocalPhoneNumber(displayedPhoneNumber);
+
   return (
     <div className="space-y-6">
       {isLoading ? (
@@ -152,150 +205,170 @@ const WhatsAppTab = () => {
         </div>
       ) : (
         <>
-          {/* Connection Status and Phone Settings - Horizontal Layout */}
           <div className="grid gap-6 lg:grid-cols-2">
-            {/* Left Column: Connection Status */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MessageSquare className="h-5 w-5" />
-{t("whatsapp.whatsappConnectionStatus")}
+                  {t("whatsapp.whatsappConnectionStatus")}
                 </CardTitle>
                 <CardDescription>{t("whatsapp.manageWhatsAppBusinessApi")}</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-col items-center justify-center py-8 space-y-4">
-                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-500/10">
-                    <CheckCircle className="h-10 w-10 text-green-500" />
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-wrap items-center gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500/10">
+                        <CheckCircle className="h-8 w-8 text-green-500" />
+                      </div>
+                      <div className="space-y-1">
+                        <h3 className="text-xl font-semibold">
+                          {gymData?.name || selectedGym?.name || t("whatsapp.whatsappConnected")}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          {displayedPhoneNumber || "+55 11999999999"}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge className="bg-green-500">
+                      {whatsappConfig?.status === "ACTIVE" ? t("whatsapp.active") : t("whatsapp.pending")}
+                    </Badge>
+                    <p className="text-sm text-muted-foreground">
+                      {t("whatsapp.lastMessage", { time: "2 minutes ago" })}
+                    </p>
                   </div>
-                  <div className="text-center space-y-2">
-                    <h3 className="text-2xl font-bold">{gymData?.name || selectedGym?.name || t("whatsapp.whatsappConnected")}</h3>
-                    <p className="text-lg">{gymData?.phone || selectedGym?.phone || "+55 (86) 99123-4567"}</p>
-                    <Badge className="bg-green-500">{whatsappConfig?.status === 'ACTIVE' ? t("whatsapp.active") : t("whatsapp.pending")}</Badge>
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    {whatsappConfig?.status === "PENDING" && (
+                      <Button
+                        variant="default"
+                        onClick={handleActivate}
+                        disabled={isSaving}
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        {isSaving ? (
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        ) : (
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                        )}
+                        {t("whatsapp.activate") || "Activate WhatsApp"}
+                      </Button>
+                    )}
+                    <Button variant="outline" className="text-destructive hover:text-destructive">
+                      {t("whatsapp.disconnectWhatsapp")}
+                    </Button>
                   </div>
-                  <p className="text-sm text-muted-foreground">{t("whatsapp.lastMessage", { time: "2 minutes ago" })}</p>
-                  <Button variant="outline" className="text-destructive hover:text-destructive">
-                    {t("whatsapp.disconnectWhatsapp")}
-                  </Button>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Right Column: Phone Number Settings */}
             <Card>
               <CardHeader>
                 <CardTitle>{t("whatsapp.phoneNumberSettings")}</CardTitle>
                 <CardDescription>{t("whatsapp.configureWhatsAppBusinessNumber")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="phone-number">{t("whatsapp.phoneNumber")}</Label>
-                  <div className="flex gap-2">
-                    <Input id="phone-number" defaultValue={gymData?.phone || selectedGym?.phone || "+55 (86) 99123-4567"} readOnly />
-                    <Badge className="bg-green-500 flex items-center gap-1 px-3">
-                      <CheckCircle className="h-3 w-3" />
-{whatsappConfig?.status === 'ACTIVE' ? t("whatsapp.verified") : t("whatsapp.pending")}
-                    </Badge>
+                <div className="grid gap-4">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="phone-number">{t("whatsapp.phoneNumber")}</Label>
+                      <div className="flex">
+                        <span className="inline-flex items-center rounded-md rounded-r-none border border-input bg-muted px-3 text-sm text-muted-foreground">
+                          {BRAZIL_COUNTRY_CODE}
+                        </span>
+                        <Input
+                          id="phone-number"
+                          value={localPhoneNumber}
+                          placeholder="11 99999-9999"
+                          inputMode="numeric"
+                          onChange={(e) => {
+                            const normalized = normalizePhoneNumber(e.target.value);
+                            setWhatsappConfig((prev: any) =>
+                              prev
+                                ? {
+                                    ...prev,
+                                    phoneNumber: normalized,
+                                  }
+                                : buildDefaultConfig({
+                                    phoneNumber: normalized,
+                                  })
+                            );
+                          }}
+                          className="rounded-l-none"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone-number-id">{t("whatsapp.phoneNumberId")}</Label>
+                      <Input
+                        id="phone-number-id"
+                        placeholder={t("whatsapp.phoneNumberIdPlaceholder")}
+                        value={whatsappConfig?.phoneNumberId || ""}
+                        onChange={(e) =>
+                          setWhatsappConfig((prev: any) =>
+                            prev
+                              ? {
+                                  ...prev,
+                                  phoneNumberId: e.target.value,
+                                }
+                              : buildDefaultConfig({
+                                  phoneNumberId: e.target.value,
+                                })
+                          )
+                        }
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        {t("whatsapp.perGymPhoneNumberId") ||
+                          "Phone Number ID assigned by Meta for this gym"}
+                      </p>
+                    </div>
                   </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="access-token">{t("whatsapp.accessToken")}</Label>
+                      <Input
+                        id="access-token"
+                        type="text"
+                        placeholder={t("whatsapp.accessTokenPlaceholder")}
+                        value={whatsappConfig?.accessToken || ""}
+                        onChange={(e) =>
+                          setWhatsappConfig((prev: any) =>
+                            prev
+                              ? {
+                                  ...prev,
+                                  accessToken: e.target.value,
+                                }
+                              : buildDefaultConfig({
+                                  accessToken: e.target.value,
+                                })
+                          )
+                        }
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        {t("whatsapp.perGymAccessToken") || "Permanent access token for this specific gym"}
+                      </p>
+                    </div>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="display-name">{t("whatsapp.displayName")}</Label>
-                  <Input id="display-name" defaultValue={gymData?.name || selectedGym?.name || "DuxFit Piauí"} maxLength={25} />
-                  <p className="text-xs text-muted-foreground">{t("whatsapp.maximum25Characters")}</p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="business-description">{t("whatsapp.businessProfileDescription")}</Label>
-                  <textarea
-                    id="business-description"
-                    className="w-full min-h-[100px] px-3 py-2 text-sm border border-input rounded-md bg-background"
-                    defaultValue={t("whatsapp.businessDescriptionPlaceholder")}
-                    maxLength={256}
-                  />
-                  <p className="text-xs text-muted-foreground">{t("whatsapp.maximum256Characters")}</p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="business-category">{t("whatsapp.businessCategory")}</Label>
-                  <select
-                    id="business-category"
-                    className="w-full px-3 py-2 text-sm border border-input rounded-md bg-background"
-                    defaultValue="gym"
-                  >
-                    <option value="gym">{t("whatsapp.gymFitnessCenter")}</option>
-                    <option value="health">{t("whatsapp.healthWellness")}</option>
-                    <option value="sports">{t("whatsapp.sportsRecreation")}</option>
-                  </select>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <Badge className="bg-green-500 flex items-center gap-1 px-3">
+                    <CheckCircle className="h-3 w-3" />
+                    {whatsappConfig?.status === "ACTIVE" ? t("whatsapp.verified") : t("whatsapp.pending")}
+                  </Badge>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button variant="outline" onClick={handleTestConnection} disabled={isTesting}>
+                      {isTesting ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : (
+                        <RefreshCcw className="h-4 w-4 mr-2" />
+                      )}
+                      {t("whatsapp.testConnection")}
+                    </Button>
+                    <Button onClick={handleSaveConfig} disabled={isSaving}>
+                      {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                      {t("common.save")}
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
-          </div>
-
-      {/* Gym-Specific WhatsApp Configuration */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("whatsapp.gymConfiguration") || t("whatsapp.configuration")}</CardTitle>
-          <CardDescription>
-            {t("whatsapp.gymConfigurationDescription") || t("whatsapp.configurationDescription")}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="access-token">{t("whatsapp.accessToken")}</Label>
-              <Input
-                id="access-token"
-                type="text"
-                placeholder={t("whatsapp.accessTokenPlaceholder")}
-                value={whatsappConfig?.accessToken || ''}
-                onChange={(e) => setWhatsappConfig(prev => ({ 
-                  ...prev || {}, 
-                  accessToken: e.target.value 
-                }))}
-              />
-              <p className="text-xs text-muted-foreground">
-                {t("whatsapp.perGymAccessToken") || "Permanent access token for this specific gym"}
-              </p>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone-number-id">{t("whatsapp.phoneNumberId")}</Label>
-              <Input
-                id="phone-number-id"
-                placeholder={t("whatsapp.phoneNumberIdPlaceholder")}
-                value={whatsappConfig?.phoneNumberId || ''}
-                onChange={(e) => setWhatsappConfig(prev => ({ ...prev, phoneNumberId: e.target.value }))}
-              />
-              <p className="text-xs text-muted-foreground">
-                {t("whatsapp.perGymPhoneNumberId") || "Phone Number ID assigned by Meta for this gym"}
-              </p>
-            </div>
-          </div>
-          
-          <p className="text-sm text-muted-foreground flex items-center gap-1">
-            <Info className="h-4 w-4 text-yellow-500" />
-            {t("whatsapp.configurationWarning")}
-          </p>
-          <div className="flex gap-2 flex-wrap">
-            <Button onClick={handleSaveConfig} disabled={isSaving}>
-              {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              {t("common.save")}
-            </Button>
-            <Button variant="outline" onClick={handleTestConnection} disabled={isTesting}>
-              {isTesting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <RefreshCcw className="h-4 w-4 mr-2" />}
-              {t("whatsapp.testConnection")}
-            </Button>
-            {whatsappConfig?.status === 'PENDING' && (
-              <Button 
-                variant="default" 
-                onClick={handleActivate} 
-                disabled={isSaving}
-                className="bg-green-600 hover:bg-green-700"
-              >
-                {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CheckCircle className="h-4 w-4 mr-2" />}
-                {t("whatsapp.activate") || "Activate WhatsApp"}
-              </Button>
-            )}
           </div>
           
           {whatsappConfig?.status === 'PENDING' && (
@@ -306,14 +379,6 @@ const WhatsAppTab = () => {
               </p>
             </div>
           )}
-        </CardContent>
-      </Card>
-
-      {/* Footer Actions */}
-      <div className="sticky bottom-0 bg-background border-t border-border p-4 flex items-center justify-between shadow-lg rounded-t-lg">
-        <p className="text-sm text-muted-foreground">{t("whatsapp.lastSaved")} {t("whatsapp.autoSaved")}</p>
-        <Button variant="gradient">{t("whatsapp.saveConfiguration")}</Button>
-      </div>
         </>
       )}
     </div>

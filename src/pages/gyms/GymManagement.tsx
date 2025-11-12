@@ -11,7 +11,6 @@ import {
   Mail,
   Users,
   TrendingUp,
-  Settings as SettingsIcon,
   RefreshCw
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,18 +34,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "@/hooks/useTranslation";
 import { getAllGyms, type Gym } from "@/services/gymService";
-import { useGymStore } from "@/store/gymStore";
 import CreateGymModal from "@/components/gyms/CreateGymModal";
 import EditGymModal from "@/components/gyms/EditGymModal";
 import DeleteGymDialog from "@/components/gyms/DeleteGymDialog";
 
 const GymManagement = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const { setSelectedGym } = useGymStore();
   const [gyms, setGyms] = useState<Gym[]>([]);
   const [filteredGyms, setFilteredGyms] = useState<Gym[]>([]);
   const [searchInput, setSearchInput] = useState('');
@@ -97,12 +92,6 @@ const GymManagement = () => {
     }
 
     setFilteredGyms(filtered);
-  };
-
-  const handleConfigureGym = (gym: Gym) => {
-    setSelectedGym(gym);
-    navigate('/settings'); // Navigate to settings with this gym selected
-    toast.success(t("gyms.configuringGym", { gymName: gym.name }));
   };
 
   const handleEditGym = (gym: Gym) => {
@@ -272,10 +261,6 @@ const GymManagement = () => {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>{t("gyms.actions")}</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => handleConfigureGym(gym)}>
-                          <SettingsIcon className="h-4 w-4 mr-2" />
-                          {t("gyms.configure")}
-                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleEditGym(gym)}>
                           <Edit className="h-4 w-4 mr-2" />
                           {t("gyms.editDetails")}
@@ -337,10 +322,10 @@ const GymManagement = () => {
                   <Button 
                     variant="outline" 
                     className="w-full mt-3"
-                    onClick={() => handleConfigureGym(gym)}
+                    onClick={() => handleEditGym(gym)}
                   >
-                    <SettingsIcon className="h-4 w-4 mr-2" />
-                    {t("gyms.configure")}
+                    <Edit className="h-4 w-4 mr-2" />
+                    {t("gyms.editDetails")}
                   </Button>
                 </CardContent>
               </Card>
