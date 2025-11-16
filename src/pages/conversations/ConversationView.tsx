@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Phone, Video, MoreVertical, Send, Smile, Paperclip, Building2, Mail, Eye, Calendar, CheckCircle, Ban, Loader2, AlertCircle } from "lucide-react";
+import { ArrowLeft, Phone, Video, MoreVertical, Send, Smile, Paperclip, Building2, Mail, Eye, Calendar, CheckCircle, Ban, Loader2, AlertCircle, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";

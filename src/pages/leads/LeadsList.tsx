@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Users, Download, Plus, Search, Building2, Calendar, Eye, Pencil, MessageCircle, Trash2, MoreVertical, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,63 +61,98 @@ const LeadsList = () => {
     offset: 0,
     hasMore: false,
   });
+  // Guards to avoid duplicate/burst requests (429)
+  const inFlightRef = useRef(false);
+  const skipNextEffectRef = useRef(false);
+  const searchDebounceRef = useRef<number | undefined>(undefined);
 
   // Load gyms from backend
   const loadGyms = async () => {
     try {
       const response = await gymService.getAllGyms();
-      setGyms(response.gyms || []);
+      // Ensure we always set an array
+      const gymsArray = Array.isArray(response)
+        ? response
+        : Array.isArray((response as any)?.data)
+          ? (response as any).data
+          : Array.isArray((response as any)?.gyms)
+            ? (response as any).gyms
+            : [];
+      setGyms(gymsArray);
     } catch (error: any) {
       console.error("Error loading gyms:", error);
       toast.error(t("leads.failedToLoadGyms"));
     }
   };
 
-  // Load leads from backend
-  const loadLeads = async () => {
+  // Load leads from backend (supports overrides so we can trigger requests immediately on events)
+  const loadLeads = useCallback(async (overrides?: Partial<{
+    selectedStatus: string;
+    searchQuery: string;
+    selectedGymId: string;
+    dateRange: string;
+    offset: number;
+  }>) => {
+    if (inFlightRef.current) return;
     try {
+      inFlightRef.current = true;
       setIsLoading(true);
       
       // Calculate date range
+      const effDateRange = overrides?.dateRange ?? dateRange;
       let dateFrom: string | undefined;
       const now = new Date();
-      if (dateRange === "last-7") {
+      if (effDateRange === "last-7") {
         dateFrom = new Date(now.setDate(now.getDate() - 7)).toISOString();
-      } else if (dateRange === "last-30") {
+      } else if (effDateRange === "last-30") {
         dateFrom = new Date(now.setDate(now.getDate() - 30)).toISOString();
-      } else if (dateRange === "last-90") {
+      } else if (effDateRange === "last-90") {
         dateFrom = new Date(now.setDate(now.getDate() - 90)).toISOString();
       }
 
       const response = await leadService.getAllLeads({
-        search: searchQuery || undefined,
-        status: selectedStatus !== "all" ? selectedStatus : undefined,
-        gymId: selectedGymId !== "all-gyms" ? selectedGymId : undefined,
+        search: (overrides?.searchQuery ?? searchQuery) || undefined,
+        status: (overrides?.selectedStatus ?? selectedStatus) !== "all" ? (overrides?.selectedStatus ?? selectedStatus) : undefined,
+        gymId: (overrides?.selectedGymId ?? selectedGymId) !== "all-gyms" ? (overrides?.selectedGymId ?? selectedGymId) : undefined,
         dateFrom,
         limit: pagination.limit,
-        offset: pagination.offset,
+        offset: overrides?.offset ?? pagination.offset,
       });
 
       setLeads(response.data);
       setStats(response.stats);
-      setPagination(response.pagination);
+      // Update pagination only when it actually changes to avoid re-trigger loops on mount
+      const next = response.pagination;
+      const prev = pagination;
+      const changed =
+        next.total !== prev.total ||
+        next.limit !== prev.limit ||
+        next.offset !== prev.offset ||
+        next.hasMore !== prev.hasMore;
+      if (changed) {
+        // prevent the dependent useEffect from issuing another fetch immediately
+        skipNextEffectRef.current = true;
+        setPagination(next);
+      }
     } catch (error: any) {
       console.error("Error loading leads:", error);
       toast.error(error.response?.data?.message || t("leads.loadFailed"));
     } finally {
       setIsLoading(false);
+      inFlightRef.current = false;
     }
-  };
+  }, [searchQuery, selectedStatus, selectedGymId, dateRange, pagination.limit, pagination.offset, t]);
 
   // Load gyms on mount
   useEffect(() => {
     loadGyms();
   }, []);
 
-  // Load leads on mount and when filters change
+  // Load leads once on mount. Subsequent requests are driven by explicit event handlers.
   useEffect(() => {
     loadLeads();
-  }, [selectedStatus, searchQuery, selectedGymId, dateRange, pagination.offset]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const getInitials = (name: string) => {
     return name
@@ -197,6 +232,45 @@ const LeadsList = () => {
     }
   };
 
+  // Open or create a conversation for a lead and navigate to chat
+  const openConversationForLead = async (leadId: string) => {
+    try {
+      // Try find an existing conversation for this lead (any channel)
+      const existing = await (await import("@/services/conversationService")).getAllConversations({
+        leadId,
+        limit: 1,
+        offset: 0,
+      });
+      let conversationId: string | null = null;
+      if (existing?.data && existing.data.length > 0) {
+        conversationId = existing.data[0].id;
+      } else {
+        const created = await (await import("@/services/conversationService")).createConversation({
+          leadId,
+          channel: "whatsapp",
+        });
+        conversationId = created.data.id;
+      }
+      if (conversationId) {
+        navigate(`/conversations/${conversationId}`);
+      } else {
+        toast.error(t("leads.failedToOpenConversation") || "Failed to open conversation");
+      }
+    } catch (err: any) {
+      console.error("Failed to open conversation:", err);
+      toast.error(err.message || t("leads.failedToOpenConversation"));
+    }
+  };
+
+  // Bulk send message action (requires a single selection)
+  const handleBulkSendMessage = async () => {
+    if (selectedLeads.length !== 1) {
+      toast.error(t("leads.selectSingleLeadToMessage") || "Please select exactly one lead to send a message.");
+      return;
+    }
+    await openConversationForLead(selectedLeads[0]);
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -244,7 +318,17 @@ const LeadsList = () => {
         <Button
           variant={selectedStatus === "all" ? "default" : "outline"}
           className={`gap-2 border-2 ${selectedStatus === "all" ? "bg-primary text-primary-foreground border-primary" : "border-border"}`}
-          onClick={() => setSelectedStatus("all")}
+          onClick={() => {
+            if (selectedStatus !== "all") {
+              setSelectedStatus("all");
+              setPagination((prev) => ({ ...prev, offset: 0 }));
+              skipNextEffectRef.current = true;
+              loadLeads({ selectedStatus: "all", offset: 0 });
+            } else {
+              // Manual refresh when clicking the active tab
+              loadLeads();
+            }
+          }}
         >
 {t("common.all")}
           <Badge variant="secondary" className="ml-1">
@@ -256,7 +340,12 @@ const LeadsList = () => {
             key={status}
             variant={selectedStatus === status ? "default" : "outline"}
             className={`gap-2 border-2 ${selectedStatus === status ? "bg-primary text-primary-foreground border-primary" : "border-border"}`}
-            onClick={() => setSelectedStatus(status)}
+            onClick={() => {
+              setSelectedStatus(status);
+              setPagination((prev) => ({ ...prev, offset: 0 }));
+            skipNextEffectRef.current = true;
+              loadLeads({ selectedStatus: status, offset: 0 });
+            }}
           >
             {config.label}
             <Badge variant="secondary" className="ml-1">
@@ -274,26 +363,60 @@ const LeadsList = () => {
             <Input
               placeholder={t("leads.searchPlaceholder")}
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                setSearchQuery(val);
+                if (searchDebounceRef.current) {
+                  clearTimeout(searchDebounceRef.current);
+                }
+                searchDebounceRef.current = window.setTimeout(() => {
+                  setPagination((prev) => ({ ...prev, offset: 0 }));
+                  skipNextEffectRef.current = true;
+                  loadLeads({ searchQuery: val, offset: 0 });
+                }, 300);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  setPagination((prev) => ({ ...prev, offset: 0 }));
+                  skipNextEffectRef.current = true;
+                  loadLeads({ searchQuery: (e.target as HTMLInputElement).value, offset: 0 });
+                }
+              }}
               className="pl-10 border-2 border-border"
             />
           </div>
         </div>
-        <Select value={selectedGymId} onValueChange={setSelectedGymId}>
+        <Select
+          value={selectedGymId}
+          onValueChange={(val) => {
+            setSelectedGymId(val);
+            setPagination((prev) => ({ ...prev, offset: 0 }));
+            skipNextEffectRef.current = true;
+            loadLeads({ selectedGymId: val, offset: 0 });
+          }}
+        >
           <SelectTrigger className="w-[180px] border-2 border-border">
             <Building2 className="h-4 w-4 mr-2" />
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all-gyms">{t("leads.filters.allGyms")}</SelectItem>
-            {gyms.map((gym) => (
+            {(Array.isArray(gyms) ? gyms : []).map((gym) => (
               <SelectItem key={gym.id} value={gym.id}>
                 {gym.name}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
-        <Select value={dateRange} onValueChange={setDateRange}>
+        <Select
+          value={dateRange}
+          onValueChange={(val) => {
+            setDateRange(val);
+            setPagination((prev) => ({ ...prev, offset: 0 }));
+            skipNextEffectRef.current = true;
+            loadLeads({ dateRange: val, offset: 0 });
+          }}
+        >
           <SelectTrigger className="w-[180px] border-2 border-border">
             <Calendar className="h-4 w-4 mr-2" />
             <SelectValue />
@@ -384,11 +507,11 @@ const LeadsList = () => {
                               <Eye className="h-4 w-4" />
                               {t("leads.viewDetails")}
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="gap-2">
+                            <DropdownMenuItem className="gap-2" onClick={() => navigate(`/leads/${lead.id}`)}>
                               <Pencil className="h-4 w-4" />
                               {t("leads.editLead")}
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="gap-2">
+                            <DropdownMenuItem className="gap-2" onClick={() => openConversationForLead(lead.id)}>
                               <MessageCircle className="h-4 w-4" />
                               {t("leads.sendMessage")}
                             </DropdownMenuItem>
@@ -444,7 +567,7 @@ const LeadsList = () => {
             <Button size="sm" variant="secondary" onClick={handleBulkStatusChange}>
               {t("leads.changeStatus")}
             </Button>
-            <Button size="sm" variant="secondary">
+            <Button size="sm" variant="secondary" onClick={handleBulkSendMessage}>
               {t("leads.sendMessage")}
             </Button>
             <Button size="sm" variant="secondary" onClick={handleExportCSV}>
