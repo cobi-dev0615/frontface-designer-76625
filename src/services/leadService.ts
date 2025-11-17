@@ -114,7 +114,9 @@ export const updateLead = async (id: string, leadData: Partial<CreateLeadData>) 
  * Delete lead
  */
 export const deleteLead = async (id: string) => {
-  const response = await api.delete(`/leads/${id}`);
+  const response = await api.delete(`/leads/${id}`, {
+    skipAuthRedirect: true
+  });
   return response.data;
 };
 
@@ -130,7 +132,10 @@ export const bulkUpdateStatus = async (leadIds: string[], status: string) => {
  * Bulk delete leads
  */
 export const bulkDeleteLeads = async (leadIds: string[]) => {
-  const response = await api.delete('/leads/bulk', { data: { leadIds } });
+  const response = await api.delete('/leads/bulk', {
+    data: { leadIds },
+    skipAuthRedirect: true
+  });
   return response.data;
 };
 

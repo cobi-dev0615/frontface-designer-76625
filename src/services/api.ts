@@ -1,5 +1,14 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 
+declare module 'axios' {
+  export interface InternalAxiosRequestConfig {
+    skipAuthRedirect?: boolean;
+  }
+  export interface AxiosRequestConfig {
+    skipAuthRedirect?: boolean;
+  }
+}
+
 // Create axios instance
 const api: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
@@ -32,8 +41,10 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    // Handle 401 Unauthorized
-    if (error.response?.status === 401) {
+    const skipRedirect = error.config?.skipAuthRedirect;
+    
+    // Handle 401 Unauthorized unless explicitly skipped
+    if (error.response?.status === 401 && !skipRedirect) {
       // Clear auth data
       localStorage.removeItem('token');
       sessionStorage.removeItem('token');
