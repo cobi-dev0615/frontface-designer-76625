@@ -100,10 +100,18 @@ const ConversationView = () => {
 
   const handleNewMessage = (newMessage: Message) => {
     if (conversation && newMessage.conversationId === conversation.id) {
-      setConversation(prev => prev ? {
-        ...prev,
-        messages: [...prev.messages, newMessage]
-      } : null);
+      setConversation(prev => {
+        if (!prev) return null;
+        // Check if message already exists to prevent duplicates
+        const messageExists = prev.messages.some(msg => msg.id === newMessage.id);
+        if (messageExists) {
+          return prev;
+        }
+        return {
+          ...prev,
+          messages: [...prev.messages, newMessage]
+        };
+      });
     }
   };
 
@@ -124,11 +132,19 @@ const ConversationView = () => {
         type: "TEXT"
       });
 
-      // Update local state
-      setConversation(prev => prev ? {
-        ...prev,
-        messages: [...prev.messages, response.data]
-      } : null);
+      // Add message immediately for better UX, but handleNewMessage will prevent duplicates
+      // by checking if message ID already exists
+      setConversation(prev => {
+        if (!prev) return null;
+        const messageExists = prev.messages.some(msg => msg.id === response.data.id);
+        if (!messageExists) {
+          return {
+            ...prev,
+            messages: [...prev.messages, response.data]
+          };
+        }
+        return prev;
+      });
 
       setMessage("");
     } catch (error: any) {
