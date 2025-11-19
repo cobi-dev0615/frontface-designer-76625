@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Phone, Video, MoreVertical, Send, Smile, Paperclip, Building2, Mail, Eye, Calendar, CheckCircle, Ban, Loader2, AlertCircle, MessageCircle } from "lucide-react";
+import { ArrowLeft, Phone, Video, MoreVertical, Send, Smile, Paperclip, Building2, Mail, Eye, Calendar, CheckCircle, Ban, Loader2, AlertCircle, MessageCircle, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -34,6 +34,8 @@ const ConversationView = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState("");
   const [notes, setNotes] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Quick responses
   const quickResponses = [
@@ -381,37 +383,76 @@ const ConversationView = () => {
       {/* Center - Chat */}
       <div className="flex-1 flex flex-col border border-border rounded-lg bg-card overflow-hidden">
         {/* Chat Header */}
-        <div className="border-b border-border p-4 flex items-center justify-between bg-background">
-          <div>
-            <h3 className="font-semibold">{lead.name}</h3>
-            <p className="text-sm text-green-500 flex items-center gap-1">
-              <span className="h-2 w-2 rounded-full bg-green-500" />
-{isConnected ? t("conversations.connected") : t("conversations.disconnected")}
-            </p>
+        <div className="border-b border-border bg-background">
+          <div className="p-4 flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold">{lead.name}</h3>
+              <p className="text-sm text-green-500 flex items-center gap-1">
+                <span className="h-2 w-2 rounded-full bg-green-500" />
+                {isConnected ? t("conversations.connected") : t("conversations.disconnected")}
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => {
+                  setShowSearch(!showSearch);
+                  if (showSearch) {
+                    setSearchQuery(""); // Clear search when hiding
+                  }
+                }}
+              >
+                {showSearch ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
+              </Button>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button variant="ghost" size="icon">
-              <Phone className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon" disabled>
-              <Video className="h-5 w-5 opacity-50" />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <MoreVertical className="h-5 w-5" />
-            </Button>
-          </div>
+          {showSearch && (
+            <div className="px-4 pb-4">
+              <Input
+                placeholder={t("conversations.searchMessages") || "Search messages..."}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full"
+                autoFocus
+              />
+            </div>
+          )}
         </div>
 
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-muted/10">
-          {conversation.messages.length === 0 ? (
-            <div className="text-center py-8">
-              <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">{t("conversations.noMessagesYet")}</p>
-            </div>
-          ) : (
-            <>
-              {conversation.messages.map((msg) => (
+          {(() => {
+            // Filter messages based on search query
+            const filteredMessages = searchQuery.trim()
+              ? conversation.messages.filter(msg => 
+                  msg.content.toLowerCase().includes(searchQuery.toLowerCase())
+                )
+              : conversation.messages;
+
+            if (filteredMessages.length === 0 && conversation.messages.length > 0) {
+              return (
+                <div className="text-center py-8">
+                  <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">
+                    {t("conversations.noMessagesFound") || "No messages found matching your search"}
+                  </p>
+                </div>
+              );
+            }
+
+            if (filteredMessages.length === 0) {
+              return (
+                <div className="text-center py-8">
+                  <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">{t("conversations.noMessagesYet")}</p>
+                </div>
+              );
+            }
+
+            return (
+              <>
+                {filteredMessages.map((msg) => (
                 <div
                   key={msg.id}
                   className={`flex ${msg.sender === "AGENT" ? "justify-end" : "justify-start"}`}
@@ -440,9 +481,12 @@ const ConversationView = () => {
                     </div>
                   </div>
                 </div>
-              ))}
+                ))}
+              </>
+            );
+          })()}
 
-              {isTyping && (
+          {isTyping && (
                 <div className="flex justify-start">
                   <div className="bg-card border border-border rounded-2xl p-3">
                     <div className="flex gap-1">
@@ -453,8 +497,6 @@ const ConversationView = () => {
                   </div>
                 </div>
               )}
-            </>
-          )}
           <div ref={messagesEndRef} />
         </div>
 
