@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Bot, MessageSquare, Users, Plug, Dumbbell } from "lucide-react";
+import { MessageSquare, Users, Plug, Dumbbell } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
@@ -9,7 +9,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import AIPromptsTab from "./tabs/AIPromptsTab";
 import WhatsAppTab from "./tabs/WhatsAppTab";
 import UsersTab from "./tabs/UsersTab";
 import IntegrationsTab from "./tabs/IntegrationsTab";
@@ -20,7 +19,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 
 const SettingsPage = () => {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState("ai");
+  const [activeTab, setActiveTab] = useState("whatsapp");
   const { selectedGym, setSelectedGym, gyms, setGyms } = useGymStore();
 
   useEffect(() => {
@@ -77,11 +76,7 @@ const SettingsPage = () => {
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5 lg:w-auto">
-          <TabsTrigger value="ai" className="gap-2">
-            <Bot className="h-4 w-4" />
-            <span className="hidden sm:inline">{t("settings.aiPrompts")}</span>
-          </TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4 lg:w-auto">
           <TabsTrigger value="whatsapp" className="gap-2">
             <MessageSquare className="h-4 w-4" />
             <span className="hidden sm:inline">{t("settings.whatsapp")}</span>
@@ -99,10 +94,6 @@ const SettingsPage = () => {
             <span className="hidden sm:inline">{t("settings.evo")}</span>
           </TabsTrigger>
         </TabsList>
-
-        <TabsContent value="ai">
-          <AIPromptsTab />
-        </TabsContent>
 
         <TabsContent value="whatsapp">
           <WhatsAppTab />

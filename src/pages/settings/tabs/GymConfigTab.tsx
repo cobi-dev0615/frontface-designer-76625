@@ -53,6 +53,10 @@ const GymConfigTab = () => {
   });
 
   const [operatingHours, setOperatingHours] = useState<any>({});
+  const [advantages, setAdvantages] = useState<string[]>([]);
+  const [editingAdvantageIndex, setEditingAdvantageIndex] = useState<number | null>(null);
+  const [editingAdvantageValue, setEditingAdvantageValue] = useState<string>('');
+  const [newAdvantage, setNewAdvantage] = useState('');
 
   const daysOfWeek = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 
@@ -127,11 +131,39 @@ const GymConfigTab = () => {
       // Populate operating hours
       setOperatingHours(gymData.settings?.operatingHours || {});
 
+      // Populate advantages
+      setAdvantages(gymData.settings?.advantages || []);
+
     } catch (error: any) {
       console.error('Error loading gym data:', error);
       toast.error(error.response?.data?.message || t("gyms.loadFailed"));
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleAddAdvantage = () => {
+    if (newAdvantage.trim()) {
+      setAdvantages([...advantages, newAdvantage.trim()]);
+      setNewAdvantage('');
+    }
+  };
+
+  const handleSaveAdvantage = (index: number) => {
+    if (editingAdvantageValue.trim()) {
+      const updated = [...advantages];
+      updated[index] = editingAdvantageValue.trim();
+      setAdvantages(updated);
+      setEditingAdvantageIndex(null);
+      setEditingAdvantageValue('');
+    }
+  };
+
+  const handleRemoveAdvantage = (index: number) => {
+    setAdvantages(advantages.filter((_, i) => i !== index));
+    if (editingAdvantageIndex === index) {
+      setEditingAdvantageIndex(null);
+      setEditingAdvantageValue('');
     }
   };
 
@@ -152,8 +184,10 @@ const GymConfigTab = () => {
         logo: branding.logo
       });
 
-      // Update gym settings
+      // Update gym settings (merge with existing settings to preserve other data)
+      const existingSettings = gym.settings || {};
       await updateGymSettings(gym.id, {
+        ...existingSettings,
         location: basicInfo.location,
         website: basicInfo.website,
         instagram: basicInfo.instagram,
@@ -164,7 +198,8 @@ const GymConfigTab = () => {
         description: additionalInfo.description,
         primaryColor: branding.primaryColor,
         secondaryColor: branding.secondaryColor,
-        operatingHours
+        operatingHours,
+        advantages
       });
 
       toast.success(t("gyms.configurationSaved"));
@@ -398,6 +433,103 @@ const GymConfigTab = () => {
 
         </div>
       </div>
+
+      {/* Advantages Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("gyms.advantages") || "Gym Advantages"}</CardTitle>
+          <CardDescription>{t("gyms.advantagesDescription") || "Manage the list of advantages and features your gym offers"}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Add New Advantage */}
+          <div className="flex gap-2">
+            <Input
+              placeholder={t("gyms.addAdvantagePlaceholder") || "Enter advantage (e.g., Spacious facility with over 3,000 m²)"}
+              value={newAdvantage}
+              onChange={(e) => setNewAdvantage(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && newAdvantage.trim()) {
+                  handleAddAdvantage();
+                }
+              }}
+            />
+            <Button onClick={handleAddAdvantage} disabled={!newAdvantage.trim()}>
+              <Plus className="h-4 w-4 mr-2" />
+              {t("gyms.add") || "Add"}
+            </Button>
+          </div>
+
+          {/* Advantages List */}
+          <div className="space-y-2">
+            {advantages.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                {t("gyms.noAdvantages") || "No advantages added yet. Add your first advantage above."}
+              </p>
+            ) : (
+              advantages.map((advantage, index) => (
+                <div key={index} className="flex items-center gap-2 p-3 border rounded-lg bg-card">
+                  {editingAdvantageIndex === index ? (
+                    <>
+                      <Input
+                        value={editingAdvantageValue}
+                        onChange={(e) => setEditingAdvantageValue(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            handleSaveAdvantage(index);
+                          } else if (e.key === 'Escape') {
+                            setEditingAdvantageIndex(null);
+                            setEditingAdvantageValue('');
+                          }
+                        }}
+                        autoFocus
+                        className="flex-1"
+                      />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleSaveAdvantage(index)}
+                      >
+                        {t("gyms.save") || "Save"}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setEditingAdvantageIndex(null);
+                          setEditingAdvantageValue('');
+                        }}
+                      >
+                        {t("gyms.cancel") || "Cancel"}
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <span className="flex-1 text-sm">✅ {advantage}</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setEditingAdvantageIndex(index);
+                          setEditingAdvantageValue(advantage);
+                        }}
+                      >
+                        {t("gyms.edit") || "Edit"}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveAdvantage(index)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Footer Actions */}
       <div className="flex items-center justify-end gap-3 sticky bottom-0 bg-background/95 backdrop-blur-sm border-t border-border p-4 -mx-6 -mb-6">
