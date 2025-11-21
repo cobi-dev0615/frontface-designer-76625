@@ -452,36 +452,39 @@ const ConversationView = () => {
 
             return (
               <>
-                {filteredMessages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex ${msg.sender === "AGENT" ? "justify-end" : "justify-start"}`}
-                >
-                  <div className={`flex gap-2 max-w-[70%] ${msg.sender === "AGENT" ? "flex-row-reverse" : ""}`}>
-                    {msg.sender === "CUSTOMER" && (
+                {filteredMessages.map((msg) => {
+                  const isAdminMessage = msg.sender === "AGENT" || msg.sender === "AI";
+                  return (
+                    <div
+                      key={msg.id}
+                      className={`flex ${isAdminMessage ? "justify-end" : "justify-start"}`}
+                    >
+                      <div className={`flex gap-2 max-w-[70%] ${isAdminMessage ? "flex-row-reverse" : ""}`}>
+                        {!isAdminMessage && (
                       <Avatar className="h-8 w-8 flex-shrink-0">
                         <AvatarFallback className="text-xs bg-muted">
                           {lead.name.split(" ").map(n => n[0]).join("")}
                         </AvatarFallback>
                       </Avatar>
-                    )}
-                    <div>
-                      <div
-                        className={`rounded-2xl p-3 ${
-                          msg.sender === "AGENT"
-                            ? "bg-gradient-primary text-white"
-                            : "bg-card border border-border"
-                        }`}
-                      >
-                        <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                        )}
+                        <div>
+                          <div
+                            className={`rounded-2xl p-3 ${
+                              isAdminMessage
+                                ? "bg-gradient-primary text-white"
+                                : "bg-card border border-border"
+                            }`}
+                          >
+                            <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1 px-3">
+                            {formatTime(msg.sentAt)}
+                          </p>
+                        </div>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1 px-3">
-                        {formatTime(msg.sentAt)}
-                      </p>
                     </div>
-                  </div>
-                </div>
-                ))}
+                  );
+                })}
               </>
             );
           })()}

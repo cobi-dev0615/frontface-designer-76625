@@ -57,10 +57,11 @@ const LeadsList = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [pagination, setPagination] = useState({
     total: 0,
-    limit: 50,
+    limit: 10,
     offset: 0,
     hasMore: false,
   });
+  const [pageSize, setPageSize] = useState(10);
   // Guards to avoid duplicate/burst requests (429)
   const inFlightRef = useRef(false);
   const skipNextEffectRef = useRef(false);
@@ -92,6 +93,7 @@ const LeadsList = () => {
     selectedGymId: string;
     dateRange: string;
     offset: number;
+    limit: number;
   }>) => {
     if (inFlightRef.current) return;
     try {
@@ -115,7 +117,7 @@ const LeadsList = () => {
         status: (overrides?.selectedStatus ?? selectedStatus) !== "all" ? (overrides?.selectedStatus ?? selectedStatus) : undefined,
         gymId: (overrides?.selectedGymId ?? selectedGymId) !== "all-gyms" ? (overrides?.selectedGymId ?? selectedGymId) : undefined,
         dateFrom,
-        limit: pagination.limit,
+        limit: overrides?.limit ?? pagination.limit,
         offset: overrides?.offset ?? pagination.offset,
       });
 
@@ -285,22 +287,78 @@ const LeadsList = () => {
     return `${days} ${days > 1 ? t("leads.daysAgo") : t("leads.dayAgo")}`;
   };
 
+  const currentPage = Math.floor(pagination.offset / pagination.limit) + 1;
+  const totalPages = Math.ceil(pagination.total / pagination.limit);
+
   const handlePreviousPage = () => {
     if (pagination.offset > 0) {
+      const newOffset = Math.max(0, pagination.offset - pagination.limit);
       setPagination((prev) => ({
         ...prev,
-        offset: Math.max(0, prev.offset - prev.limit),
+        offset: newOffset,
       }));
+      skipNextEffectRef.current = true;
+      loadLeads({ offset: newOffset });
     }
   };
 
   const handleNextPage = () => {
     if (pagination.hasMore) {
+      const newOffset = pagination.offset + pagination.limit;
       setPagination((prev) => ({
         ...prev,
-        offset: prev.offset + prev.limit,
+        offset: newOffset,
       }));
+      skipNextEffectRef.current = true;
+      loadLeads({ offset: newOffset });
     }
+  };
+
+  const handlePageClick = (page: number) => {
+    const newOffset = (page - 1) * pagination.limit;
+    setPagination((prev) => ({
+      ...prev,
+      offset: newOffset,
+    }));
+    skipNextEffectRef.current = true;
+    loadLeads({ offset: newOffset });
+  };
+
+  // Generate page numbers to display
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const maxVisible = 5; // Maximum number of page buttons to show
+    
+    if (totalPages <= maxVisible) {
+      // Show all pages if total is less than max
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Show first page
+      pages.push(1);
+      
+      if (currentPage > 3) {
+        pages.push('...');
+      }
+      
+      // Show pages around current page
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+      
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+      
+      if (currentPage < totalPages - 2) {
+        pages.push('...');
+      }
+      
+      // Show last page
+      pages.push(totalPages);
+    }
+    
+    return pages;
   };
 
   return (
@@ -533,10 +591,34 @@ const LeadsList = () => {
 
             {/* Pagination */}
             <div className="border-t border-border p-4 flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">
-                {t("leads.showing")} {pagination.offset + 1}-{Math.min(pagination.offset + pagination.limit, pagination.total)} {t("leads.of")} {pagination.total} {t("leads.leads")}
-              </p>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-4">
+                <p className="text-sm text-muted-foreground">
+                  {t("leads.showing")} {pagination.offset + 1}-{Math.min(pagination.offset + pagination.limit, pagination.total)} {t("leads.of")} {pagination.total} {t("leads.leads")}
+                </p>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">{t("leads.itemsPerPage")}:</span>
+                  <Select
+                    value={pageSize.toString()}
+                    onValueChange={(value) => {
+                      const newPageSize = parseInt(value);
+                      setPageSize(newPageSize);
+                      setPagination((prev) => ({ ...prev, limit: newPageSize, offset: 0 }));
+                      skipNextEffectRef.current = true;
+                      loadLeads({ limit: newPageSize, offset: 0 });
+                    }}
+                  >
+                    <SelectTrigger className="w-20 h-8">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="5">5</SelectItem>
+                      <SelectItem value="10">10</SelectItem>
+                      <SelectItem value="20">20</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -545,6 +627,35 @@ const LeadsList = () => {
                 >
                   {t("leads.previous")}
                 </Button>
+                
+                {/* Page Numbers */}
+                {totalPages > 0 && (
+                  <div className="flex items-center gap-1">
+                    {getPageNumbers().map((page, index) => {
+                      if (page === '...') {
+                        return (
+                          <span key={`ellipsis-${index}`} className="px-2 text-muted-foreground">
+                            ...
+                          </span>
+                        );
+                      }
+                      const pageNum = page as number;
+                      return (
+                        <Button
+                          key={pageNum}
+                          variant={currentPage === pageNum ? "default" : "outline"}
+                          size="sm"
+                          className="min-w-[2.5rem]"
+                          onClick={() => handlePageClick(pageNum)}
+                          disabled={currentPage === pageNum}
+                        >
+                          {pageNum}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                )}
+                
                 <Button
                   variant="outline"
                   size="sm"

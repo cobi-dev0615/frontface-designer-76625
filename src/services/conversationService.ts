@@ -162,3 +162,19 @@ export const getConversationStatistics = async (filters: {
   return response.data;
 };
 
+/**
+ * Delete conversation (soft delete)
+ */
+export const deleteConversation = async (conversationId: string): Promise<{ success: boolean; message: string }> => {
+  const response = await api.delete(`/conversations/${conversationId}`);
+  return response.data;
+};
+
+/**
+ * Bulk delete conversations (soft delete)
+ */
+export const bulkDeleteConversations = async (conversationIds: string[]): Promise<{ success: boolean; message: string }> => {
+  const response = await api.delete('/conversations/bulk', { data: { conversationIds } });
+  return response.data;
+};
+

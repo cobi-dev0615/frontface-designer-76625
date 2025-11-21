@@ -25,6 +25,7 @@ import UserProfile from "./pages/profile/UserProfile";
 import UserManagement from "./pages/users/UserManagement";
 import GymManagement from "./pages/gyms/GymManagement";
 import PlanManagement from "./pages/plans/PlanManagement";
+import MemberManagement from "./pages/members/MemberManagement";
 import AIPromptManagement from "./pages/ai-prompts/AIPromptManagement";
 import ActivityLog from "./pages/activity/ActivityLog";
 import OnboardingFlow from "./pages/onboarding/OnboardingFlow";
@@ -80,6 +81,7 @@ const AppContent = () => {
         <Route path="/users" element={<UserManagement />} />
         <Route path="/gyms" element={<GymManagement />} />
         <Route path="/plans" element={<PlanManagement />} />
+        <Route path="/members" element={<MemberManagement />} />
         <Route path="/ai-prompts" element={<AIPromptManagement />} />
         <Route path="/activity" element={<ActivityLog />} />
         <Route path="/profile" element={<UserProfile />} />

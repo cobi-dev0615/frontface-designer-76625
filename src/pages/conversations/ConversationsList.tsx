@@ -1,12 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { MessageCircle, Phone, Mail, Clock, CheckCircle, AlertCircle, MoreVertical, Search, Filter } from "lucide-react";
+import { MessageCircle, Phone, Mail, Clock, CheckCircle, AlertCircle, MoreVertical, Search, Filter, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { useTranslation } from "@/hooks/useTranslation";
 import * as conversationService from "@/services/conversationService";
@@ -20,20 +21,43 @@ const ConversationsList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [channelFilter, setChannelFilter] = useState("all");
+  const [pagination, setPagination] = useState({
+    total: 0,
+    limit: 10,
+    offset: 0,
+    hasMore: false,
+  });
+  const [pageSize, setPageSize] = useState(10);
+  const skipNextEffectRef = useRef(false);
 
   useEffect(() => {
     loadConversations();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loadConversations = async () => {
+  useEffect(() => {
+    if (!skipNextEffectRef.current) {
+      loadConversations();
+    } else {
+      skipNextEffectRef.current = false;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statusFilter, channelFilter]);
+
+  const loadConversations = async (overrides?: { limit?: number; offset?: number }) => {
     try {
       setIsLoading(true);
+      const currentLimit = overrides?.limit ?? pagination.limit;
+      const currentOffset = overrides?.offset ?? pagination.offset;
+      
       const response = await conversationService.getAllConversations({
-        limit: 50,
+        limit: currentLimit,
+        offset: currentOffset,
         status: statusFilter !== "all" ? statusFilter : undefined,
         channel: channelFilter !== "all" ? channelFilter : undefined,
       });
       setConversations(response.data);
+      setPagination(response.pagination);
     } catch (error: any) {
       console.error("Error loading conversations:", error);
       toast.error(t("conversations.loadFailed"));
@@ -89,6 +113,93 @@ const ConversationsList = () => {
     return matchesSearch;
   });
 
+  const handleDeleteConversation = async (conversationId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm(t("conversations.deleteConfirm"))) return;
+
+    try {
+      await conversationService.deleteConversation(conversationId);
+      toast.success(t("conversations.deleteSuccess"));
+      loadConversations();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || t("conversations.deleteFailed"));
+    }
+  };
+
+  const currentPage = Math.floor(pagination.offset / pagination.limit) + 1;
+  const totalPages = Math.ceil(pagination.total / pagination.limit);
+
+  const handlePreviousPage = () => {
+    if (pagination.offset > 0) {
+      const newOffset = Math.max(0, pagination.offset - pagination.limit);
+      setPagination((prev) => ({
+        ...prev,
+        offset: newOffset,
+      }));
+      skipNextEffectRef.current = true;
+      loadConversations({ offset: newOffset });
+    }
+  };
+
+  const handleNextPage = () => {
+    if (pagination.hasMore) {
+      const newOffset = pagination.offset + pagination.limit;
+      setPagination((prev) => ({
+        ...prev,
+        offset: newOffset,
+      }));
+      skipNextEffectRef.current = true;
+      loadConversations({ offset: newOffset });
+    }
+  };
+
+  const handlePageClick = (page: number) => {
+    const newOffset = (page - 1) * pagination.limit;
+    setPagination((prev) => ({
+      ...prev,
+      offset: newOffset,
+    }));
+    skipNextEffectRef.current = true;
+    loadConversations({ offset: newOffset });
+  };
+
+  // Generate page numbers to display
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const maxVisible = 5; // Maximum number of page buttons to show
+    
+    if (totalPages <= maxVisible) {
+      // Show all pages if total is less than max
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Show first page
+      pages.push(1);
+      
+      if (currentPage > 3) {
+        pages.push('...');
+      }
+      
+      // Show pages around current page
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+      
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+      
+      if (currentPage < totalPages - 2) {
+        pages.push('...');
+      }
+      
+      // Show last page
+      pages.push(totalPages);
+    }
+    
+    return pages;
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -127,7 +238,14 @@ const ConversationsList = () => {
                 className="pl-10"
               />
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select 
+              value={statusFilter} 
+              onValueChange={(value) => {
+                setStatusFilter(value);
+                setPagination((prev) => ({ ...prev, offset: 0 }));
+                skipNextEffectRef.current = true;
+              }}
+            >
               <SelectTrigger className="w-40">
                 <SelectValue placeholder={t("conversations.status")} />
               </SelectTrigger>
@@ -138,7 +256,14 @@ const ConversationsList = () => {
                 <SelectItem value="ARCHIVED">{t("conversations.archived")}</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={channelFilter} onValueChange={setChannelFilter}>
+            <Select 
+              value={channelFilter} 
+              onValueChange={(value) => {
+                setChannelFilter(value);
+                setPagination((prev) => ({ ...prev, offset: 0 }));
+                skipNextEffectRef.current = true;
+              }}
+            >
               <SelectTrigger className="w-40">
                 <SelectValue placeholder={t("conversations.channel")} />
               </SelectTrigger>
@@ -149,7 +274,10 @@ const ConversationsList = () => {
                 <SelectItem value="phone">{t("conversations.phone")}</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" onClick={loadConversations}>
+            <Button variant="outline" onClick={() => {
+              skipNextEffectRef.current = true;
+              loadConversations();
+            }}>
               <Filter className="h-4 w-4 mr-2" />
               {t("conversations.refresh")}
             </Button>
@@ -222,15 +350,112 @@ const ConversationsList = () => {
                     )}
                   </div>
                   
-                  <Button variant="ghost" size="icon">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                      <Button variant="ghost" size="icon">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        className="text-destructive"
+                        onClick={(e) => handleDeleteConversation(conversation.id, e)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        {t("conversations.delete")}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </CardContent>
             </Card>
           ))
         )}
       </div>
+
+      {/* Pagination */}
+      {!isLoading && filteredConversations.length > 0 && (
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <p className="text-sm text-muted-foreground">
+                  {t("conversations.showing")} {pagination.offset + 1}-{Math.min(pagination.offset + pagination.limit, pagination.total)} {t("conversations.of")} {pagination.total} {t("conversations.conversations")}
+                </p>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">{t("conversations.itemsPerPage")}:</span>
+                  <Select
+                    value={pageSize.toString()}
+                    onValueChange={(value) => {
+                      const newPageSize = parseInt(value);
+                      setPageSize(newPageSize);
+                      setPagination((prev) => ({ ...prev, limit: newPageSize, offset: 0 }));
+                      skipNextEffectRef.current = true;
+                      loadConversations({ limit: newPageSize, offset: 0 });
+                    }}
+                  >
+                    <SelectTrigger className="w-20 h-8">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="5">5</SelectItem>
+                      <SelectItem value="10">10</SelectItem>
+                      <SelectItem value="20">20</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handlePreviousPage}
+                  disabled={pagination.offset === 0}
+                >
+                  {t("conversations.previous")}
+                </Button>
+                
+                {/* Page Numbers */}
+                {totalPages > 0 && (
+                  <div className="flex items-center gap-1">
+                    {getPageNumbers().map((page, index) => {
+                      if (page === '...') {
+                        return (
+                          <span key={`ellipsis-${index}`} className="px-2 text-muted-foreground">
+                            ...
+                          </span>
+                        );
+                      }
+                      const pageNum = page as number;
+                      return (
+                        <Button
+                          key={pageNum}
+                          variant={currentPage === pageNum ? "default" : "outline"}
+                          size="sm"
+                          className="min-w-[2.5rem]"
+                          onClick={() => handlePageClick(pageNum)}
+                          disabled={currentPage === pageNum}
+                        >
+                          {pageNum}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                )}
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleNextPage}
+                  disabled={!pagination.hasMore}
+                >
+                  {t("conversations.next")}
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

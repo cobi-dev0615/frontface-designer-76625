@@ -33,6 +33,7 @@ const getNavigation = (t: (key: string) => string) => [
   { name: t("navigation.notifications"), href: "/notifications", icon: Bell },
   { name: t("navigation.gyms"), href: "/gyms", icon: Dumbbell },
   { name: t("navigation.plans"), href: "/plans", icon: CreditCard },
+  { name: t("navigation.members"), href: "/members", icon: Users },
   { name: t("navigation.prompts"), href: "/ai-prompts", icon: Bot },
   { name: t("navigation.user"), href: "/users", icon: UserCog },
   { name: t("navigation.profile"), href: "/profile", icon: User },

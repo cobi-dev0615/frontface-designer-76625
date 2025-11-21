@@ -20,6 +20,7 @@ import {
 import { toast } from "sonner";
 import { useTranslation } from "@/hooks/useTranslation";
 import { updateGym, getGymById, type Gym } from "@/services/gymService";
+import GymAdvantagesManager from "./GymAdvantagesManager";
 
 interface EditGymModalProps {
   open: boolean;
@@ -186,7 +187,7 @@ const EditGymModal = ({ open, onOpenChange, gym, onGymUpdated }: EditGymModalPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg max-h-[66vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Building2 className="h-5 w-5" />
@@ -205,7 +206,8 @@ const EditGymModal = ({ open, onOpenChange, gym, onGymUpdated }: EditGymModalPro
             </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
             {/* Gym Name */}
             <div className="space-y-2">
               <Label htmlFor="name">{t("gyms.gymName")} <span className="text-destructive">*</span></Label>
@@ -372,7 +374,12 @@ const EditGymModal = ({ open, onOpenChange, gym, onGymUpdated }: EditGymModalPro
                 )}
               </Button>
             </div>
-          </form>
+            </form>
+
+            {gym?.id && (
+              <GymAdvantagesManager gymId={gym.id} />
+            )}
+          </div>
         )}
       </DialogContent>
     </Dialog>
