@@ -2206,5 +2206,8 @@ export const ptBR = {
     downloadMedia: 'Baixar Mídia',
     mediaDownloaded: 'Mídia baixada com sucesso',
     mediaDownloadFailed: 'Falha ao baixar mídia',
+    configurationSaved: 'Configuração do WhatsApp salva com sucesso!',
+    configurationSaveFailed: 'Falha ao salvar a configuração do WhatsApp. Verifique todos os campos obrigatórios.',
+    saveBeforeActivate: 'Por favor, salve a configuração antes de ativar',
   },
 };

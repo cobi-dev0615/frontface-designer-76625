@@ -2314,5 +2314,8 @@ export const en = {
     downloadMedia: 'Download Media',
     mediaDownloaded: 'Media downloaded successfully',
     mediaDownloadFailed: 'Failed to download media',
+    configurationSaved: 'WhatsApp configuration saved successfully!',
+    configurationSaveFailed: 'Failed to save WhatsApp configuration. Please check all required fields.',
+    saveBeforeActivate: 'Please save the configuration first before activating',
   },
 };
